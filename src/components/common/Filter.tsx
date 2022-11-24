@@ -9,12 +9,11 @@ import { TypeFilter, TypeQueries } from '../../asset/types';
 export default function Filter(props: { type: string; }) {
 
   const dispatch = useDispatch();
-  const filterList = useSelector((store: RootState)=> store.filter.data);
-  
-  
   const searchParams = useSearchParams();
   const [ showFilter, setShowFilter ] = useState(false);
   const [ param, setParam ] = useState(props.type);
+
+  const filterList = useSelector((store: RootState)=> store.filter.data);
 
   const queries: TypeQueries = {
     state: searchParams.get('state') || '',
@@ -25,7 +24,7 @@ export default function Filter(props: { type: string; }) {
   useEffect(() => {
     dispatch(getFilterAsync.request(''));
   }, [dispatch])
-  
+
   useEffect(() => {
     if (param === 'list' && window.innerWidth >= 1180) setShowFilter(true);
     setParam(props.type);

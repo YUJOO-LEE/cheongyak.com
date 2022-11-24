@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import * as types from '../../redux/actionType';
 
 import Layout from '../common/Layout';
 //import Map from '../common/Map';
@@ -15,14 +14,12 @@ import React from 'react';
 export default function Content() {
 
   const dispatch = useDispatch();
+  const SearchParams = useSearchParams();
   const ContentData = useSelector((store:any)=> store.contentReducer.content);
   const FilterList = useSelector((store:any)=> store.filterReducer.filter);
 
-  console.log(ContentData);
-
   //const { naver } = window;
   const [ TabIndex, setTabIndex ] = useState(0);
-  const [ SearchParams ] = useSearchParams();
   const frame = useRef<HTMLDivElement>(null);
   const position = useRef<number[]>([]);
   const [ curY, setCurY ] = useState(0);
@@ -50,10 +47,10 @@ export default function Content() {
   }
 
   useEffect(() => {
-    dispatch({
-      type: types.CONTENT.start,
-      option: {id: paramsId}
-    });
+    // dispatch({
+    //   type: types.CONTENT.start,
+    //   option: {id: paramsId}
+    // });
     
     return(()=>{
       window.removeEventListener('resize', getMenus);
