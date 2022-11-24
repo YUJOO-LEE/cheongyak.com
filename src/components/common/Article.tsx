@@ -16,13 +16,12 @@ interface IfProps {
 export default function Article(props: IfProps) {
 
   const baseUrl = 'https://cheongyak.com/img/house';
-  const filterList = useSelector((store: any)=> store.filterReducer.filter);
-
+  const filterList = useSelector((store: any)=> store.filter.data);
   
   return (
     <article>
       <div className='pic'>
-        <Link to={`/content?id=${props.id}`}>
+        <Link href={`/content?id=${props.id}`}>
           <img src={`${baseUrl}/${props.id}/${props.imageFileName}`} alt={props.subject} />
         </Link>
       </div>

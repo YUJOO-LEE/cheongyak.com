@@ -1,28 +1,37 @@
-import Layout from '../components/common/Layout';
-//import Article from '../components/common/Article';
-import React, { useEffect } from 'react';
-//import { getFilterAsync } from "../redux/filter";
 
-interface TypeArticle {  
-  id: number,
-  subject: string,
-  image:{
-    imageFileName: string,
-  },
-  state: string,
-  area: {
-    id: string
-  },
-  type: string,
-  desc: React.ReactElement,
-}
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Layout from '../components/common/Layout';
+import Article from '../components/common/Article';
+import { RootState } from "../redux";
+import { getArticlesAsync } from '../redux/articles';
+import { useDispatch, useSelector } from 'react-redux';
+import { TypeArticle, TypeQueries } from '../asset/types';
+
 
 export default function ArticleList() {
+
+  const dispatch = useDispatch();
+  const searchParams = useSearchParams();
+
+  const articlesList = useSelector((store: RootState)=> store.articles.data);
+
+  useEffect(() => {
+    const queries: TypeQueries = {
+      state: searchParams.get('state') || '',
+      area: searchParams.get('area') || '',
+      type: searchParams.get('type') || ''
+    }
+
+    dispatch(getArticlesAsync.request(queries));
+  }, [dispatch, searchParams])
+  console.log('this', articlesList);
+
   return (
     <Layout type='list'>
       <div id='list'>
         <div className='inner'>
-          {/* {(listData && listData?.length) ? listData.map((data: TypeArticle)=>{
+          {articlesList.length ? articlesList.map((data: TypeArticle)=>{
             return (
               <Article key={data.id} 
                 id={data.id} 
@@ -35,7 +44,7 @@ export default function ArticleList() {
             );
           })
           : <p>검색된 데이터가 없습니다.</p>
-          } */}
+          }
         </div>
       </div>
     </Layout>

@@ -1,18 +1,14 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { apiGetFilter } from "../../api/filter/api";
-import { GetFilterResponseType } from "../../api/filter/types";
+import { GetResponseType } from "../../api/filter/types";
 import { getFilterAsync, FILTER_REQUEST } from "./actions";
 
-function* getFilterSaga(
-  action: ReturnType<typeof getFilterAsync.request>
-) {
+function* getFilterSaga() {
   try {
-    const response: GetFilterResponseType = yield call(
-      apiGetFilter,
-      action.payload
+    const response: GetResponseType = yield call(
+      apiGetFilter
     );
 
-    console.log('READ', response);
     yield put(getFilterAsync.success(response));
   } catch (error: any) {
     yield put(getFilterAsync.failure(error));

@@ -3,8 +3,8 @@ import { createAsyncAction } from 'typesafe-actions';
 import { AxiosError } from 'axios';
 
 import {
-  GetFilterRequestType,
-  GetFilterResponseType
+  GetRequestType,
+  GetResponseType
 } from '../../api/filter/types';
 
 //액션 타입
@@ -23,4 +23,4 @@ export const getFilterAsync = createAsyncAction(
   FILTER_REQUEST,
   FILTER_SUCCESS,
   FILTER_FAILURE
-)<GetFilterRequestType, GetFilterResponseType, AxiosError>();
+)<GetRequestType, GetResponseType, AxiosError>();

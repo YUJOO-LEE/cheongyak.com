@@ -1,6 +1,6 @@
-export type GetFilterRequestType = string;
+export type GetRequestType = string;
 
-export interface GetFilterResponseType {
+export interface GetResponseType {
   filter: [];
   code: string;
   message: string;

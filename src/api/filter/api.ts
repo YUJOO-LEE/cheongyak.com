@@ -1,8 +1,8 @@
 import axios from "axios";
-import { GetFilterRequestType, GetFilterResponseType } from "./types";
+import { GetResponseType } from "./types";
 
-export async function apiGetFilter(info?: GetFilterRequestType) {
-  const response = await axios.get<GetFilterResponseType>(
+export async function apiGetFilter() {
+  const response = await axios.get<GetResponseType>(
     `/db/filter.json`
   );
 
