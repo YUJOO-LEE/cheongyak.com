@@ -20,6 +20,7 @@ export default function Layout({type, children}: {type: string, children: React.
         <title>청약닷컴</title>
       </Head>
       <Script src='https://kit.fontawesome.com/08c501c945.js' crossOrigin='anonymous'></Script>
+      <Script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0f018f7ff64a71f0976e2448a4ec8cea&autoload=false"></Script>
       <Header type={type}></Header>
       <Filter type={type}></Filter>
       {children}

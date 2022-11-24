@@ -1,20 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 
-import Layout from '../components/Layout';
-//import Map from '../common/Map';
-import ContentPicture from '../components/ContentPicture';
-import ContentTable from '../components/ContentTable';
-import Scroll from '../asset/scroll';
-import { getContentAsync } from '../redux/content';
+import Layout from '../../components/Layout';
+import Map from '../../components/Map';
+import ContentPicture from '../../components/ContentPicture';
+import ContentTable from '../../components/ContentTable';
+import Scroll from '../../asset/scroll';
+import { getContentAsync } from '../../redux/content';
 
 export default function Content() {
 
   const dispatch = useDispatch();
-  const SearchParams = useSearchParams();
+  const router = useRouter();
   const ContentData = useSelector((store:any)=> store.content.data);
   const FilterList = useSelector((store:any)=> store.filter.data);
 
@@ -26,8 +25,7 @@ export default function Content() {
   
   const baseUrl = 'https://cheongyak.com/img/house';
   const tabMenus = ['정보', '결과', '사진', '위치'];
-  const paramsValue = SearchParams.get('id') || '';
-  const paramsId = parseInt(paramsValue);
+  const paramsId = parseInt(router.query.contentId as string);
 
   const getMenus = () => {
     if (!frame.current) return;
@@ -46,22 +44,20 @@ export default function Content() {
   }
 
   useEffect(() => {
+    if (!paramsId) return;
     dispatch(getContentAsync.request({id: paramsId}));
+
+    if (!FilterList || !frame.current) return;
+    getMenus();
+
+    window.addEventListener('resize', getMenus);
+    window.addEventListener('scroll', getMenus);
     
     return(()=>{
       window.removeEventListener('resize', getMenus);
       window.removeEventListener('scroll', getMenus);
     });
-  }, [paramsId])
-
-  useEffect(()=>{
-    if (!FilterList || !frame) return;
-    getMenus();
-
-    window.addEventListener('resize', getMenus);
-    window.addEventListener('scroll', getMenus);
-
-  }, [FilterList, frame])
+  }, [paramsId, FilterList, frame.current])
   
   return ( <Layout type='content'>
     {(ContentData.id && FilterList.length) &&
@@ -121,7 +117,10 @@ export default function Content() {
             </div>
           </div>
           <div>
-            {/* <Map latLng={ContentData.latLng} naver={naver}></Map> */}
+            <Map
+              // 테스트용 latLng='37.5208062,127.0227158' 
+              latLng={ContentData.latLng}
+            ></Map>
           </div>
         </div>
       </div>

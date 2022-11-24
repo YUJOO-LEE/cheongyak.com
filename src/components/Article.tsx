@@ -12,7 +12,7 @@ export default function Article(props: TypeArticleProps) {
   return (
     <article>
       <div className='pic'>
-        <Link href={`/content?id=${props.id}`}>
+        <Link href={`/content/${props.id}`}>
           <img src={`${baseUrl}/${props.id}/${props.imageFileName}`} alt={props.subject} />
         </Link>
       </div>
