@@ -5,7 +5,6 @@ export default function Map({latLng}: {latLng: string}) {
 
   const { kakao } = window as any;
   const container = useRef(null);
-  const curLng = latLng?.split(',');
 
   useEffect(() => {
     if (!container.current || !latLng || !kakao) return;
@@ -46,7 +45,6 @@ export default function Map({latLng}: {latLng: string}) {
 
   return (
     <div id='map' ref={container}>
-      
     </div>
   );
 }

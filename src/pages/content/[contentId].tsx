@@ -9,6 +9,7 @@ import ContentPicture from '../../components/ContentPicture';
 import ContentTable from '../../components/ContentTable';
 import Scroll from '../../asset/scroll';
 import { getContentAsync } from '../../redux/content';
+import Popup from '../../components/Popup';
 
 export default function Content() {
 
@@ -21,6 +22,7 @@ export default function Content() {
   const [ TabIndex, setTabIndex ] = useState(0);
   const frame = useRef<HTMLDivElement>(null);
   const position = useRef<number[]>([]);
+  const pop = useRef<any>();
   const [ curY, setCurY ] = useState(0);
   
   const baseUrl = 'https://cheongyak.com/img/house';
@@ -61,70 +63,84 @@ export default function Content() {
   
   return ( <Layout type='content'>
     {(ContentData.id && FilterList.length) &&
-    <div id='content' ref={frame}>
-      <figure
-        style={{backgroundImage: `url(${baseUrl}/${ContentData.id}/${ContentData.images[0].imageFileName})`}}
-      >
-        <div className='txt'>
-          <div className='date'>
-            {ContentData.gonggoDate}-{ContentData.announcementDate} {FilterList[0].list[ContentData.state]}
-          </div>
-          <h1>{ContentData.subject}</h1>
-          <div className='tags'>
-            <span>#{FilterList[1].list[ContentData.area.id]}</span>
-            <span>#{FilterList[2].list[ContentData.type]}</span>
-          </div>
-        </div>
-      </figure>
-      
-      <div className={`inner 
-        ${curY >= position.current[0] ? 'menuOn' : undefined}`}
-      >
-        <ul
-          className='tabMenu'>
-          {tabMenus.map((menu, i)=>{
-            if (i === 1 && ContentData.state !== 'COMPLETE') return <></>;
-            return (
-              <li key={i} 
-                className={TabIndex === i ? 'on' : undefined}
-                onClick={()=>{setTabIndex(i); Scroll(position.current[i]);}}
-              >{menu}</li>
-            );
-          })}
-        </ul>
-        <div className='tabBody'>
-          <div>
-            <ContentTable data={ContentData}></ContentTable>
-          </div>
-          <div className='gallery'>
-            {ContentData.state === 'COMPLETE' && 
-              <div className='inner'>
-              <ContentPicture />
-              </div>
-            }
-          </div>
-          <div className='gallery'>
-            <div className='inner'>
-            {ContentData.images.map((data: {id: number, imageFileName: string})=>{
-              return(
-                <div key={data.id}>
-                  <ContentPicture>
-                    <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} alt={ContentData.subject} />
-                  </ContentPicture>
-                </div>
-              );
-            })}
+    <>
+      <div id='content' ref={frame}>
+        <figure
+          style={{backgroundImage: `url(${baseUrl}/${ContentData.id}/${ContentData.images[0].imageFileName})`}}
+        >
+          <div className='txt'>
+            <div className='date'>
+              {ContentData.gonggoDate}-{ContentData.announcementDate} {FilterList[0].list[ContentData.state]}
+            </div>
+            <h1>{ContentData.subject}</h1>
+            <div className='tags'>
+              {ContentData.area.id !== 0 && (
+                <span>#{FilterList[1].list[ContentData.area.id]}</span>
+              )}
+              <span>#{FilterList[2].list[ContentData.type]}</span>
             </div>
           </div>
-          <div>
-            <Map
-              // 테스트용 latLng='37.5208062,127.0227158' 
-              latLng={ContentData.latLng}
-            ></Map>
+        </figure>
+        
+        <div className={`inner 
+          ${curY >= position.current[0] ? 'menuOn' : undefined}`}
+        >
+          <ul
+            className='tabMenu'>
+            {tabMenus.map((menu, i)=>{
+              if (i === 1 && ContentData.state !== 'COMPLETE') return <></>;
+              if (i === 3 && !ContentData.latLng) return <></>;
+              return (
+                <li key={i} 
+                  className={TabIndex === i ? 'on' : undefined}
+                  onClick={()=>{setTabIndex(i); Scroll(position.current[i]);}}
+                >{menu}</li>
+              );
+            })}
+          </ul>
+          <div className='tabBody'>
+            <div>
+              <ContentTable data={ContentData}></ContentTable>
+            </div>
+            <div className='gallery'>
+              {ContentData.state === 'COMPLETE' && 
+                <div className='inner'>
+                <ContentPicture />
+                </div>
+              }
+            </div>
+            <div className='gallery'>
+              <div className='inner'>
+              {ContentData.images.map((data: {id: number, imageFileName: string}, idx: number)=>{
+                return(
+                  <div key={`images${data.id}`}>
+                    <ContentPicture>
+                      <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} 
+                        alt={ContentData.subject} 
+                        onClick={()=>{
+                          pop.current?.setImgIndex(idx);
+                          pop.current?.setOpen(true);
+                        }}
+                      />
+                    </ContentPicture>
+                  </div>
+                );
+              })}
+              </div>
+            </div>
+            {ContentData.latLng && (
+              <div>
+                <Map
+                  // 테스트용 latLng='37.5208062,127.0227158' 
+                  latLng={ContentData.latLng}
+                ></Map>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </div>
+      <Popup ref={pop}></Popup>
+    </>
     }
   </Layout>);
 }
