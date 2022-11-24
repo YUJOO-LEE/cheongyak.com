@@ -98,8 +98,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": [
-    "custom.d.ts"
+  "include": [ "src",
+    "src/custom.d.ts"
   ],
   "exclude": [
     "node_modules"
