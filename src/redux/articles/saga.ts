@@ -12,7 +12,6 @@ function* getArticlesSaga(
       action.payload
     );
 
-    console.log('READ', response);
     yield put(getArticlesAsync.success(response));
   } catch (error: any) {
     yield put(getArticlesAsync.failure(error));

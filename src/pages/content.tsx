@@ -1,34 +1,33 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 
-import Layout from '../common/Layout';
+import Layout from '../components/Layout';
 //import Map from '../common/Map';
-import ContentPicture from '../common/ContentPicture';
-import ContentTable from '../common/ContentTable';
-import Scroll from '../../asset/scroll';
-import React from 'react';
+import ContentPicture from '../components/ContentPicture';
+import ContentTable from '../components/ContentTable';
+import Scroll from '../asset/scroll';
+import { getContentAsync } from '../redux/content';
 
 export default function Content() {
 
   const dispatch = useDispatch();
   const SearchParams = useSearchParams();
-  const ContentData = useSelector((store:any)=> store.contentReducer.content);
-  const FilterList = useSelector((store:any)=> store.filterReducer.filter);
+  const ContentData = useSelector((store:any)=> store.content.data);
+  const FilterList = useSelector((store:any)=> store.filter.data);
 
-  //const { naver } = window;
+
   const [ TabIndex, setTabIndex ] = useState(0);
   const frame = useRef<HTMLDivElement>(null);
   const position = useRef<number[]>([]);
   const [ curY, setCurY ] = useState(0);
-  //let menus;
   
   const baseUrl = 'https://cheongyak.com/img/house';
   const tabMenus = ['정보', '결과', '사진', '위치'];
   const paramsValue = SearchParams.get('id') || '';
-  const paramsId = parseInt(paramsValue, 10);
+  const paramsId = parseInt(paramsValue);
 
   const getMenus = () => {
     if (!frame.current) return;
@@ -47,10 +46,7 @@ export default function Content() {
   }
 
   useEffect(() => {
-    // dispatch({
-    //   type: types.CONTENT.start,
-    //   option: {id: paramsId}
-    // });
+    dispatch(getContentAsync.request({id: paramsId}));
     
     return(()=>{
       window.removeEventListener('resize', getMenus);
@@ -66,10 +62,9 @@ export default function Content() {
     window.addEventListener('scroll', getMenus);
 
   }, [FilterList, frame])
-  //console.log(ContentData, FilterList);
   
   return ( <Layout type='content'>
-    {ContentData && FilterList.length &&
+    {(ContentData.id && FilterList.length) &&
     <div id='content' ref={frame}>
       <figure
         style={{backgroundImage: `url(${baseUrl}/${ContentData.id}/${ContentData.images[0].imageFileName})`}}
@@ -114,11 +109,13 @@ export default function Content() {
           </div>
           <div className='gallery'>
             <div className='inner'>
-            {ContentData.images.map((data: {imageFileName: string})=>{
+            {ContentData.images.map((data: {id: number, imageFileName: string})=>{
               return(
-                <ContentPicture>
-                  <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} alt={ContentData.subject} />
-                </ContentPicture>
+                <div key={data.id}>
+                  <ContentPicture>
+                    <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} alt={ContentData.subject} />
+                  </ContentPicture>
+                </div>
               );
             })}
             </div>

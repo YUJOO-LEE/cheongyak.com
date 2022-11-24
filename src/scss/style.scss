@@ -63,9 +63,9 @@ $screen-size-mobile: 539px;
 @import './common/contentTable.scss';
 
 // routers
-@import './routers/indexSelect.scss';
-@import './routers/articleList.scss';
-@import './routers/content.scss';
+@import './pages/indexSelect.scss';
+@import './pages/articleList.scss';
+@import './pages/content.scss';
 
 
 body{

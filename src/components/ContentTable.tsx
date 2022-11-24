@@ -1,22 +1,7 @@
 import React from 'react';
+import { TypeContent } from '../asset/types';
 
-interface Props {
-  data: {
-    state: string,
-    openDate: string,
-    gonggoDate?: string,
-    specialDate?: string,
-    nomal1Date?: string,
-    nomal2Date?: string,
-    announcementDate?: string,
-    contractStartDate?: string,
-    contractEndDate?: string,
-    dateMoveIn?: string,
-    url?: string,
-  }
-}
-
-export default function ContentTable({data}: Props) {
+export default function ContentTable({data}: TypeContent) {
   return (
     <table id='contentTable'>
       <tbody>

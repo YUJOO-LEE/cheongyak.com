@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { RootState } from "../../redux";
-import { getFilterAsync } from '../../redux/filter';
+import { RootState } from "../redux";
+import { getFilterAsync } from '../redux/filter';
 import { useDispatch, useSelector } from 'react-redux';
-import { TypeFilter, TypeQueries } from '../../asset/types';
+import { TypeFilter, TypeQueries } from '../asset/types';
 
 export default function Filter(props: { type: string; }) {
 

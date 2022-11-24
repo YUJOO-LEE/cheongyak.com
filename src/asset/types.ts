@@ -20,13 +20,17 @@ export interface TypeFilter {
 export interface TypeArticle {
   id: number,
   subject: string,
-  image: {
+  images: [{
     imageFileName: string,
-  },
+  }],
   state: string,
   area: {
     id: string
   },
   type: string,
   desc: React.ReactElement
+}
+
+export interface TypeContent {
+  data: any
 }
