@@ -2,18 +2,9 @@
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import React from 'react';
+import { TypeArticleProps } from '../asset/types';
 
-interface IfProps {
-  id: number;
-  imageFileName: string;
-  subject: string;
-  state: string;
-  area: string;
-  type: string;
-  children: React.ReactElement
-}
-
-export default function Article(props: IfProps) {
+export default function Article(props: TypeArticleProps) {
 
   const baseUrl = 'https://cheongyak.com/img/house';
   const filterList = useSelector((store: any)=> store.filter.data);
@@ -33,9 +24,9 @@ export default function Article(props: IfProps) {
           <span data-state={props.state}>
             {filterList && filterList[0].list[props.state]}
           </span>
-          <span data-area={props.area}>
+          {props.area !== 0 && <span data-area={props.area}>
             {filterList && filterList[1].list[props.area]}
-          </span>
+          </span>}
           <span data-type={props.type}>
             {filterList && filterList[2].list[props.type]}
           </span>
