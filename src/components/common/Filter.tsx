@@ -61,7 +61,7 @@ export default function Filter(props: { type: string; }) {
             })}
           </ul>
           <Link //onClick={handleReset} 
-            className='btnResetFilter' href={'#'}>초기화</Link>
+            className='btnResetFilter' href='/list'>초기화</Link>
         </div>
       </div>
     </>
