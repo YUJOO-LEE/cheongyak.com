@@ -27,5 +27,6 @@ yarn-error.log*
 /config
 /scripts
 
-# env
+# next
 next-env.d.ts
+next.config.js
