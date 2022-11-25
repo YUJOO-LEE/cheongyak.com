@@ -6,5 +6,5 @@ export async function apiGetFilter() {
     `/db/filter.json`
   );
 
-  return response.data.filter;
+  return response.data.data;
 }
