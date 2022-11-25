@@ -11,8 +11,6 @@ function* getContentSaga(
       apiGetContent,
       action.payload
     );
-
-    console.log('READ', response);
     yield put(getContentAsync.success(response));
   } catch (error: any) {
     yield put(getContentAsync.failure(error));
