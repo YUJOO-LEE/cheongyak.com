@@ -25,7 +25,8 @@
         "PUBLIC": "공공분양",
         "PRIVATE": "민간분양",
         "PRIVATE_PARTICIPATION_PUBLIC_DISTRIBUTION": "민간참여 공공분양",
-        "PUBLIC_SUPPORT_PRIVATE_RENTAL": "공공지원 민간임대"
+        "PUBLIC_SUPPORT_PRIVATE_RENTAL": "공공지원 민간임대",
+        "PUBLIC_RENTAL": "국민임대"
       }
     }
   ],

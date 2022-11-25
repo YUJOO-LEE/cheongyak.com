@@ -63,13 +63,13 @@ article{
         font-size: $font-size-small;
         color: $color-dark-gray;
 
-        &[data-state="1"]{  // 분양중
+        &[data-state="ING"]{  // 분양중
           border: 1px solid $color-theme;
           background-color: $color-theme;
           color: $color-white;
         }
 
-        &[data-state="2"]{  // 분양완료
+        &[data-state="COMPLETE"]{  // 분양완료
           background-color: $color-gray;
           color: $color-white;
         }
