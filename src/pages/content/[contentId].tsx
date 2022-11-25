@@ -63,7 +63,8 @@ export default function Content() {
     });
   }, [paramsId, FilterList, frame.current])
   
-  return ( <Layout type='content'>
+  return (
+  <Layout type='content'>
     {(ContentData.id && Array.isArray(FilterList) && FilterList.length) &&
     <>
       <div id='content' ref={frame}>

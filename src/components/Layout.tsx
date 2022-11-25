@@ -5,7 +5,7 @@ import React from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
 
-export default function Layout({type, children}: {type: string, children: any}) {
+export default function Layout({type, listUrl, children}: {type: string, listUrl?: string, children: any}) {
   return (
     <>
       <Head>
@@ -21,7 +21,7 @@ export default function Layout({type, children}: {type: string, children: any}) 
       </Head>
       <Script src='https://kit.fontawesome.com/08c501c945.js' crossOrigin='anonymous'></Script>
       <Script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0f018f7ff64a71f0976e2448a4ec8cea&autoload=false"></Script>
-      <Header type={type}></Header>
+      <Header type={type} listUrl={listUrl}></Header>
       <Filter type={type}></Filter>
         {children}
       <Footer></Footer>

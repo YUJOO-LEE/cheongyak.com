@@ -1,19 +1,21 @@
-// import { useRef } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
-import React from 'react';
+import { useSearchParams } from 'next/navigation';
 import { TypeArticleProps } from '../asset/types';
 import { RootState } from '../redux';
 
 export default function Article(props: TypeArticleProps) {
 
+  const searchParams = useSearchParams().toString();
+  const queries = searchParams.toString();
   const baseUrl = 'https://cheongyak.com/img/house';
   const filterList = useSelector((store: RootState)=> store.filter.data);
   
   return (
     <article>
       <div className='pic'>
-        <Link href={`/content/${props.id}`}>
+        <Link href={`/content/${props.id}?${queries}`}>
           <img src={`${baseUrl}/${props.id}/${props.imageFileName}`} alt={props.subject} />
         </Link>
       </div>

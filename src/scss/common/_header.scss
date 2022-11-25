@@ -6,8 +6,33 @@ header{
   position: relative;
   z-index: 5;
 
+  &.type-content{
+    .inner{
+      h1{
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    }
+  }
+
   .inner{
     height: 100%;
+    display: flex;
+    align-items: center;
+    
+    .goBack{
+      width: 30px;
+      font-size: 0;
+      display: flex;
+      justify-content: center;
+
+      &::before{
+        content: '\f053';
+        font-family: fontawesome;
+        font-size: $font-size-regular;
+      }
+    }
 
     h1{
       height: 100%;
@@ -15,7 +40,7 @@ header{
 
       a{
         height: 100%;
-        display: flex;
+        display: inline-flex;
         align-items: center;
 
         i{
