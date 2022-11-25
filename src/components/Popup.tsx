@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { FreeMode, Navigation, Thumbs } from "swiper";
+import SwiperCore from 'swiper/types/swiper-class';
 
 import "swiper/css";
 import "swiper/css/free-mode";
@@ -16,9 +17,8 @@ const Popup = forwardRef((props, ref)=>{
   const router = useRouter();
   const [Open, setOpen] = useState(false);
   const [imgIndex, setImgIndex] = useState(0);
-  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperCore | null>(null);
 
-  const slide = useRef() as React.MutableRefObject<HTMLUListElement>;
   const popup = useRef() as React.MutableRefObject<HTMLDivElement>;
   const ImagesData = useSelector((store:any)=> store.content.data.images);
 
@@ -36,14 +36,15 @@ const Popup = forwardRef((props, ref)=>{
   )
 
   useEffect(() => {
-    if (!popup.current) return;
+    setThumbsSwiper(null);
+    document.body.style.overflow = 'auto';
 
+    if (!popup.current) return;
     if (Open) {
       popup.current.classList.add('on');
       document.body.style.overflow = 'hidden';
     } else {
       popup.current.classList.remove('on');
-      document.body.style.overflow = 'auto';
     }
   }, [Open]);
   
@@ -53,49 +54,51 @@ const Popup = forwardRef((props, ref)=>{
 
   return (
     <>
-    {Open && 
+    {(Open && ImagesData.length) &&
       <aside className='pop' ref={popup}>
         <div className='con'>
-        <Swiper
-          style={{
-            "--swiper-navigation-color": "#fff",
-            "--swiper-pagination-color": "#fff",
-          }}
-          loop={true}
-          spaceBetween={10}
-          navigation={true}
-          thumbs={{ swiper: thumbsSwiper }}
-          modules={[FreeMode, Navigation, Thumbs]}
-          className="mySwiper2"
-        >
-          {ImagesData && ImagesData.map((data: any, idx: number)=>
-            <SwiperSlide>
-              <img src={`${baseUrl}/${paramsId}/${data.imageFileName}`} 
-                alt={`${idx}번째 이미지`} 
-                onClick={()=>handleClick(idx)}
-              />
-            </SwiperSlide>
-          )}
-        </Swiper>
-        <Swiper
-          onSwiper={setThumbsSwiper}
-          loop={true}
-          spaceBetween={10}
-          slidesPerView={5}
-          freeMode={true}
-          watchSlidesProgress={true}
-          modules={[FreeMode, Navigation, Thumbs]}
-          className="mySwiper"
-        >
-          {ImagesData && ImagesData.map((data: any, idx: number)=>
-            <SwiperSlide>
-              <img src={`${baseUrl}/${paramsId}/${data.imageFileName}`} 
-                alt={`${idx}번째 이미지`} 
-                onClick={()=>handleClick(idx)}
-              />
-            </SwiperSlide>
-          )}
-        </Swiper>
+          <Swiper
+            initialSlide={imgIndex}
+            loop={true}
+            spaceBetween={0}
+            navigation={true}
+            thumbs={{ swiper: thumbsSwiper }}
+            modules={[FreeMode, Navigation, Thumbs]}
+            className="slide"
+          >
+            {ImagesData.map((data: any, idx: number)=>
+              <SwiperSlide key={`img${idx}`}>
+                <img src={`${baseUrl}/${paramsId}/${data.imageFileName}`} 
+                  alt={`${idx}번째 이미지`} 
+                  onClick={()=>handleClick(idx)}
+                />
+              </SwiperSlide>
+            )}
+          </Swiper>
+          <Swiper
+            onSwiper={setThumbsSwiper}
+            loop={true}
+            spaceBetween={10}
+            slidesPerView={3}
+            freeMode={true}
+            watchSlidesProgress={true}
+            modules={[FreeMode, Navigation, Thumbs]}
+            className="slideList"
+            breakpoints={{
+              540: {
+                slidesPerView: 5,
+              }
+            }}
+          >
+            {ImagesData.map((data: any, idx: number)=>
+              <SwiperSlide key={`list${idx}`}>
+                <img src={`${baseUrl}/${paramsId}/${data.imageFileName}`} 
+                  alt={`${idx}번째 이미지`} 
+                  onClick={()=>handleClick(idx)}
+                />
+              </SwiperSlide>
+            )}
+          </Swiper>
         </div>
         <span className='close' onClick={()=>{setOpen(false)}} >
           <FontAwesomeIcon icon={faX}></FontAwesomeIcon>
