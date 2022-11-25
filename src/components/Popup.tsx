@@ -58,7 +58,7 @@ const Popup = forwardRef<TypeHandle>((props, ref)=>{
 
   return (
     <>
-    {(Open && ImagesData.length) &&
+    {(Open && ImagesData?.length) &&
       <aside className='pop' ref={popup}>
         <div className='con'>
           <Swiper

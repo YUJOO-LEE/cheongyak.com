@@ -3,7 +3,7 @@ import { contentState, contentAction } from "./types";
 import { SET_CONTENT, CONTENT_REQUEST, CONTENT_SUCCESS, CONTENT_FAILURE } from "./actions";
 
 const initialState: contentState = {
-  data: []
+  data: {id: 0}
 };
 
 const reducer = createReducer<contentState, contentAction>(initialState, {

@@ -11,6 +11,7 @@ import Popup, { TypeHandle } from '../../components/Popup';
 import Scroll from '../../asset/scroll';
 import { RootState } from '../../redux';
 import { getContentAsync } from '../../redux/content';
+import { TypeImages } from '../../asset/types';
 
 export default function Content() {
 
@@ -67,18 +68,19 @@ export default function Content() {
     <>
       <div id='content' ref={frame}>
         <figure
-          style={{backgroundImage: `url(${baseUrl}/${ContentData.id}/${ContentData.images[0].imageFileName})`}}
+          style={{backgroundImage: `url(${baseUrl}/${ContentData.id}/${ContentData.images?.[0].imageFileName})`}}
         >
           <div className='txt'>
             <div className='date'>
-              {ContentData.gonggoDate}-{ContentData.announcementDate} {FilterList[0].list[ContentData.state]}
+              {ContentData.gonggoDate}-{ContentData.announcementDate} 
+              {ContentData.state && FilterList[0].list[ContentData.state]}
             </div>
             <h1>{ContentData.subject}</h1>
             <div className='tags'>
-              {ContentData.area.id !== 0 && (
+              {(ContentData.area && ContentData.area.id !== 0) && (
                 <span>#{FilterList[1].list[ContentData.area.id]}</span>
               )}
-              <span>#{FilterList[2].list[ContentData.type]}</span>
+              <span>#{ContentData.type && FilterList[2].list[ContentData.type]}</span>
             </div>
           </div>
         </figure>
@@ -90,7 +92,7 @@ export default function Content() {
             className='tabMenu'>
             {tabMenus.filter((_, i) => {
               if (i === 1 && ContentData.state !== 'COMPLETE') return false;
-              if (i === 3 && !ContentData.latLng) return false;
+              if (i === 3 && !ContentData.latlng) return false;
               return true;
             }).map((menu, i)=>{
               // if (i === 1 && ContentData.state !== 'COMPLETE') return <Fragment key={`tabMenu${i}`}></Fragment>;
@@ -117,7 +119,7 @@ export default function Content() {
             </div>
             <div className='gallery'>
               <div className='inner'>
-              {ContentData.images.map((data: {id: number, imageFileName: string}, idx: number)=>{
+              {ContentData.images?.map((data: TypeImages, idx: number)=>{
                 return (
                   <ContentPicture key={`images${data.id}`}>
                     <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} 
@@ -132,11 +134,11 @@ export default function Content() {
               })}
               </div>
             </div>
-            {ContentData.latLng && (
+            {ContentData.latlng && (
               <div>
                 <Map
                   // 테스트용 latLng='37.5208062,127.0227158' 
-                  latLng={ContentData.latLng}
+                  latLng={ContentData.latlng}
                 ></Map>
               </div>
             )}

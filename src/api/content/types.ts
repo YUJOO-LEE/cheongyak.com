@@ -5,6 +5,6 @@ export interface GetRequestType {
   id: number;
 };
 
-export interface GetResponseType extends contentState {
+export interface GetResponseType extends contentState, TypeContent {
   payload: TypeContent;
 };

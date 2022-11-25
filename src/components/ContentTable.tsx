@@ -1,7 +1,7 @@
 import React from 'react';
 import { TypeContent } from '../asset/types';
 
-export default function ContentTable({data}: TypeContent) {
+export default function ContentTable({data}: {data: TypeContent}) {
   return (
     <table id='contentTable'>
       <tbody>

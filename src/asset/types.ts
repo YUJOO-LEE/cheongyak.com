@@ -17,19 +17,23 @@ export interface TypeFilter {
   }
 }
 
+export interface TypeArea {
+  id: number;
+  name: string;
+}
+
+export interface TypeImages {
+  id: number;
+  imageFileName: string;
+}
+
 export interface TypeArticle {
   id: number;
   subject: string;
-  images: [{
-    imageFileName: string;
-  }];
-  image: {
-    imageFileName: string;
-  };
+  images: Array<TypeImages>;
+  image: TypeImages;
   state: string;
-  area: {
-    id: number
-  };
+  area: TypeArea;
   type: string;
   desc: React.ReactElement;
 }
@@ -44,4 +48,25 @@ export interface TypeArticleProps {
   children: React.ReactElement;
 }
 
-export type TypeContent = any;
+export interface TypeContent {
+  dateMoveIn?: string;
+  announcementDate?: string;
+  area?: TypeArea;
+  content?: string;
+  contractEndDate?: string;
+  contractStartDate?: string;
+  gonggoDate?: string;
+  houseSchedule?: boolean;
+  id: number;
+  images?: Array<TypeImages>;
+  information?: boolean;
+  latlng?: string;
+  nomal1Date?: string;
+  nomal2Date?: string;
+  openDate?: string;
+  specialDate?: string;
+  state?: string;
+  subject?: string;
+  type?: string;
+  url?: string;
+};
