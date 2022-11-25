@@ -40,7 +40,7 @@ export default function Filter(props: { type: string; }) {
       <div id='filter' className={showFilter ? 'on' : undefined}>
         <div className='inner'>
           <ul>
-            {filterList && filterList.map((filter: TypeFilter, i: number)=>{
+            {Array.isArray(filterList) && filterList.map((filter: TypeFilter, i: number)=>{
               return (
                 <li key={i}>
                   <span>{filter.name}</span>
