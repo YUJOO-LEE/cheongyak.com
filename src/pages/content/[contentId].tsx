@@ -87,10 +87,14 @@ export default function Content() {
         >
           <ul
             className='tabMenu'>
-            {tabMenus.map((menu, i)=>{
-              if (i === 1 && ContentData.state !== 'COMPLETE') return <Fragment key={`tabMenu${i}`}></Fragment>;
-              if (i === 3 && !ContentData.latLng) return <Fragment key={`tabMenu${i}`}></Fragment>;
-              
+            {tabMenus.filter((_, i) => {
+              if (i === 1 && ContentData.state !== 'COMPLETE') return false;
+              if (i === 3 && !ContentData.latLng) return false;
+              return true;
+            }).map((menu, i)=>{
+              // if (i === 1 && ContentData.state !== 'COMPLETE') return <Fragment key={`tabMenu${i}`}></Fragment>;
+              // if (i === 3 && !ContentData.latLng) return <Fragment key={`tabMenu${i}`}></Fragment>;
+
               return (
                 <li key={`tabMenu${i}`} 
                   className={TabIndex === i ? 'on' : undefined}
