@@ -67,7 +67,7 @@ const Popup = forwardRef((props, ref)=>{
             className="slide"
           >
             {ImagesData.map((data: any, idx: number)=>
-              <SwiperSlide key={`img${idx}`}>
+              <SwiperSlide key={`slide${idx}`}>
                 <img src={`${baseUrl}/${paramsId}/${data.imageFileName}`} 
                   alt={`${idx}번째 이미지`} 
                   onClick={()=>handleClick(idx)}

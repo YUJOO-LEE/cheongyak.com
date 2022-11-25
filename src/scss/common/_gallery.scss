@@ -9,7 +9,7 @@
   
     .wrap{
       width: 100%;
-      height: calc(1180px / 3);
+      height: 100%;
       background-color: $color-white-gray;
       border: 1px solid $color-light-gray;
 
@@ -30,12 +30,10 @@
 }
 
 @media screen and (max-width: $screen-size-tablet) {
-  #gallery{
-    grid-template-columns: 1fr 1fr;
-    padding: 20px;
-
-    div{
-      height: 40vw;
+  .gallery{
+    .inner{
+      grid-template-columns: 1fr 1fr;
+      padding: 20px;
     }
   }
 }

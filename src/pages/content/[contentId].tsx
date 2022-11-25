@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 
@@ -88,10 +88,11 @@ export default function Content() {
           <ul
             className='tabMenu'>
             {tabMenus.map((menu, i)=>{
-              if (i === 1 && ContentData.state !== 'COMPLETE') return <></>;
-              if (i === 3 && !ContentData.latLng) return <></>;
+              if (i === 1 && ContentData.state !== 'COMPLETE') return <Fragment key={`tabMenu${i}`}></Fragment>;
+              if (i === 3 && !ContentData.latLng) return <Fragment key={`tabMenu${i}`}></Fragment>;
+              
               return (
-                <li key={i} 
+                <li key={`tabMenu${i}`} 
                   className={TabIndex === i ? 'on' : undefined}
                   onClick={()=>{setTabIndex(i); Scroll(position.current[i]);}}
                 >{menu}</li>
@@ -112,18 +113,16 @@ export default function Content() {
             <div className='gallery'>
               <div className='inner'>
               {ContentData.images.map((data: {id: number, imageFileName: string}, idx: number)=>{
-                return(
-                  <div key={`images${data.id}`}>
-                    <ContentPicture>
-                      <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} 
-                        alt={ContentData.subject} 
-                        onClick={()=>{
-                          pop.current?.setImgIndex(idx);
-                          pop.current?.setOpen(true);
-                        }}
-                      />
-                    </ContentPicture>
-                  </div>
+                return (
+                  <ContentPicture key={`images${data.id}`}>
+                    <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} 
+                      alt={ContentData.subject} 
+                      onClick={()=>{
+                        pop.current?.setImgIndex(idx);
+                        pop.current?.setOpen(true);
+                      }}
+                    />
+                  </ContentPicture>
                 );
               })}
               </div>
