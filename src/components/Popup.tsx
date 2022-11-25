@@ -91,6 +91,9 @@ const Popup = forwardRef<TypeHandle>((props, ref)=>{
             breakpoints={{
               540: {
                 slidesPerView: 5,
+              },
+              1180: {
+                slidesPerView: 7,
               }
             }}
           >

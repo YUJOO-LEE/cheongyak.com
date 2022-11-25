@@ -1,7 +1,7 @@
 .pop{
   width: 100%;
   height: 100vh;
-  padding: 10vw;
+  padding: 10vw 10vw 5vw;
   background-color: rgba($color: $color-black, $alpha: 0.8);
   position: fixed;
   top: 0;
@@ -54,7 +54,7 @@
       }
       
       &.slide {
-        height: 75%;
+        height: 70%;
         width: 100%;
 
         .swiper-slide img {

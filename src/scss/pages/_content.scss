@@ -39,6 +39,7 @@
       h1{
         font-size: $font-size-large;
         color: $color-white;
+        text-align: center;
       }
 
       .tags{
@@ -102,6 +103,12 @@
 
 @media screen and (max-width: $screen-size-tablet) {
   #content{
+    figure{
+      .txt{
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+    }
     .inner{
       .tabMenu{
         width: 100%;
