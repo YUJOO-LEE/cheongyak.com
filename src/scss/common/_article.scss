@@ -5,6 +5,7 @@ article{
   border: 1px solid $color-white-gray;
   border-radius: 10px;
   transition: 0.5s;
+  isolation: isolate;
 
   .pic{
     width: 100%;
