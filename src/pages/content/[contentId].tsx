@@ -17,20 +17,21 @@ export default function Content() {
 
   const dispatch = useDispatch();
   const router = useRouter();
-  const ContentData = useSelector((store: RootState)=> store.content.data);
-  const FilterList = useSelector((store: RootState)=> store.filter.data);
-
-
-  const [ TabIndex, setTabIndex ] = useState(0);
   const frame = useRef<HTMLDivElement>(null);
   const position = useRef<number[]>([]);
   const pop = useRef<TypeHandle>(null);
+  const [ TabIndex, setTabIndex ] = useState<number>(0);  // 선택한 메뉴
   const [ curY, setCurY ] = useState<number>(0);
-  
-  const baseUrl = 'https://cheongyak.com/img/house';
-  const tabMenus = ['정보', '결과', '사진', '위치'];
-  const paramsId = parseInt(router.query.contentId as string);
 
+  const baseUrl = 'https://cheongyak.com/img/house';
+  const tabMenus = ['정보', '결과', '사진', '위치'];  // 메뉴명
+  const contentId = parseInt(router.query.contentId as string);
+
+  // store 내 컨텐츠, 필터 리스트 불러오기
+  const ContentData = useSelector((store: RootState)=> store.content.data);
+  const FilterList = useSelector((store: RootState)=> store.filter.data);
+
+  // 컨텐츠 별 섹션 위치값 저장
   const getMenus = () => {
     if (!frame.current) return;
 
@@ -42,16 +43,15 @@ export default function Content() {
     activation();
   };
 
+  // 스크롤 위치값 저장
   const activation = ()=>{
     const scroll = window.scrollY || window.pageYOffset;
     setCurY(scroll);
   }
 
+  // 섹션 위치 값 저장 이벤트 실행
   useEffect(() => {
-    if (!paramsId) return;
-    dispatch(getContentAsync.request({id: paramsId}));
-
-    if (!FilterList || !frame.current) return;
+    if (!FilterList) return;
     getMenus();
 
     window.addEventListener('resize', getMenus);
@@ -61,14 +61,20 @@ export default function Content() {
       window.removeEventListener('resize', getMenus);
       window.removeEventListener('scroll', getMenus);
     });
-  }, [paramsId, FilterList, frame.current])
+  }, [FilterList])
   
+  // contentId 변경값에 따라 dispatch
+  useEffect(() => {
+    if (!contentId) return;
+    dispatch(getContentAsync.request({id: contentId}));
+  }, [contentId])
+
   return (
   <Layout type='content'>
     {(ContentData.id && Array.isArray(FilterList) && FilterList.length) &&
     <>
       <div id='content' ref={frame}>
-        <figure
+        <figure // 상단 페이지 제목부분
           style={{backgroundImage: `url(${baseUrl}/${ContentData.id}/${ContentData.images?.[0].imageFileName})`}}
         >
           <div className='txt'>
@@ -86,19 +92,18 @@ export default function Content() {
           </div>
         </figure>
         
-        <div className={`inner 
-          ${curY >= position.current[0] ? 'menuOn' : undefined}`}
+        <div
+          className={`inner ${curY >= position.current[0] ? 'menuOn' : undefined}`}
         >
-          <ul
+          <ul // 섹션 이동 메뉴 출력
             className='tabMenu'>
             {tabMenus.filter((_, i) => {
-              if (i === 1 && ContentData.state !== 'COMPLETE') return false;
-              if (i === 3 && !ContentData.latlng) return false;
+              // 분양완료가 아니라면 완료 메뉴 제외
+              if (ContentData.state !== 'COMPLETE' && i === 1) return false;
+              // 위치값 없으면 위치 메뉴 제외
+              if (!ContentData.latlng && i === 3) return false;
               return true;
             }).map((menu, i)=>{
-              // if (i === 1 && ContentData.state !== 'COMPLETE') return <Fragment key={`tabMenu${i}`}></Fragment>;
-              // if (i === 3 && !ContentData.latLng) return <Fragment key={`tabMenu${i}`}></Fragment>;
-
               return (
                 <li key={`tabMenu${i}`} 
                   className={TabIndex === i ? 'on' : undefined}
@@ -107,7 +112,9 @@ export default function Content() {
               );
             })}
           </ul>
-          <div className='tabBody'>
+          <div  // 컨텐츠 별 섹션
+            className='tabBody'
+          >
             <div>
               <ContentTable data={ContentData}></ContentTable>
             </div>
@@ -135,14 +142,14 @@ export default function Content() {
               })}
               </div>
             </div>
-            {ContentData.latlng && (
+            {ContentData.latlng && 
               <div>
                 <Map
                   // 테스트용 latLng='37.5208062,127.0227158' 
                   latLng={ContentData.latlng}
                 ></Map>
               </div>
-            )}
+            }
           </div>
         </div>
       </div>

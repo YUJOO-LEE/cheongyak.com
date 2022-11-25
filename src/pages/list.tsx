@@ -14,8 +14,10 @@ export default function ArticleList() {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
 
+  // store 내 분양 리스트 불러오기
   const articlesList = useSelector((store: RootState)=> store.articles.data);
 
+  // 쿼리스트링 변경에 따라 dispatch
   useEffect(() => {
     const queries: TypeQueries = {
       state: searchParams.get('state') || '',

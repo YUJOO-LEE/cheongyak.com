@@ -18,19 +18,21 @@ export interface TypeHandle {
   setImgIndex: (idx: number) => void;
 }
 
-const Popup = forwardRef<TypeHandle>((props, ref)=>{
+const Popup = forwardRef<TypeHandle>((_, ref)=>{
 
   const router = useRouter();
   const [Open, setOpen] = useState(false);
-  const [imgIndex, setImgIndex] = useState(0);
+  const [imgIndex, setImgIndex] = useState(0);  // 슬라이드 초기출력 인덱스
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperCore | null>(null);
-
   const popup = useRef() as React.MutableRefObject<HTMLDivElement>;
-  const ImagesData = useSelector((store: RootState)=> store.content.data.images);
 
   const baseUrl = 'https://cheongyak.com/img/house';
   const paramsId = parseInt(router.query.contentId as string);
 
+  // store 내 이미지 리스트 불러오기
+  const ImagesData = useSelector((store: RootState)=> store.content.data.images);
+
+  // 상위 컴포넌트로 메서드 반환
   useImperativeHandle(
     ref,
     () => ({
@@ -39,31 +41,29 @@ const Popup = forwardRef<TypeHandle>((props, ref)=>{
     })
   )
 
+  // 상위 컴포넌트에서 Open 조작 시 이펙트
   useEffect(() => {
+
+    // 초기값 설정
     setThumbsSwiper(null);
     document.body.style.overflow = 'auto';
-
     if (!popup.current) return;
+    popup.current.classList.remove('on');
+
+    // Open 값 true 일때만 노출
     if (Open) {
       popup.current.classList.add('on');
       document.body.style.overflow = 'hidden';
-    } else {
-      popup.current.classList.remove('on');
     }
   }, [Open]);
-  
-  const handleClick = (idx: number)=>{
-    setImgIndex(idx);
-  }
 
   return (
     <>
     {(Open && ImagesData?.length) &&
       <aside className='pop' ref={popup}>
         <div className='con'>
-          <Swiper
+          <Swiper // 상세 이미지
             initialSlide={imgIndex}
-            loop={true}
             spaceBetween={0}
             navigation={true}
             thumbs={{ swiper: thumbsSwiper }}
@@ -74,14 +74,13 @@ const Popup = forwardRef<TypeHandle>((props, ref)=>{
               <SwiperSlide key={`slide${idx}`}>
                 <img src={`${baseUrl}/${paramsId}/${data.imageFileName}`} 
                   alt={`${idx}번째 이미지`} 
-                  onClick={()=>handleClick(idx)}
+                  onClick={()=>setImgIndex(idx)}
                 />
               </SwiperSlide>
             )}
           </Swiper>
-          <Swiper
+          <Swiper // 이미지 목록
             onSwiper={setThumbsSwiper}
-            loop={true}
             spaceBetween={10}
             slidesPerView={3}
             freeMode={true}
@@ -101,7 +100,7 @@ const Popup = forwardRef<TypeHandle>((props, ref)=>{
               <SwiperSlide key={`list${idx}`}>
                 <img src={`${baseUrl}/${paramsId}/${data.imageFileName}`} 
                   alt={`${idx}번째 이미지`} 
-                  onClick={()=>handleClick(idx)}
+                  onClick={()=>setImgIndex(idx)}
                 />
               </SwiperSlide>
             )}

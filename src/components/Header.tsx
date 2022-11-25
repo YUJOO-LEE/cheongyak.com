@@ -7,6 +7,8 @@ import { TypeQueries } from '../asset/types';
 export default function Header({type}: {type: string}) {
 
   const searchParams = useSearchParams();
+
+  // 사용할 쿼리스트링 값 지정
   const queries: TypeQueries = {
     state: searchParams.get('state') || '',
     area: searchParams.get('area') || '',

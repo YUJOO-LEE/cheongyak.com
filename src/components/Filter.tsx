@@ -2,41 +2,34 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { RootState } from "../redux";
-import { getFilterAsync } from '../redux/filter';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { TypeFilter, TypeQueries } from '../asset/types';
 
-export default function Filter(props: { type: string; }) {
+export default function Filter({ type }: { type: string }) {
 
-  const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const [ showFilter, setShowFilter ] = useState(false);
-  const [ param, setParam ] = useState(props.type);
+  const [ param, setParam ] = useState(type);
 
+  // store 내 필터 리스트 불러오기
   const filterList = useSelector((store: RootState)=> store.filter.data);
 
+  // 사용할 쿼리스트링 값 지정
   const queries: TypeQueries = {
     state: searchParams.get('state') || '',
     area: searchParams.get('area') || '',
     type: searchParams.get('type') || ''
   }
 
-  useEffect(() => {
-    dispatch(getFilterAsync.request(''));
-  }, [dispatch])
-
+  // list 페이지 pc 화면에서 filter 리스트 노출 
   useEffect(() => {
     if (param === 'list' && window.innerWidth >= 1180) setShowFilter(true);
-    setParam(props.type);
-  }, [param, props.type])
-
-  const handleFilter = () => {
-    !showFilter ? setShowFilter(true) : setShowFilter(false) ;
-  }
+    setParam(type);
+  }, [param, type])
 
   return (
     <>
-      <i className={`btnShowFilter ${showFilter ? 'on' : null}`} onClick={handleFilter}></i>
+      <i className={`btnShowFilter ${showFilter ? 'on' : null}`} onClick={()=>setShowFilter(!showFilter)}></i>
       <div id='filter' className={showFilter ? 'on' : undefined}>
         <div className='inner'>
           <ul>

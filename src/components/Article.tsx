@@ -7,9 +7,11 @@ import { RootState } from '../redux';
 
 export default function Article(props: TypeArticleProps) {
 
-  const searchParams = useSearchParams().toString();
+  const searchParams = useSearchParams();
   const queries = searchParams.toString();
   const baseUrl = 'https://cheongyak.com/img/house';
+
+  // store 내 필터 리스트 불러오기
   const filterList = useSelector((store: RootState)=> store.filter.data);
   
   return (
