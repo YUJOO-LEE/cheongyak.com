@@ -44,6 +44,4 @@ export interface TypeArticleProps {
   children: React.ReactElement;
 }
 
-export interface TypeContent {
-  data: any
-}
+export type TypeContent = any;

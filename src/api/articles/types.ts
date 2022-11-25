@@ -1,12 +1,10 @@
-export interface GetRequestType {
-  state?: string;
-  area?: string;
-  type?: string;
-};
+import { TypeArticle, TypeQueries } from "../../asset/types";
+import { articlesState } from "../../redux/articles";
 
-export interface GetResponseType {
-  data: [];
-  code: string;
+export type GetRequestType = TypeQueries;
+
+export interface GetResponseType extends articlesState {
+  code: number;
   message: string;
-  payload: any;
+  payload: TypeArticle;
 };

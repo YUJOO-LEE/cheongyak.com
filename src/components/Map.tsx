@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 
 export default function Map({latLng}: {latLng: string}) {
 
-  const { kakao } = window as any;
+  const { kakao } = window as MyWindow;
   const container = useRef(null);
 
   useEffect(() => {

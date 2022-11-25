@@ -30,7 +30,7 @@ export default function ArticleList() {
     <Layout type='list'>
       <div id='list'>
         <div className='inner'>
-          {articlesList.length ? articlesList.map((data: TypeArticle)=>{
+          {Array.isArray(articlesList) && articlesList.length ? articlesList.map((data: TypeArticle)=>{
             return (
               <Article key={data.id} 
                 id={data.id} 

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 
@@ -7,23 +7,24 @@ import Layout from '../../components/Layout';
 import Map from '../../components/Map';
 import ContentPicture from '../../components/ContentPicture';
 import ContentTable from '../../components/ContentTable';
+import Popup, { TypeHandle } from '../../components/Popup';
 import Scroll from '../../asset/scroll';
+import { RootState } from '../../redux';
 import { getContentAsync } from '../../redux/content';
-import Popup from '../../components/Popup';
 
 export default function Content() {
 
   const dispatch = useDispatch();
   const router = useRouter();
-  const ContentData = useSelector((store:any)=> store.content.data);
-  const FilterList = useSelector((store:any)=> store.filter.data);
+  const ContentData = useSelector((store: RootState)=> store.content.data);
+  const FilterList = useSelector((store: RootState)=> store.filter.data);
 
 
   const [ TabIndex, setTabIndex ] = useState(0);
   const frame = useRef<HTMLDivElement>(null);
   const position = useRef<number[]>([]);
-  const pop = useRef<any>();
-  const [ curY, setCurY ] = useState(0);
+  const pop = useRef<TypeHandle>(null);
+  const [ curY, setCurY ] = useState<number>(0);
   
   const baseUrl = 'https://cheongyak.com/img/house';
   const tabMenus = ['정보', '결과', '사진', '위치'];
@@ -62,7 +63,7 @@ export default function Content() {
   }, [paramsId, FilterList, frame.current])
   
   return ( <Layout type='content'>
-    {(ContentData.id && FilterList.length) &&
+    {(ContentData.id && Array.isArray(FilterList) && FilterList.length) &&
     <>
       <div id='content' ref={frame}>
         <figure

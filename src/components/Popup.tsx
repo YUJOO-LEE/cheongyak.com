@@ -1,10 +1,11 @@
 import React, { useRef, forwardRef, useEffect, useState, useImperativeHandle } from 'react';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
+import { RootState } from '../redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX } from '@fortawesome/free-solid-svg-icons';
-import { Swiper, SwiperSlide } from 'swiper/react';
 import { FreeMode, Navigation, Thumbs } from "swiper";
+import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore from 'swiper/types/swiper-class';
 
 import "swiper/css";
@@ -12,7 +13,12 @@ import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 
-const Popup = forwardRef((props, ref)=>{
+export interface TypeHandle {
+  setOpen: (isOpen: boolean) => void;
+  setImgIndex: (idx: number) => void;
+}
+
+const Popup = forwardRef<TypeHandle>((props, ref)=>{
 
   const router = useRouter();
   const [Open, setOpen] = useState(false);
@@ -20,19 +26,17 @@ const Popup = forwardRef((props, ref)=>{
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperCore | null>(null);
 
   const popup = useRef() as React.MutableRefObject<HTMLDivElement>;
-  const ImagesData = useSelector((store:any)=> store.content.data.images);
+  const ImagesData = useSelector((store: RootState)=> store.content.data.images);
 
   const baseUrl = 'https://cheongyak.com/img/house';
   const paramsId = parseInt(router.query.contentId as string);
 
   useImperativeHandle(
     ref,
-    () => {
-      return {
-        setOpen: ()=>setOpen(true),
-        setImgIndex: (idx: number)=>setImgIndex(idx),
-      };
-    }
+    () => ({
+      setOpen: (isOpen)=> setOpen(isOpen),
+      setImgIndex: (idx)=> setImgIndex(idx),
+    })
   )
 
   useEffect(() => {

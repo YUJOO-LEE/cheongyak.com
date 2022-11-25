@@ -1,8 +1,8 @@
+import { TypeFilter } from "../../asset/types";
+import { filterState } from "../../redux/filter";
+
 export type GetRequestType = string;
 
-export interface GetResponseType {
-  filter: [];
-  code: string;
-  message: string;
-  payload: any;
+export interface GetResponseType extends filterState {
+  payload: Array<TypeFilter>;
 };

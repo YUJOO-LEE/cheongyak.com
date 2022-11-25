@@ -17,7 +17,7 @@ export function* rootSaga() {
   yield all([filterSaga(), articlesSaga(), contentSaga()]);
 }
 
-const wrapper: any = createWrapper(configureStore, {
+const wrapper = createWrapper(configureStore, {
   debug: process.env.NODE_ENV === 'development'
 });
 
