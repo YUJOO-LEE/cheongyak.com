@@ -11,6 +11,7 @@ header{
 
     h1{
       height: 100%;
+      font-weight: 500;
 
       a{
         height: 100%;
@@ -25,6 +26,7 @@ header{
         span{
           font-size: $font-size-medium;
           color: $color-black;
+          font-weight: 500;
         }
       }
     }
