@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { apiGetFilter } from "../../api/filter/api";
-import { GetResponseType } from "../../api/filter/types";
+import { apiGetFilter } from "./api";
+import { GetResponseType } from "./types";
 import { getFilterAsync, FILTER_REQUEST } from "./actions";
 
 function* getFilterSaga() {

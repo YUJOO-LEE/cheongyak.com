@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { apiGetContent } from "../../api/content/api";
-import { GetResponseType } from "../../api/content/types";
+import { apiGetContent } from "./api";
+import { GetResponseType } from "./types";
 import { getContentAsync, CONTENT_REQUEST } from "./actions";
 
 function* getContentSaga(

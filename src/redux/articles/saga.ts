@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { apiGetArticles } from "../../api/articles/api";
-import { GetResponseType } from "../../api/articles/types";
+import { apiGetArticles } from "./api";
+import { GetResponseType } from "./types";
 import { getArticlesAsync, ARTICLES_REQUEST } from "./actions";
 
 function* getArticlesSaga(

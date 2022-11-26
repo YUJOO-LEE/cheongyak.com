@@ -5,7 +5,7 @@ import { AxiosError } from 'axios';
 import {
   GetRequestType,
   GetResponseType
-} from '../../api/filter/types';
+} from './types';
 
 //액션 타입
 export const SET_FILTER = 'filter/SET_FILTER' as const;
