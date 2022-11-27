@@ -23,7 +23,7 @@ export default function Header({type}: {type: string}) {
             pathname: '/list',
             query: { ...queries},
           }}>
-          <p className='goBack'>List</p>
+          <p className='goList'>List</p>
           </Link>
         )}
         <h1>
