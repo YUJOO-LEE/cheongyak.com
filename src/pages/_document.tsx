@@ -1,6 +1,5 @@
 import React from 'react';
 import Document, { DocumentContext, Head, Html, Main, NextScript } from 'next/document';
-import Script from 'next/script';
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
@@ -21,9 +20,9 @@ export default class MyDocument extends Document {
             content='검단신도시, 운정신도시 청약 정보'
           />
           <title>청약닷컴</title>
-          <Script src='https://kit.fontawesome.com/08c501c945.js' crossOrigin='anonymous'></Script>
-          <Script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0f018f7ff64a71f0976e2448a4ec8cea&autoload=false"></Script>
-          
+          <script src='https://kit.fontawesome.com/08c501c945.js' crossOrigin='anonymous'></script>
+          <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0f018f7ff64a71f0976e2448a4ec8cea&autoload=false"></script>
+
           <body>
             <Main />
             <NextScript />
