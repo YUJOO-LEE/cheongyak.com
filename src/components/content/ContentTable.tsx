@@ -1,5 +1,5 @@
 import React from 'react';
-import { TypeContent } from '../asset/types';
+import { TypeContent } from '../../asset/types';
 
 export default function ContentTable({data}: {data: TypeContent}) {
   return (

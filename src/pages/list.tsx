@@ -1,8 +1,8 @@
 
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Layout from '../components/Layout';
-import Article from '../components/Article';
+import Layout from '../components/common/Layout';
+import Article from '../components/list/Article';
 import { RootState } from "../redux";
 import { getArticlesAsync } from '../redux/articles';
 import { useDispatch, useSelector } from 'react-redux';

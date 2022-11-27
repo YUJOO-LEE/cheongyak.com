@@ -52,21 +52,25 @@ $screen-size-mobile: 539px;
 
 
 // common
-@import './common/reset.scss';
-@import './common/header.scss';
-@import './common/footer.scss';
-@import './common/layout.scss';
-@import './common/article.scss';
-@import './common/filter.scss';
-@import './common/map.scss';
-@import './common/contentPicture.scss';
-@import './common/contentTable.scss';
-@import './common/popup.scss';
+@import './components/common/reset';
+@import './components/common/header';
+@import './components/common/footer';
+@import './components/common/layout';
+@import './components/common/filter';
 
-// routers
-@import './pages/indexSelect.scss';
-@import './pages/list.scss';
-@import './pages/content.scss';
+// list
+@import './components/list/article';
+
+// content
+@import './components/content/map';
+@import './components/content/contentPicture';
+@import './components/content/contentTable';
+@import './components/content/popup';
+
+// pages
+@import './pages/indexSelect';
+@import './pages/list';
+@import './pages/content';
 
 
 body{

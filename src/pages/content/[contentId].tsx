@@ -3,11 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 
-import Layout from '../../components/Layout';
-import Map from '../../components/Map';
-import ContentPicture from '../../components/ContentPicture';
-import ContentTable from '../../components/ContentTable';
-import Popup, { TypeHandle } from '../../components/Popup';
+import Layout from '../../components/common/Layout';
+import Map from '../../components/content/Map';
+import ContentPicture from '../../components/content/ContentPicture';
+import ContentTable from '../../components/content/ContentTable';
+import Popup, { TypeHandle } from '../../components/content/Popup';
 import Scroll from '../../asset/scroll';
 import { RootState } from '../../redux';
 import { getContentAsync } from '../../redux/content';

@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React from 'react';
-import Logo from '../components/Logo';
+import Logo from '../components/common/Logo';
 
 const IndexPage: NextPage = function () {
   return (

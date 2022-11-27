@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { RootState } from "../redux";
+import { RootState } from "../../redux";
 import { useSelector } from 'react-redux';
-import { TypeFilter, TypeQueries } from '../asset/types';
+import { TypeFilter, TypeQueries } from '../../asset/types';
 
 export default function Filter({ type }: { type: string }) {
 

@@ -2,8 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { useSearchParams } from 'next/navigation';
-import { TypeArticleProps } from '../asset/types';
-import { RootState } from '../redux';
+import { TypeArticleProps } from '../../asset/types';
+import { RootState } from '../../redux';
 
 export default function Article(props: TypeArticleProps) {
 

@@ -1,7 +1,7 @@
 import React, { useRef, forwardRef, useEffect, useState, useImperativeHandle } from 'react';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
-import { RootState } from '../redux';
+import { RootState } from '../../redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 import { FreeMode, Navigation, Thumbs } from "swiper";

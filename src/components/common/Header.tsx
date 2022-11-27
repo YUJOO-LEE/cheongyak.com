@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Logo from './Logo';
 import { useSearchParams } from 'next/navigation';
-import { TypeQueries } from '../asset/types';
+import { TypeQueries } from '../../asset/types';
 
 export default function Header({type}: {type: string}) {
 
