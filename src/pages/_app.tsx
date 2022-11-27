@@ -4,6 +4,7 @@ import wrapper from '../redux/index';
 import '../scss/style.scss';
 import { Provider } from "react-redux";
 import { getFilterAsync } from '../redux/filter';
+import Head from 'next/head';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const { store, props } = wrapper.useWrappedStore(pageProps);
@@ -16,6 +17,10 @@ function MyApp({ Component, pageProps }: AppProps) {
   
   return (
     <Provider store={store}>
+      <Head>
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <title>청약닷컴</title>
+      </Head>
       <Component {...props} />
     </Provider>
   )
