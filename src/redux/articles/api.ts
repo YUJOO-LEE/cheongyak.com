@@ -8,7 +8,7 @@ export async function apiGetArticles(option: GetRequestType) {
     type: option.type
   }
   const response = await axios.get<GetResponseType>(
-    `https://cheongyak.com/api/houses`,
+    `http://kongnas.com:8080/api/houses`,
     {params}
   );
 
