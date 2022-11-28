@@ -9,7 +9,7 @@ export default function Article(props: TypeArticleProps) {
 
   const searchParams = useSearchParams();
   const queries = searchParams.toString();
-  const baseUrl = 'https://kongnas.com:8110/img/house';
+  const baseUrl = `${process.env.NEXT_PUBLIC_IMG_URL}/img/house`;
 
   // store 내 필터 리스트 불러오기
   const filterList = useSelector((store: RootState)=> store.filter.data);

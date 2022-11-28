@@ -23,7 +23,7 @@ export default function Content() {
   const [ TabIndex, setTabIndex ] = useState<number>(0);  // 선택한 메뉴
   const [ curY, setCurY ] = useState<number>(0);
 
-  const baseUrl = 'https://kongnas.com:8110/img/house';
+  const baseUrl = `${process.env.NEXT_PUBLIC_IMG_URL}/img/house`;
   const tabMenus = ['정보', '결과', '사진', '위치'];  // 메뉴명
   const contentId = parseInt(router.query.contentId as string);
 
