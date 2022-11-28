@@ -26,7 +26,7 @@ const Popup = forwardRef<TypeHandle>((_, ref)=>{
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperCore | null>(null);
   const popup = useRef() as React.MutableRefObject<HTMLDivElement>;
 
-  const baseUrl = 'https://cheongyak.com/img/house';
+  const baseUrl = 'https://kongnas.com:8110/img/house';
   const paramsId = parseInt(router.query.contentId as string);
 
   // store 내 이미지 리스트 불러오기
