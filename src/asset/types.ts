@@ -69,4 +69,5 @@ export interface TypeContent {
   subject?: string;
   type?: string;
   url?: string;
+  resultImages?: Array<TypeImages>;
 };

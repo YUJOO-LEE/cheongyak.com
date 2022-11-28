@@ -119,11 +119,20 @@ export default function Content() {
               <ContentTable data={ContentData}></ContentTable>
             </div>
             <div className='gallery'>
-              {ContentData.state === 'COMPLETE' && 
-                <div className='inner'>
-                <ContentPicture />
-                </div>
-              }
+              {(ContentData.state === 'COMPLETE' && ContentData.resultImages) && ContentData.resultImages?.map((data: TypeImages, idx: number)=>{
+                return (
+                  <ContentPicture key={`images${data.id}`}>
+                    <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} 
+                      alt={ContentData.subject} 
+                      onClick={()=>{
+                        pop.current?.setImgList('resultImages');
+                        pop.current?.setImgIndex(idx);
+                        pop.current?.setOpen(true);
+                      }}
+                    />
+                  </ContentPicture>
+                );
+              })}
             </div>
             <div className='gallery'>
               <div className='inner'>
@@ -133,6 +142,7 @@ export default function Content() {
                     <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} 
                       alt={ContentData.subject} 
                       onClick={()=>{
+                        pop.current?.setImgList('images');
                         pop.current?.setImgIndex(idx);
                         pop.current?.setOpen(true);
                       }}

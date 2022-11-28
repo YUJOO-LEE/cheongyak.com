@@ -12,16 +12,19 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
+import { TypeImages } from '../../asset/types';
 
 export interface TypeHandle {
   setOpen: (isOpen: boolean) => void;
   setImgIndex: (idx: number) => void;
+  setImgList: (type: string) => void;
 }
 
 const Popup = forwardRef<TypeHandle>((_, ref)=>{
 
   const router = useRouter();
   const [Open, setOpen] = useState(false);
+  const [ImgList, setImgList] = useState('images');  // 슬라이드 초기출력 인덱스
   const [imgIndex, setImgIndex] = useState(0);  // 슬라이드 초기출력 인덱스
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperCore | null>(null);
   const popup = useRef() as React.MutableRefObject<HTMLDivElement>;
@@ -29,8 +32,15 @@ const Popup = forwardRef<TypeHandle>((_, ref)=>{
   const baseUrl = `${process.env.NEXT_PUBLIC_IMG_URL}/img/house`;
   const paramsId = parseInt(router.query.contentId as string);
 
+  let ImagesData;
+  const stoerData = useSelector((store: RootState)=> store.content.data);
+
   // store 내 이미지 리스트 불러오기
-  const ImagesData = useSelector((store: RootState)=> store.content.data.images);
+  if (ImgList === 'images') {
+    ImagesData = stoerData.images;
+  } else { 
+    ImagesData= stoerData.resultImages;
+  }
 
   // 상위 컴포넌트로 메서드 반환
   useImperativeHandle(
@@ -38,6 +48,7 @@ const Popup = forwardRef<TypeHandle>((_, ref)=>{
     () => ({
       setOpen: (isOpen)=> setOpen(isOpen),
       setImgIndex: (idx)=> setImgIndex(idx),
+      setImgList: (type)=> setImgList(type),
     })
   )
 
@@ -59,7 +70,7 @@ const Popup = forwardRef<TypeHandle>((_, ref)=>{
 
   return (
     <>
-    {(Open && ImagesData?.length) &&
+    {(Open && ImagesData) &&
       <aside className='pop' ref={popup}>
         <div className='con'>
           <Swiper // 상세 이미지
@@ -70,7 +81,7 @@ const Popup = forwardRef<TypeHandle>((_, ref)=>{
             modules={[FreeMode, Navigation, Thumbs]}
             className="slide"
           >
-            {ImagesData.map((data: any, idx: number)=>
+            {ImagesData.map((data: TypeImages, idx: number)=>
               <SwiperSlide key={`slide${idx}`}>
                 <img src={`${baseUrl}/${paramsId}/${data.imageFileName}`} 
                   alt={`${idx}번째 이미지`} 
@@ -96,7 +107,7 @@ const Popup = forwardRef<TypeHandle>((_, ref)=>{
               }
             }}
           >
-            {ImagesData.map((data: any, idx: number)=>
+            {ImagesData.map((data: TypeImages, idx: number)=>
               <SwiperSlide key={`list${idx}`}>
                 <img src={`${baseUrl}/${paramsId}/${data.imageFileName}`} 
                   alt={`${idx}번째 이미지`} 
