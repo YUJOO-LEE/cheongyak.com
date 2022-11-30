@@ -12,6 +12,8 @@ import Scroll from '../../asset/scroll';
 import { RootState } from '../../redux';
 import { getContentAsync } from '../../redux/content';
 import { TypeImages } from '../../asset/types';
+import Youtube from '../../components/content/Youtube';
+import Link from 'next/link';
 
 export default function Content() {
 
@@ -117,22 +119,36 @@ export default function Content() {
           >
             <div>
               <ContentTable data={ContentData}></ContentTable>
+              {ContentData.youtube && 
+                <Youtube>
+                  <Link href={`https://www.youtube.com/watch?v=${ContentData.youtube}`
+                } target='_blank'>
+                    <img 
+                      src={`http://i.ytimg.com/vi/${ContentData.youtube}/sddefault.jpg`}
+                      alt={ContentData.subject} />
+                  </Link>
+                </Youtube>
+              }
             </div>
             <div className='gallery'>
-              {(ContentData.state === 'COMPLETE' && ContentData.resultImages) && ContentData.resultImages?.map((data: TypeImages, idx: number)=>{
-                return (
-                  <ContentPicture key={`images${data.id}`}>
-                    <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} 
-                      alt={ContentData.subject} 
-                      onClick={()=>{
-                        pop.current?.setImgList('resultImages');
-                        pop.current?.setImgIndex(idx);
-                        pop.current?.setOpen(true);
-                      }}
-                    />
-                  </ContentPicture>
-                );
-              })}
+              {(ContentData.state === 'COMPLETE' && ContentData.resultImages) && 
+                <div className='inner'>
+                {ContentData.resultImages?.map((data: TypeImages, idx: number)=>{
+                  return (
+                    <ContentPicture key={`images${data.id}`}>
+                      <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} 
+                        alt={ContentData.subject} 
+                        onClick={()=>{
+                          pop.current?.setImgList('resultImages');
+                          pop.current?.setImgIndex(idx);
+                          pop.current?.setOpen(true);
+                        }}
+                      />
+                    </ContentPicture>
+                  );
+                })}
+                </div>
+              }
             </div>
             <div className='gallery'>
               <div className='inner'>
