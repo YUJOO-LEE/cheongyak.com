@@ -87,9 +87,13 @@ export default function Content() {
             <h1>{ContentData.subject}</h1>
             <div className='tags'>
               {(ContentData.area && ContentData.area.id !== 0) && (
-                <span>#{FilterList[1].list[ContentData.area.id]}</span>
+                <Link href={`/list?area=${ContentData.area.id}`}>
+                  <span>#{FilterList[1].list[ContentData.area.id]}</span>
+                </Link>
               )}
-              <span>#{ContentData.type && FilterList[2].list[ContentData.type]}</span>
+              <Link href={`/list?type=${ContentData.type}`}>
+                <span>#{ContentData.type && FilterList[2].list[ContentData.type]}</span>
+              </Link>
             </div>
           </div>
         </figure>
