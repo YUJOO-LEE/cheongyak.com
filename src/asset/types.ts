@@ -69,5 +69,6 @@ export interface TypeContent {
   subject?: string;
   type?: string;
   url?: string;
+  youtube?: string;
   resultImages?: Array<TypeImages>;
 };
