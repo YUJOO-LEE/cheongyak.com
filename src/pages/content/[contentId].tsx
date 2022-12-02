@@ -123,16 +123,6 @@ export default function Content() {
           >
             <div>
               <ContentTable data={ContentData}></ContentTable>
-              {ContentData.youtube && 
-                <Youtube>
-                  <Link href={`https://www.youtube.com/watch?v=${ContentData.youtube}`
-                } target='_blank'>
-                    <img 
-                      src={`http://i.ytimg.com/vi/${ContentData.youtube}/sddefault.jpg`}
-                      alt={ContentData.subject} />
-                  </Link>
-                </Youtube>
-              }
             </div>
             <div className='gallery'>
               {(ContentData.state === 'COMPLETE' && ContentData.resultImages) && 
@@ -156,6 +146,16 @@ export default function Content() {
             </div>
             <div className='gallery'>
               <div className='inner'>
+              {ContentData.youtube && 
+                <Youtube>
+                  <Link href={`https://www.youtube.com/watch?v=${ContentData.youtube}`
+                } target='_blank'>
+                    <img 
+                      src={`http://i.ytimg.com/vi/${ContentData.youtube}/mqdefault.jpg`}
+                      alt={ContentData.subject} />
+                  </Link>
+                </Youtube>
+              }
               {ContentData.images?.map((data: TypeImages, idx: number)=>{
                 return (
                   <ContentPicture key={`images${data.id}`}>
