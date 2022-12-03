@@ -69,7 +69,7 @@ export default function Content() {
   useEffect(() => {
     if (!contentId) return;
     dispatch(getContentAsync.request({id: contentId}));
-  }, [contentId])
+  }, [contentId]);
 
   return (
   <Layout type='content'>
@@ -81,7 +81,9 @@ export default function Content() {
         >
           <div className='txt'>
             <div className='date'>
-              {ContentData.gonggoDate}-{ContentData.announcementDate} 
+              {ContentData.gonggoDate 
+                ? `${ContentData.gonggoDate}-${ContentData.announcementDate} ` 
+              : `${ContentData.openDate} `}
               {ContentData.state && FilterList[0].list[ContentData.state]}
             </div>
             <h1>{ContentData.subject}</h1>
@@ -129,7 +131,7 @@ export default function Content() {
                 <div className='inner'>
                 {ContentData.resultImages?.map((data: TypeImages, idx: number)=>{
                   return (
-                    <ContentPicture key={`images${data.id}`}>
+                    <ContentPicture key={`resultImages${idx}`}>
                       <img src={`${baseUrl}/${ContentData.id}/${data.imageFileName}`} 
                         alt={ContentData.subject} 
                         onClick={()=>{
