@@ -5,7 +5,7 @@ export default function ContentTable({data}: {data: TypeContent}) {
   return (
     <table id='contentTable'>
       <tbody>
-        {data.state === '0' ? 
+        {data.state === 'EXPECT' ? 
         <>
         <tr>
           <th>모집공고</th>
