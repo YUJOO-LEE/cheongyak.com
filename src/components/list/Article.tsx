@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import { useSearchParams } from 'next/navigation';
 import { TypeArticleProps } from '../../asset/types';
@@ -7,19 +7,22 @@ import { RootState } from '../../redux';
 
 export default function Article(props: TypeArticleProps) {
 
+  const router = useRouter();
   const searchParams = useSearchParams();
   const queries = searchParams.toString();
   const baseUrl = `${process.env.NEXT_PUBLIC_IMG_URL}/img/house`;
 
   // store 내 필터 리스트 불러오기
   const filterList = useSelector((store: RootState)=> store.filter.data);
+
+  const handleClick = () => {
+    router.push(`/content/${props.id}?${queries}`);
+  }
   
   return (
-    <article>
+    <article onClick={handleClick}>
       <div className='pic'>
-        <Link href={`/content/${props.id}?${queries}`}>
-          <img src={`${baseUrl}/${props.id}/${props.imageFileName}`} alt={props.subject} />
-        </Link>
+        <img src={`${baseUrl}/${props.id}/${props.imageFileName}`} alt={props.subject} />
       </div>
       <div className='txt'>
         <h3>

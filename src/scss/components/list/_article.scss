@@ -6,6 +6,7 @@ article{
   border-radius: 10px;
   transition: 0.5s;
   isolation: isolate;
+  cursor: pointer;
 
   .pic{
     width: 100%;
@@ -15,21 +16,14 @@ article{
     filter: grayscale(0.6);
     transition: 0.5s;
 
-    a{
+    img{
       width: 100%;
       height: 100%;
-      display: block;
-      overflow: hidden;
-
-      img{
-        width: 100%;
-        height: 100%;
-        image-rendering: -webkit-optimize-contrast;
-        transform: translateZ(0);
-        backface-visibility: hidden;
-        object-fit: cover;
-        transition: 0.5s;
-      }
+      image-rendering: -webkit-optimize-contrast;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      object-fit: cover;
+      transition: 0.5s;
     }
 
     &:hover{
