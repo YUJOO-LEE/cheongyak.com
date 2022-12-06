@@ -41,6 +41,22 @@ article{
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: relative;
+
+    .label{
+      position: absolute;
+      top: 0;
+      right: 2%;
+      display: block;
+      font-family: arial;
+      font-size: $font-size-smallest;
+      font-weight: 500;
+      background-color: $color-point;
+      color: $color-white;
+      padding: 2px 4px;
+      border-radius: 2px;
+      transform: translateY(-50%);
+    }
 
     h3{
       font-size: $font-size-regular;

@@ -25,6 +25,8 @@ export default function Article(props: TypeArticleProps) {
         <img src={`${baseUrl}/${props.id}/${props.imageFileName}`} alt={props.subject} />
       </div>
       <div className='txt'>
+        {props.newContent ? <span className='label'>NEW</span>
+        : props.updateContent && <span className='label'>UPDATE</span>}
         <h3>
           {props.subject}
         </h3>

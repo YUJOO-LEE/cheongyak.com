@@ -36,6 +36,8 @@ export interface TypeArticle {
   area: TypeArea;
   type: string;
   desc: React.ReactElement;
+  newContent: boolean;
+  updateContent: boolean;
 }
 
 export interface TypeArticleProps {
@@ -46,6 +48,8 @@ export interface TypeArticleProps {
   area: number;
   type: string;
   children: React.ReactElement;
+  newContent: boolean;
+  updateContent: boolean;
 }
 
 export interface TypeContent {

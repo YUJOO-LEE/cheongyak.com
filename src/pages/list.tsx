@@ -41,6 +41,8 @@ export default function ArticleList() {
                 state={data.state} 
                 area={data.area.id} 
                 type={data.type} 
+                newContent={data.newContent} 
+                updateContent={data.updateContent} 
               >{data.desc}</Article>
             );
           })

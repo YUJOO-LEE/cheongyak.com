@@ -14,7 +14,8 @@ const reducer = createReducer<articlesState, articlesAction>(initialState, {
   }},
   [ARTICLES_FAILURE]: (state) => {
     return {
-    ...state
+    ...state,
+    data: [],
   }},
 });
 
