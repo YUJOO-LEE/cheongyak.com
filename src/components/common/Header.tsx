@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Logo from './Logo';
 import { useSearchParams } from 'next/navigation';
 import { TypeQueries } from '../../asset/types';
+import Login from './Login';
 
 export default function Header({type}: {type: string}) {
 
@@ -31,6 +32,7 @@ export default function Header({type}: {type: string}) {
             <Logo></Logo>
             <span>청약닷컴</span>
           </Link>
+          <Login />
         </h1>
       </div>
     </header>
