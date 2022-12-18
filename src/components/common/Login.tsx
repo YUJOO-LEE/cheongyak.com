@@ -9,7 +9,7 @@ function Login() {
   const dispatch = useDispatch();
   // store 내 필터 리스트 불러오기
   const loginInfo = useSelector((store: RootState)=> store.user);
-  console.log(loginInfo);
+  // console.log(loginInfo);
   
   const handleLogin = (data: any) => {
     dispatch(loginRequestAction(data));
