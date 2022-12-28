@@ -14,6 +14,7 @@ import { getContentAsync } from '../../redux/content';
 import { TypeImages } from '../../asset/types';
 import Youtube from '../../components/content/Youtube';
 import Link from 'next/link';
+import Head from 'next/head';
 
 export default function Content() {
 
@@ -75,6 +76,14 @@ export default function Content() {
   <Layout type='content'>
     {(ContentData.id && Array.isArray(FilterList) && FilterList.length) &&
     <>
+      <Head>
+        <title>{ContentData.subject} | 청약닷컴</title>
+        <meta property='og:type' content='website' />
+        <meta property='og:title' content={ContentData.subject} />
+        <meta property='og:url' content='cheongyak.com' />
+        <meta property='og:description' content={`청약닷컴 제공 ${ContentData.subject} 청약정보`} />
+        <meta property='og:image' content={`${baseUrl}/${ContentData.id}/${ContentData.images?.[0].imageFileName}`} />
+      </Head>
       <div id='content' ref={frame}>
         <figure // 상단 페이지 제목부분
           style={{backgroundImage: `url(${baseUrl}/${ContentData.id}/${ContentData.images?.[0].imageFileName})`}}
