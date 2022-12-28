@@ -20,6 +20,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Head>
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <title>청약닷컴</title>
+        <meta charSet='utf-8' />
+        <link rel='icon' href='img/favicon.ico' />
+        <meta name='theme-color' content='#000000' />
+        <meta name='description' content='검단신도시, 운정신도시 청약 정보' />
         <meta property='og:type' content='website' />
         <meta property='og:title' content='청약닷컴' />
         <meta property='og:url' content='cheongyak.com' />
