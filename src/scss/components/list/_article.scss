@@ -110,6 +110,13 @@ article{
       width: calc(100% - 130px);
       height: 100%;
 
+      .label{
+        top: 10px;
+        right: auto;
+        left: 0;
+        transform: translateX(-90%);
+      }
+
       .tags{
         span{
           font-size: $font-size-smallest;
