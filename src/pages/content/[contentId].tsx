@@ -92,7 +92,7 @@ export default function Content() {
             <div className='date'>
               {ContentData.gonggoDate 
                 ? `${ContentData.gonggoDate}-${ContentData.announcementDate} ` 
-              : `${ContentData.openDate} `}
+              : `${ContentData.openDate !== '0.0' ? ContentData.openDate : ''} `}
               {ContentData.state && FilterList[0].list[ContentData.state]}
             </div>
             <h1>{ContentData.subject}</h1>

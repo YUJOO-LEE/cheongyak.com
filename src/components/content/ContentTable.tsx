@@ -9,7 +9,7 @@ export default function ContentTable({data}: {data: TypeContent}) {
         <>
         <tr>
           <th>모집공고</th>
-          <td>{data.openDate} 예정</td>
+          <td>{data.openDate !== '0.0' ? data.openDate + '예정' : '미정'}</td>
         </tr>
         </> : <>
         {data.gonggoDate && 
