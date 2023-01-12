@@ -43,17 +43,7 @@ export default function ArticleList() {
         <div className='inner'>
           {Array.isArray(articlesList) && articlesList.length ? articlesList.map((data: TypeArticle)=>{
             return (
-              <Article key={data.id} 
-                id={data.id} 
-                subject={data.subject} 
-                imageFileName={data.image.imageFileName} 
-                state={data.state} 
-                area={data.area.id} 
-                type={data.type} 
-                openDate={data.openDate} 
-                newContent={data.newContent} 
-                updateContent={data.updateContent} 
-              >{data.desc}</Article>
+              <Article {...data}>{data.desc}</Article>
             );
           })
           : <p>검색된 데이터가 없습니다.</p>

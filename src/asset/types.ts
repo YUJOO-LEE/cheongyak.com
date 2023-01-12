@@ -1,11 +1,11 @@
-export interface TypeQueries {
+export type TypeQueries = {
   [index: string]: string;
   state: string;
   area: string;
   type: string;
 }
 
-export interface TypeFilter {
+export type TypeFilter = {
   key: string;
   name: string;
   list: {
@@ -17,17 +17,17 @@ export interface TypeFilter {
   }
 }
 
-export interface TypeArea {
+export type TypeArea = {
   id: number;
   name: string;
 }
 
-export interface TypeImages {
+export type TypeImages = {
   id: number;
   imageFileName: string;
 }
 
-export interface TypeArticle {
+export type TypeArticle = {
   id: number;
   subject: string;
   images: Array<TypeImages>;
@@ -41,20 +41,7 @@ export interface TypeArticle {
   openDate: string;
 }
 
-export interface TypeArticleProps {
-  id: number;
-  subject: string;
-  imageFileName: string;
-  state: string;
-  area: number;
-  type: string;
-  children: React.ReactElement;
-  newContent: boolean;
-  updateContent: boolean;
-  openDate: string;
-}
-
-export interface TypeContent {
+export type TypeContent = {
   dateMoveIn?: string;
   announcementDate?: string;
   area?: TypeArea;

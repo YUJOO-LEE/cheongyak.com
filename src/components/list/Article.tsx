@@ -2,10 +2,18 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import { useSearchParams } from 'next/navigation';
-import { TypeArticleProps } from '../../asset/types';
+import { TypeArticle } from '../../asset/types';
 import { RootState } from '../../redux';
 
-export default function Article(props: TypeArticleProps) {
+export default function Article({ id,
+  subject,
+  image,
+  state,
+  area,
+  type,
+  newContent,
+  updateContent,
+  openDate }: TypeArticle) {
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -16,31 +24,31 @@ export default function Article(props: TypeArticleProps) {
   const filterList = useSelector((store: RootState)=> store.filter.data);
 
   const handleClick = () => {
-    router.push(`/content/${props.id}?${queries}`);
+    router.push(`/content/${id}?${queries}`);
   }
   
   return (
     <article onClick={handleClick}>
       <div className='pic'>
-        <img src={`${baseUrl}/${props.id}/${props.imageFileName}`} alt={props.subject} />
-        {props.openDate !== '0.0' && <p>{props.openDate}</p>}
+        <img src={`${baseUrl}/${id}/${image.imageFileName}`} alt={subject} />
+        {openDate !== '0.0' && <p>{openDate}</p>}
       </div>
       <div className='txt'>
-        {props.newContent ? <span className='label'>NEW</span>
-        : props.updateContent && <span className='label'>UPDATE</span>}
+        {newContent ? <span className='label'>NEW</span>
+        : updateContent && <span className='label'>UPDATE</span>}
         <h3>
-          {props.subject}
+          {subject}
         </h3>
-        {props.openDate !== '0.0' && <p>{props.openDate}</p>}
+        {openDate !== '0.0' && <p>{openDate}</p>}
         <div className='tags'>
-          <span data-state={props.state}>
-            {Array.isArray(filterList) && filterList[0].list[props.state]}
+          <span data-state={state}>
+            {Array.isArray(filterList) && filterList[0].list[state]}
           </span>
-          {props.area !== 0 && <span data-area={props.area}>
-            {Array.isArray(filterList) && filterList[1].list[props.area]}
+          {area.id !== 0 && <span data-area={area}>
+            {Array.isArray(filterList) && filterList[1].list[area.id]}
           </span>}
-          <span data-type={props.type}>
-            {Array.isArray(filterList) && filterList[2].list[props.type]}
+          <span data-type={type}>
+            {Array.isArray(filterList) && filterList[2].list[type]}
           </span>
         </div>
       </div>
