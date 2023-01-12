@@ -26,6 +26,15 @@ article{
       transition: 0.5s;
     }
 
+    p{
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: $font-size-small;
+      color: white;
+      text-shadow: 0 0 3px rgba(0,0,0,0.8);
+    }
+
     &:hover{
       filter: grayscale(0);
       img{

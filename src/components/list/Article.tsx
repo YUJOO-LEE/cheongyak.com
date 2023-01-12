@@ -23,6 +23,9 @@ export default function Article(props: TypeArticleProps) {
     <article onClick={handleClick}>
       <div className='pic'>
         <img src={`${baseUrl}/${props.id}/${props.imageFileName}`} alt={props.subject} />
+        {props.openDate !== '0.0' && 
+          <p>{props.openDate} {Array.isArray(filterList) && filterList[0].list[props.state]}</p>
+        }
       </div>
       <div className='txt'>
         {props.newContent ? <span className='label'>NEW</span>

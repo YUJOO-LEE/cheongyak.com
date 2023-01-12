@@ -38,6 +38,7 @@ export interface TypeArticle {
   desc: React.ReactElement;
   newContent: boolean;
   updateContent: boolean;
+  openDate: string;
 }
 
 export interface TypeArticleProps {
@@ -50,6 +51,7 @@ export interface TypeArticleProps {
   children: React.ReactElement;
   newContent: boolean;
   updateContent: boolean;
+  openDate: string;
 }
 
 export interface TypeContent {

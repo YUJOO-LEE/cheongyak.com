@@ -23,6 +23,8 @@ export default function ArticleList() {
     return store.articles.data;
   });
 
+  console.dir(articlesList);
+
   // 쿼리스트링 변경에 따라 dispatch
   useEffect(() => {
     const queries: TypeQueries = {
@@ -48,6 +50,7 @@ export default function ArticleList() {
                 state={data.state} 
                 area={data.area.id} 
                 type={data.type} 
+                openDate={data.openDate} 
                 newContent={data.newContent} 
                 updateContent={data.updateContent} 
               >{data.desc}</Article>
