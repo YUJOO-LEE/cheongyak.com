@@ -5,19 +5,15 @@ export default function ContentTable({data}: {data: TypeContent}) {
   return (
     <table id='contentTable'>
       <tbody>
-        {data.state === 'EXPECT' ? 
-        <>
         <tr>
           <th>모집공고</th>
-          <td>{data.openDate !== '0.0' ? data.openDate + '예정' : '미정'}</td>
+          <td>{data.gonggoDate ? 
+            data.gonggoDate
+            : data.openDate !== '0.0' ?
+              data.openDate + '예정'
+              : '미정'
+          }</td>
         </tr>
-        </> : <>
-        {data.gonggoDate && 
-          <tr>
-            <th>모집공고</th>
-            <td>{data.gonggoDate}</td>
-          </tr>
-        }
         {data.specialDate && 
           <tr>
             <th>특별 공급 접수</th>
@@ -54,7 +50,6 @@ export default function ContentTable({data}: {data: TypeContent}) {
             <td>{data.dateMoveIn}</td>
           </tr>
         }
-        </>}
         {data.url &&
           <tr>
             <th>공식 사이트</th>
