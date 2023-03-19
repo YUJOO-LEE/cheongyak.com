@@ -54,7 +54,6 @@ export default function Content() {
 
   // 섹션 위치 값 저장 이벤트 실행
   useEffect(() => {
-    if (!FilterList) return;
     getMenus();
 
     window.addEventListener('resize', getMenus);
@@ -64,7 +63,7 @@ export default function Content() {
       window.removeEventListener('resize', getMenus);
       window.removeEventListener('scroll', getMenus);
     });
-  }, [FilterList])
+  }, [frame.current])
   
   // contentId 변경값에 따라 dispatch
   useEffect(() => {
@@ -124,7 +123,7 @@ export default function Content() {
               return (
                 <li key={`tabMenu${i}`} 
                   className={TabIndex === i ? 'on' : undefined}
-                  onClick={()=>{setTabIndex(i); Scroll(position.current[i]);}}
+                  onClick={()=>{setTabIndex(i); Scroll(position.current[i])}}
                 >{menu}</li>
               );
             })}
@@ -135,8 +134,8 @@ export default function Content() {
             <div>
               <ContentTable data={ContentData}></ContentTable>
             </div>
-            <div className='gallery'>
-              {(ContentData.state === 'COMPLETE' && ContentData.resultImages) && 
+            {(ContentData.state === 'COMPLETE') && 
+              <div className='gallery'>
                 <div className='inner'>
                 {ContentData.resultImages?.map((data: TypeImages, idx: number)=>{
                   return (
@@ -153,8 +152,8 @@ export default function Content() {
                   );
                 })}
                 </div>
-              }
-            </div>
+              </div>
+            }
             <div className='gallery'>
               <div className='inner'>
               {ContentData.youtube && 
