@@ -5,6 +5,7 @@ import { ScheduleTimeline } from '@/features/subscriptions/components/schedule-t
 import { SupplyBreakdown } from '@/features/subscriptions/components/supply-breakdown';
 import { RelatedNews } from '@/features/subscriptions/components/related-news';
 import { OfficialLinks } from '@/features/subscriptions/components/official-links';
+import { SubscriptionJsonLd } from '@/shared/components/json-ld';
 import { subscriptionDetail, subscriptions } from '@/mocks/fixtures/subscriptions';
 import { newsArticles } from '@/mocks/fixtures/news';
 import type { SubscriptionDetail } from '@/shared/types/api';
@@ -47,6 +48,12 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 lg:px-8 py-6 lg:py-10">
+      <SubscriptionJsonLd
+        name={subscription.name}
+        location={`${subscription.location.sido} ${subscription.location.gugun}`}
+        builder={subscription.builder}
+        url={`https://cheongyak.com/subscriptions/${id}`}
+      />
       <div className="lg:grid lg:grid-cols-3 lg:gap-10">
         {/* Main content */}
         <div className="lg:col-span-2">

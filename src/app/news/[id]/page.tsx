@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArticleBody } from '@/features/news/components/article-body';
 import { RelatedSubscriptions } from '@/features/news/components/related-subscriptions';
 import { NewsCard } from '@/features/news/components/news-card';
+import { NewsArticleJsonLd } from '@/shared/components/json-ld';
 import { formatDate } from '@/shared/lib/format';
 import { newsArticles } from '@/mocks/fixtures/news';
 import { subscriptions } from '@/mocks/fixtures/subscriptions';
@@ -49,6 +50,13 @@ export default async function NewsArticlePage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-[720px] px-4 lg:px-8 py-6 lg:py-10">
+      <NewsArticleJsonLd
+        title={article.title}
+        description={article.excerpt}
+        url={`https://cheongyak.com/news/${id}`}
+        publishedAt={article.publishedAt}
+      />
+
       {/* Article Header */}
       <header className="mb-8">
         <span className="text-label-lg text-brand-primary-700 mb-2 block">

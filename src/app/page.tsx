@@ -1,5 +1,6 @@
 import { FeaturedSubscription, WeeklySchedule, MarketInsightCards } from '@/features/subscriptions/components';
 import { LatestNewsPreview } from '@/features/news/components';
+import { WebsiteJsonLd } from '@/shared/components/json-ld';
 import { subscriptions } from '@/mocks/fixtures/subscriptions';
 import { newsArticles } from '@/mocks/fixtures/news';
 import { marketInsights } from '@/mocks/fixtures/insights';
@@ -11,6 +12,8 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 lg:px-8 py-6 lg:py-10">
+      <WebsiteJsonLd />
+
       {/* Hero: Featured Subscription */}
       <section className="mb-10">
         <FeaturedSubscription subscription={featured} />
