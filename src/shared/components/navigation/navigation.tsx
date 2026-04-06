@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Building2, Newspaper, Search } from 'lucide-react';
+import { SearchOverlay } from '@/features/search/components/search-overlay';
 import type { LucideIcon } from 'lucide-react';
 
 interface NavItem {
@@ -15,11 +17,25 @@ const navItems: NavItem[] = [
   { href: '/', label: '홈', icon: Home },
   { href: '/listings', label: '청약', icon: Building2 },
   { href: '/news', label: '뉴스', icon: Newspaper },
-  { href: '/search', label: '검색', icon: Search },
 ];
 
 export function Navigation() {
   const pathname = usePathname();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const openSearch = useCallback(() => setSearchOpen(true), []);
+  const closeSearch = useCallback(() => setSearchOpen(false), []);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   function isActive(href: string) {
     if (href === '/') return pathname === '/';
@@ -38,7 +54,7 @@ export function Navigation() {
           </Link>
 
           <nav className="flex items-center gap-8">
-            {navItems.slice(0, 3).map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -54,13 +70,13 @@ export function Navigation() {
             ))}
           </nav>
 
-          <Link
-            href="/search"
-            className="p-2 rounded-md text-text-secondary hover:text-text-primary transition-colors duration-fast ease-default"
-            aria-label="검색"
+          <button
+            onClick={openSearch}
+            className="p-2 rounded-md text-text-secondary hover:text-text-primary transition-colors duration-fast ease-default cursor-pointer"
+            aria-label="검색 (⌘K)"
           >
             <Search size={24} />
-          </Link>
+          </button>
         </div>
       </header>
 
@@ -94,8 +110,26 @@ export function Navigation() {
               </Link>
             );
           })}
+
+          {/* Search button in mobile nav */}
+          <button
+            onClick={openSearch}
+            className={[
+              'flex flex-col items-center justify-center gap-0.5',
+              'min-w-[44px] min-h-[44px]',
+              'transition-colors duration-fast ease-default',
+              'text-neutral-400 cursor-pointer',
+            ].join(' ')}
+            aria-label="검색"
+          >
+            <Search size={24} aria-hidden="true" />
+            <span className="text-caption">검색</span>
+          </button>
         </div>
       </nav>
+
+      {/* Search Overlay */}
+      <SearchOverlay open={searchOpen} onClose={closeSearch} />
     </>
   );
 }
