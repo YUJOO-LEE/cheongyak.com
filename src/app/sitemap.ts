@@ -7,13 +7,13 @@ const BASE_URL = 'https://cheongyak.com';
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE_URL, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-    { url: `${BASE_URL}/subscriptions`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+    { url: `${BASE_URL}/listings`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
     { url: `${BASE_URL}/news`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
     { url: `${BASE_URL}/search`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
   ];
 
   const subscriptionRoutes: MetadataRoute.Sitemap = subscriptions.map((sub) => ({
-    url: `${BASE_URL}/subscriptions/${sub.id}`,
+    url: `${BASE_URL}/listings/${sub.id}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.7,

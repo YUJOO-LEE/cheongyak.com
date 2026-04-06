@@ -97,7 +97,7 @@ export function SearchPageClient() {
                 </h2>
                 <div className="flex flex-col gap-3">
                   {results.subscriptions.map((sub) => (
-                    <Link key={sub.id} href={`/subscriptions/${sub.id}`}>
+                    <Link key={sub.id} href={`/listings/${sub.id}`}>
                       <Card variant="compact">
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">

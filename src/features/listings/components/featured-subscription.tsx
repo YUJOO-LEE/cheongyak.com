@@ -10,7 +10,7 @@ interface FeaturedSubscriptionProps {
 
 export function FeaturedSubscription({ subscription }: FeaturedSubscriptionProps) {
   return (
-    <Link href={`/subscriptions/${subscription.id}`} className="block group">
+    <Link href={`/listings/${subscription.id}`} className="block group">
       <div className="relative overflow-hidden rounded-xl bg-bg-card p-6 lg:p-8 transition-all duration-fast ease-default group-hover:-translate-y-0.5 group-hover:shadow-md">
         {/* Gradient mesh background */}
         <div className="absolute inset-0 hero-gradient-mesh opacity-50" />

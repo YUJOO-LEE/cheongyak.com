@@ -13,7 +13,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: '/', label: '홈', icon: Home },
-  { href: '/subscriptions', label: '청약', icon: Building2 },
+  { href: '/listings', label: '청약', icon: Building2 },
   { href: '/news', label: '뉴스', icon: Newspaper },
   { href: '/search', label: '검색', icon: Search },
 ];

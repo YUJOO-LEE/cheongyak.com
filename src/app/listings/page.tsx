@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SubscriptionListClient } from '@/features/subscriptions/components/subscription-list-client';
+import { SubscriptionListClient } from '@/features/listings/components/subscription-list-client';
 import { subscriptions } from '@/mocks/fixtures/subscriptions';
 
 export const metadata: Metadata = {

@@ -15,7 +15,7 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
           이번 주 예정된 청약이 없습니다.
         </p>
         <Link
-          href="/subscriptions"
+          href="/listings"
           className="inline-block mt-2 text-label-lg text-interactive-default hover:text-interactive-hover transition-colors"
         >
           전체 청약 보기 →

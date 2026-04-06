@@ -87,7 +87,7 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            baseHref="/subscriptions"
+            baseHref="/listings"
             className="mt-8"
           />
         </>

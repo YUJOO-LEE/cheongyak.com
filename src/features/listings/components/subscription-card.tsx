@@ -10,7 +10,7 @@ interface SubscriptionCardProps {
 
 export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
   return (
-    <Link href={`/subscriptions/${subscription.id}`} className="block">
+    <Link href={`/listings/${subscription.id}`} className="block">
       <Card variant="subscription" as="article">
         <div className="flex items-start justify-between mb-3">
           <StatusChip status={statusToChipStatus(subscription.status)} />

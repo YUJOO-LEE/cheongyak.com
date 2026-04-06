@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { SubscriptionHeader } from '@/features/subscriptions/components/subscription-header';
-import { ScheduleTimeline } from '@/features/subscriptions/components/schedule-timeline';
-import { SupplyBreakdown } from '@/features/subscriptions/components/supply-breakdown';
-import { RelatedNews } from '@/features/subscriptions/components/related-news';
-import { OfficialLinks } from '@/features/subscriptions/components/official-links';
+import { SubscriptionHeader } from '@/features/listings/components/subscription-header';
+import { ScheduleTimeline } from '@/features/listings/components/schedule-timeline';
+import { SupplyBreakdown } from '@/features/listings/components/supply-breakdown';
+import { RelatedNews } from '@/features/listings/components/related-news';
+import { OfficialLinks } from '@/features/listings/components/official-links';
 import { SubscriptionJsonLd } from '@/shared/components/json-ld';
 import { subscriptionDetail, subscriptions } from '@/mocks/fixtures/subscriptions';
 import { newsArticles } from '@/mocks/fixtures/news';

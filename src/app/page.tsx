@@ -1,4 +1,4 @@
-import { FeaturedSubscription, WeeklySchedule, MarketInsightCards } from '@/features/subscriptions/components';
+import { FeaturedSubscription, WeeklySchedule, MarketInsightCards } from '@/features/listings/components';
 import { LatestNewsPreview } from '@/features/news/components';
 import { WebsiteJsonLd } from '@/shared/components/json-ld';
 import { subscriptions } from '@/mocks/fixtures/subscriptions';

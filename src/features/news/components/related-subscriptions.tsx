@@ -14,7 +14,7 @@ export function RelatedSubscriptions({ subscriptions }: RelatedSubscriptionsProp
     <div className="flex flex-col gap-3">
       <h2 className="text-headline-sm text-text-primary">관련 청약</h2>
       {subscriptions.map((sub) => (
-        <Link key={sub.id} href={`/subscriptions/${sub.id}`}>
+        <Link key={sub.id} href={`/listings/${sub.id}`}>
           <Card variant="compact">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
