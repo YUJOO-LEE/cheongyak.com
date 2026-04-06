@@ -549,6 +549,89 @@ body {
 }
 
 /* ============================================================
+   PROSE — Article body rich text
+   ============================================================ */
+
+.prose-custom {
+  color: var(--color-text-primary);
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-line);
+}
+
+.prose-custom h2 {
+  font-size: var(--text-headline-lg-size);
+  line-height: var(--text-headline-lg-line);
+  font-weight: var(--text-headline-lg-weight);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-4);
+  color: var(--color-text-primary);
+}
+
+.prose-custom h3 {
+  font-size: var(--text-headline-sm-size);
+  line-height: var(--text-headline-sm-line);
+  font-weight: var(--text-headline-sm-weight);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+}
+
+.prose-custom p {
+  margin-bottom: var(--space-4);
+}
+
+.prose-custom blockquote {
+  border-left: 3px solid var(--brand-primary-500);
+  padding-left: var(--space-4);
+  margin: var(--space-6) 0;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.prose-custom ul,
+.prose-custom ol {
+  padding-left: var(--space-6);
+  margin-bottom: var(--space-4);
+}
+
+.prose-custom li {
+  margin-bottom: var(--space-2);
+}
+
+.prose-custom img {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  margin: var(--space-6) 0;
+}
+
+.prose-custom table {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: var(--space-6) 0;
+}
+
+.prose-custom th {
+  background: var(--color-bg-sunken);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: 600;
+}
+
+.prose-custom td {
+  padding: var(--space-3) var(--space-4);
+}
+
+.prose-custom a {
+  color: var(--color-interactive-default);
+  text-decoration: underline;
+}
+
+.prose-custom a:hover {
+  color: var(--color-interactive-hover);
+}
+
+/* ============================================================
    SCROLLBAR STYLING
    ============================================================ */
 
