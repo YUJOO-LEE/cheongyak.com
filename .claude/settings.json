@@ -1,0 +1,83 @@
+{
+  "skipDangerousModePermissionPrompt": true,
+  "enableAllProjectMcpServers": true,
+  "permissions": {
+    "defaultMode": "auto",
+    "allow": [
+      "Bash",
+      "Edit",
+      "Edit(.claude)",
+      "Write",
+      "Write(.claude)",
+      "Read",
+      "mcp__filesystem__write_file",
+      "mcp__filesystem__create_directory",
+      "mcp__filesystem__read_file",
+      "mcp__filesystem__edit_file"
+    ]
+  },
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/scripts/slack-permission.sh",
+            "timeout": 7200
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/scripts/slack-team-hook.sh subagent-start"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/scripts/slack-team-hook.sh subagent-stop"
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/scripts/slack-team-hook.sh teammate-idle"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/scripts/slack-team-hook.sh stop"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|mcp__filesystem__write_file|mcp__filesystem__edit_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/scripts/slack-team-hook.sh file-changed"
+          }
+        ]
+      }
+    ]
+  }
+}

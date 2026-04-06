@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# Environment files (secrets)
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+
+# Debug logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+._*
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# OMC plugin cache
+.omc
+
+# Vercel
+.vercel
+
+# Storybook
+storybook-static/
+
+# Sentry
+.sentryclirc
+
+# Turbo
+.turbo
