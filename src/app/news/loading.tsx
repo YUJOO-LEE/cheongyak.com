@@ -2,7 +2,7 @@ import { Skeleton } from '@/shared/components';
 
 export default function NewsLoading() {
   return (
-    <div className="mx-auto max-w-[1200px] py-6 lg:py-10" aria-hidden="true">
+    <div className="mx-auto max-w-300 py-6 lg:py-10" aria-hidden="true">
       <div className="px-4 lg:px-8 mb-6">
         <Skeleton width={120} height={36} />
       </div>
@@ -13,7 +13,7 @@ export default function NewsLoading() {
           ))}
         </div>
       </div>
-      <div className="max-w-[720px] mx-auto px-4 lg:px-0 flex flex-col gap-8">
+      <div className="max-w-180 mx-auto px-4 lg:px-0 flex flex-col gap-8">
         {Array.from({ length: 4 }, (_, i) => (
           <div key={i}>
             <Skeleton className="w-full aspect-video rounded-md mb-3" />

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function SubscriptionsPage() {
   return (
-    <div className="mx-auto max-w-[1200px] py-6 lg:py-10">
+    <div className="mx-auto max-w-300 py-6 lg:py-10">
       <div className="px-4 lg:px-8 mb-6">
         <h1 className="text-display-sm text-text-primary">청약 목록</h1>
       </div>

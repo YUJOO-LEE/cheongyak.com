@@ -30,7 +30,7 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
         <Link
           key={sub.id}
           href={`/listings/${sub.id}`}
-          className="snap-start shrink-0 w-[280px] lg:w-auto"
+          className="snap-start shrink-0 w-70 lg:w-auto"
         >
           <Card variant="compact" className="h-full">
             <StatusChip status={statusToChipStatus(sub.status)} className="mb-2" />

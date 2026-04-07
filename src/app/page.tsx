@@ -11,7 +11,7 @@ export default function HomePage() {
   const latestNews = newsArticles.slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 lg:px-8 py-6 lg:py-10">
+    <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-10">
       <WebsiteJsonLd />
 
       {/* Hero: Featured Subscription */}

@@ -3,7 +3,7 @@ import Link from 'next/link';
 export function Footer() {
   return (
     <footer className="bg-bg-sunken mt-auto">
-      <div className="mx-auto max-w-[1200px] px-4 lg:px-8 py-8">
+      <div className="mx-auto max-w-300 px-4 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-label-lg text-text-secondary">청약닷컴</span>

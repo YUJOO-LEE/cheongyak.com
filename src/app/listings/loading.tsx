@@ -2,7 +2,7 @@ import { Skeleton } from '@/shared/components';
 
 export default function SubscriptionsLoading() {
   return (
-    <div className="mx-auto max-w-[1200px] py-6 lg:py-10" aria-hidden="true">
+    <div className="mx-auto max-w-300 py-6 lg:py-10" aria-hidden="true">
       <div className="px-4 lg:px-8 mb-6">
         <Skeleton width={200} height={36} />
       </div>

@@ -111,7 +111,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
       />
 
       {/* Panel */}
-      <div className="relative mx-auto max-w-[640px] mt-[10vh] mx-4 lg:mx-auto bg-bg-card rounded-xl shadow-lg max-h-[70vh] flex flex-col overflow-hidden">
+      <div className="relative mx-auto max-w-160 mt-[10vh] mx-4 lg:mx-auto bg-bg-card rounded-xl shadow-lg max-h-[70vh] flex flex-col overflow-hidden">
         {/* Search Input */}
         <div className="relative flex items-center bg-bg-sunken/50 shrink-0">
           <SearchIcon

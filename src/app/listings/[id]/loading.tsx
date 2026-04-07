@@ -2,7 +2,7 @@ import { Skeleton, SkeletonText } from '@/shared/components';
 
 export default function SubscriptionDetailLoading() {
   return (
-    <div className="mx-auto max-w-[1200px] px-4 lg:px-8 py-6 lg:py-10" aria-hidden="true">
+    <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-10" aria-hidden="true">
       <div className="lg:grid lg:grid-cols-3 lg:gap-10">
         <div className="lg:col-span-2">
           <div className="mb-8">

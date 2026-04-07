@@ -50,7 +50,7 @@ export function NewsListClient({ articles }: NewsListClientProps) {
         />
       </div>
 
-      <div className="max-w-[720px] mx-auto px-4 lg:px-0">
+      <div className="max-w-180 mx-auto px-4 lg:px-0">
         {paged.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-body-lg text-text-secondary">

@@ -49,7 +49,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
     .slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-[720px] px-4 lg:px-8 py-6 lg:py-10">
+    <div className="mx-auto max-w-180 px-4 lg:px-8 py-6 lg:py-10">
       <NewsArticleJsonLd
         title={article.title}
         description={article.excerpt}

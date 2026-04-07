@@ -2,7 +2,7 @@ import { Skeleton, SkeletonText } from '@/shared/components';
 
 export default function HomeLoading() {
   return (
-    <div className="mx-auto max-w-[1200px] px-4 lg:px-8 py-6 lg:py-10" aria-hidden="true">
+    <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-10" aria-hidden="true">
       {/* Hero skeleton */}
       <div className="mb-10">
         <Skeleton className="w-full h-48 lg:h-56" />
@@ -13,7 +13,7 @@ export default function HomeLoading() {
         <Skeleton width={200} height={28} className="mb-4" />
         <div className="flex gap-4 overflow-hidden">
           {Array.from({ length: 4 }, (_, i) => (
-            <Skeleton key={i} className="shrink-0 w-[280px] h-32 lg:w-full" />
+            <Skeleton key={i} className="shrink-0 w-70 h-32 lg:w-full" />
           ))}
         </div>
       </div>

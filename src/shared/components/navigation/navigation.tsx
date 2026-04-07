@@ -46,7 +46,7 @@ export function Navigation() {
     <>
       {/* Desktop: Top header */}
       <header className="hidden lg:block fixed top-0 left-0 right-0 z-sticky bg-bg-page/80 backdrop-blur-[20px] shadow-sm">
-        <div className="mx-auto max-w-[1200px] px-8 h-16 flex items-center justify-between">
+        <div className="mx-auto max-w-300 px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="청약닷컴 홈">
             <span className="text-headline-sm text-brand-primary-500 font-bold">
               청약닷컴
@@ -96,7 +96,7 @@ export function Navigation() {
                 href={item.href}
                 className={[
                   'flex flex-col items-center justify-center gap-0.5',
-                  'min-w-[44px] min-h-[44px]',
+                  'min-w-11 min-h-11',
                   'transition-colors duration-fast ease-default',
                   active
                     ? 'text-brand-primary-500'
@@ -115,7 +115,7 @@ export function Navigation() {
             onClick={openSearch}
             className={[
               'flex flex-col items-center justify-center gap-0.5',
-              'min-w-[44px] min-h-[44px]',
+              'min-w-11 min-h-11',
               'transition-colors duration-fast ease-default',
               'text-neutral-400 cursor-pointer',
             ].join(' ')}

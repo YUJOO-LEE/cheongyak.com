@@ -47,7 +47,7 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
     .slice(0, 5);
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 lg:px-8 py-6 lg:py-10">
+    <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-10">
       <SubscriptionJsonLd
         name={subscription.name}
         location={`${subscription.location.sido} ${subscription.location.gugun}`}
