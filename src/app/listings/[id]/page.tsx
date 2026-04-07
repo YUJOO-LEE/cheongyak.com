@@ -62,7 +62,7 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
           </section>
 
           <section className="mb-8">
-            <h2 className="section-decorator text-headline-lg text-text-primary mb-4">
+            <h2 className="text-headline-lg text-text-primary mb-4">
               청약 일정
             </h2>
             <div className="bg-bg-card rounded-lg p-6">
@@ -71,7 +71,7 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
           </section>
 
           <section className="mb-8">
-            <h2 className="section-decorator text-headline-lg text-text-primary mb-4">
+            <h2 className="text-headline-lg text-text-primary mb-4">
               공급 내역
             </h2>
             <div className="bg-bg-card rounded-lg p-6">

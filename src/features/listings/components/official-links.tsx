@@ -1,5 +1,4 @@
 import { ExternalLink, FileText, Home } from 'lucide-react';
-import { Button } from '@/shared/components';
 
 interface OfficialLinksProps {
   applyHomeUrl?: string;
@@ -15,7 +14,7 @@ export function OfficialLinks({
   const links = [
     applyHomeUrl && {
       href: applyHomeUrl,
-      label: '청약홈에서 신청하기',
+      label: '청약홈에서 신청',
       icon: Home,
       primary: true,
     },
@@ -27,7 +26,7 @@ export function OfficialLinks({
     },
     announcementUrl && {
       href: announcementUrl,
-      label: '모집공고 보기',
+      label: '모집공고',
       icon: FileText,
       primary: false,
     },
@@ -41,25 +40,29 @@ export function OfficialLinks({
   if (links.length === 0) return null;
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3">
-      {links.map((link) => (
-        <a
-          key={link.href}
-          href={link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1"
-        >
-          <Button
-            variant={link.primary ? 'primary' : 'secondary'}
-            size="lg"
-            className="w-full"
+    <div className="flex flex-col gap-2">
+      {links.map((link) => {
+        const Icon = link.icon;
+        return (
+          <a
+            key={link.href}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={[
+              'flex items-center gap-3 px-4 py-3 rounded-lg',
+              'transition-colors duration-fast ease-default',
+              link.primary
+                ? 'bg-brand-primary-500 text-neutral-0 hover:bg-brand-primary-600'
+                : 'bg-bg-sunken text-text-primary hover:bg-neutral-200',
+            ].join(' ')}
           >
-            <link.icon size={18} aria-hidden="true" />
-            {link.label}
-          </Button>
-        </a>
-      ))}
+            <Icon size={20} aria-hidden="true" className="shrink-0" />
+            <span className="text-label-lg truncate">{link.label}</span>
+            <ExternalLink size={14} aria-hidden="true" className="shrink-0 ml-auto opacity-50" />
+          </a>
+        );
+      })}
     </div>
   );
 }

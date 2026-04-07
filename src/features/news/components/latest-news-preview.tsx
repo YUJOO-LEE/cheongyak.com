@@ -34,7 +34,7 @@ export function LatestNewsPreview({ articles }: LatestNewsPreviewProps) {
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-label-md text-brand-primary-700">
+                <span className="text-label-md text-brand-primary-600">
                   {categoryLabels[article.category] || article.category}
                 </span>
                 <span className="text-caption text-text-tertiary">
@@ -49,12 +49,6 @@ export function LatestNewsPreview({ articles }: LatestNewsPreviewProps) {
         </Link>
       ))}
 
-      <Link
-        href="/news"
-        className="text-center text-label-lg text-interactive-default hover:text-interactive-hover transition-colors py-2"
-      >
-        뉴스 더보기 →
-      </Link>
     </div>
   );
 }

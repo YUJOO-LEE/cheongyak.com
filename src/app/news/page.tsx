@@ -10,10 +10,7 @@ export const metadata: Metadata = {
 export default function NewsPage() {
   return (
     <div className="mx-auto max-w-300 py-6 lg:py-10">
-      <div className="px-4 lg:px-8 mb-6">
-        <h1 className="text-display-sm text-text-primary">뉴스</h1>
-      </div>
-
+      <h1 className="sr-only">뉴스</h1>
       <NewsListClient articles={newsArticles} />
     </div>
   );

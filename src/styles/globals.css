@@ -10,18 +10,18 @@
      BRAND COLORS
      -------------------------------------------------- */
 
-  /* Primary (Core brand blue) */
-  --brand-primary-50: #EFF6FF;
-  --brand-primary-100: #DBEAFE;
-  --brand-primary-200: #BFDBFE;
-  --brand-primary-300: #93C5FD;
-  --brand-primary-400: #60A5FA;
-  --brand-primary-500: #0356FF;
-  --brand-primary-600: #0248D6;
-  --brand-primary-700: #023AAD;
-  --brand-primary-800: #012C84;
-  --brand-primary-900: #011E5B;
-  --brand-primary-950: #001033;
+  /* Primary (Core brand blue — logo color #005BD4) */
+  --brand-primary-50: #EBF3FF;
+  --brand-primary-100: #D6E7FF;
+  --brand-primary-200: #ADCFFF;
+  --brand-primary-300: #7AB1FF;
+  --brand-primary-400: #3D8BF5;
+  --brand-primary-500: #005BD4;
+  --brand-primary-600: #004DB3;
+  --brand-primary-700: #003F92;
+  --brand-primary-800: #003071;
+  --brand-primary-900: #002150;
+  --brand-primary-950: #00132F;
 
   /* Secondary (Mint accent — decorative only, never text on white) */
   --brand-secondary-50: #ECFFF8;
@@ -524,27 +524,13 @@ body {
 }
 
 /* ============================================================
-   EDITORIAL DECORATORS
+   EDITORIAL EFFECTS
    ============================================================ */
-
-.section-decorator::before {
-  content: '';
-  display: block;
-  width: 40px;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    var(--brand-primary-500),
-    var(--brand-secondary-500)
-  );
-  margin-bottom: var(--space-4);
-  border-radius: var(--radius-full);
-}
 
 .hero-gradient-mesh {
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(3, 86, 255, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(0, 255, 194, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 50%, rgba(0, 91, 212, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 255, 194, 0.03) 0%, transparent 50%),
     var(--color-bg-page);
 }
 

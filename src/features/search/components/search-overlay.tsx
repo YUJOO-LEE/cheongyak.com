@@ -49,12 +49,16 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   useEffect(() => {
     if (open) {
       inputRef.current?.focus();
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
     } else {
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     }
     return () => {
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     };
   }, [open]);
 
@@ -105,13 +109,13 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     <div className="fixed inset-0 z-modal" role="dialog" aria-modal="true" aria-label="검색">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-bg-overlay"
+        className="absolute inset-0 bg-neutral-900/25 backdrop-blur-sm"
         onClick={handleClose}
         aria-hidden="true"
       />
 
       {/* Panel */}
-      <div className="relative mx-auto max-w-160 mt-[10vh] mx-4 lg:mx-auto bg-bg-card rounded-xl shadow-lg max-h-[70vh] flex flex-col overflow-hidden">
+      <div className="relative mx-4 sm:mx-auto max-w-160 mt-[8vh] sm:mt-[12vh] bg-bg-card rounded-xl shadow-lg max-h-[75vh] flex flex-col overflow-hidden">
         {/* Search Input */}
         <div className="relative flex items-center bg-bg-sunken/50 shrink-0">
           <SearchIcon

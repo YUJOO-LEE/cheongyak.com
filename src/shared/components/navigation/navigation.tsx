@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Home, Building2, Newspaper, Search } from 'lucide-react';
 import { SearchOverlay } from '@/features/search/components/search-overlay';
@@ -48,6 +49,7 @@ export function Navigation() {
       <header className="hidden lg:block fixed top-0 left-0 right-0 z-sticky bg-bg-page/80 backdrop-blur-[20px] shadow-sm">
         <div className="mx-auto max-w-300 px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="청약닷컴 홈">
+            <Image src="/logo.svg" alt="" width={22} height={20} aria-hidden="true" />
             <span className="text-headline-sm text-brand-primary-500 font-bold">
               청약닷컴
             </span>
@@ -82,11 +84,45 @@ export function Navigation() {
 
       {/* Mobile: Bottom nav bar */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky bg-bg-page/80 backdrop-blur-[20px] shadow-[0_-1px_8px_rgba(15,23,42,0.04)]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky bg-bg-page/90 backdrop-blur-md shadow-[0_-1px_8px_rgba(15,23,42,0.04)]"
         aria-label="주요 탐색"
       >
-        <div className="flex items-center justify-around h-16 pb-[env(safe-area-inset-bottom)]">
-          {navItems.map((item) => {
+        <div className="flex items-center justify-around h-14 pb-[env(safe-area-inset-bottom)]">
+          {/* Home with logo — brand badge pattern */}
+          <Link
+            href="/"
+            className="flex flex-col items-center justify-center gap-0.5 min-w-11 min-h-11 transition-all duration-fast ease-default"
+            aria-current={isActive('/') ? 'page' : undefined}
+            aria-label="홈"
+          >
+            <span
+              className={[
+                'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-fast ease-default',
+                isActive('/')
+                  ? 'bg-brand-primary-500/10'
+                  : 'bg-neutral-100',
+              ].join(' ')}
+            >
+              <Image
+                src="/logo.svg"
+                alt=""
+                width={18}
+                height={16}
+                aria-hidden="true"
+                className={[
+                  'transition-opacity duration-fast',
+                  isActive('/') ? 'opacity-100' : 'opacity-35',
+                ].join(' ')}
+              />
+            </span>
+            <span className={[
+              'text-caption',
+              isActive('/') ? 'text-brand-primary-500' : 'text-neutral-400',
+            ].join(' ')}>홈</span>
+          </Link>
+
+          {/* Other nav items */}
+          {navItems.slice(1).map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
 
@@ -104,7 +140,7 @@ export function Navigation() {
                 ].join(' ')}
                 aria-current={active ? 'page' : undefined}
               >
-                <Icon size={24} aria-hidden="true" />
+                <Icon size={22} aria-hidden="true" />
                 <span className="text-caption">{item.label}</span>
               </Link>
             );
@@ -121,7 +157,7 @@ export function Navigation() {
             ].join(' ')}
             aria-label="검색"
           >
-            <Search size={24} aria-hidden="true" />
+            <Search size={22} aria-hidden="true" />
             <span className="text-caption">검색</span>
           </button>
         </div>
