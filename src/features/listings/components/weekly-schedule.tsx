@@ -29,7 +29,7 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
       {subscriptions.map((sub) => (
         <Link
           key={sub.id}
-          href={`/subscriptions/${sub.id}`}
+          href={`/listings/${sub.id}`}
           className="snap-start shrink-0 w-[280px] lg:w-auto"
         >
           <Card variant="compact" className="h-full">

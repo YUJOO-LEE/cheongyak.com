@@ -82,8 +82,7 @@ export function Navigation() {
 
       {/* Mobile: Bottom nav bar */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky bg-bg-page/80 backdrop-blur-[20px]"
-        style={{ boxShadow: '0 -1px 8px rgba(15,23,42,0.04)' }}
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky bg-bg-page/80 backdrop-blur-[20px] shadow-[0_-1px_8px_rgba(15,23,42,0.04)]"
         aria-label="주요 탐색"
       >
         <div className="flex items-center justify-around h-16 pb-[env(safe-area-inset-bottom)]">

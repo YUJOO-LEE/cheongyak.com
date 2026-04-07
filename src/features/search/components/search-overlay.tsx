@@ -113,7 +113,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
       {/* Panel */}
       <div className="relative mx-auto max-w-[640px] mt-[10vh] mx-4 lg:mx-auto bg-bg-card rounded-xl shadow-lg max-h-[70vh] flex flex-col overflow-hidden">
         {/* Search Input */}
-        <div className="relative flex items-center border-b border-neutral-200/30 shrink-0">
+        <div className="relative flex items-center bg-bg-sunken/50 shrink-0">
           <SearchIcon
             size={20}
             className="absolute left-4 text-text-tertiary"
@@ -203,8 +203,11 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               </div>
             ) : (
               <div className="text-center py-10">
-                <p className="text-body-lg text-text-secondary">
+                <p className="text-body-lg text-text-secondary mb-2">
                   &ldquo;{debouncedQuery}&rdquo;에 대한 검색 결과가 없습니다.
+                </p>
+                <p className="text-body-md text-text-tertiary">
+                  다른 키워드로 검색하거나, 청약명/지역명/건설사명을 입력해 보세요.
                 </p>
               </div>
             )

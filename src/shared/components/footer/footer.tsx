@@ -12,19 +12,19 @@ export function Footer() {
           <nav className="flex items-center gap-6" aria-label="푸터 링크">
             <Link
               href="/about"
-              className="text-body-sm text-text-tertiary hover:text-text-secondary transition-colors duration-fast"
+              className="text-body-sm text-text-tertiary hover:text-text-secondary transition-colors duration-fast ease-default"
             >
               소개
             </Link>
             <Link
               href="/terms"
-              className="text-body-sm text-text-tertiary hover:text-text-secondary transition-colors duration-fast"
+              className="text-body-sm text-text-tertiary hover:text-text-secondary transition-colors duration-fast ease-default"
             >
               이용약관
             </Link>
             <Link
               href="/privacy"
-              className="text-body-sm text-text-tertiary hover:text-text-secondary transition-colors duration-fast"
+              className="text-body-sm text-text-tertiary hover:text-text-secondary transition-colors duration-fast ease-default"
             >
               개인정보처리방침
             </Link>
