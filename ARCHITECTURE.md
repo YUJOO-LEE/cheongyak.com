@@ -4,7 +4,7 @@
 
 | Technology | Version | Rationale |
 |---|---|---|
-| **Next.js** | 15 (App Router) | SSR/SSG/ISR flexibility, file-based routing, React Server Components — natural fit for SEO-critical content site |
+| **Next.js** | 16 (App Router) | SSR/SSG/ISR flexibility, file-based routing, React Server Components — natural fit for SEO-critical content site |
 | **React** | 19 | Server Components, concurrent features, improved hydration |
 | **TypeScript** | 5.x (strict mode) | Catch errors at compile time; strict mode eliminates implicit `any` |
 | **Tailwind CSS** | 4.x | Utility-first matches the design system's token-based approach; purges unused CSS for minimal bundles |
@@ -30,22 +30,20 @@
 src/
 ├── app/                        # Next.js App Router (routes + layouts)
 │   ├── page.tsx                # Home Dashboard (/)
-│   ├── subscriptions/
-│   │   ├── page.tsx            # Subscription Listing (/subscriptions)
+│   ├── listings/
+│   │   ├── page.tsx            # Listings (/listings)
 │   │   └── [id]/
-│   │       └── page.tsx        # Subscription Detail (/subscriptions/:id)
+│   │       └── page.tsx        # Listing Detail (/listings/:id)
 │   ├── news/
 │   │   ├── page.tsx            # News Feed (/news)
 │   │   └── [id]/
 │   │       └── page.tsx        # News Article (/news/:id)
-│   ├── search/
-│   │   └── page.tsx            # Global Search (/search)
 │   ├── layout.tsx              # Root layout (fonts, metadata, providers)
 │   ├── not-found.tsx
 │   ├── error.tsx
 │   └── sitemap.ts
 ├── features/                   # Feature modules (co-located logic)
-│   ├── subscriptions/
+│   ├── listings/
 │   │   ├── components/         # Feature-specific UI
 │   │   ├── hooks/              # Feature-specific hooks
 │   │   ├── types.ts            # Feature types
@@ -79,11 +77,12 @@ src/
 | Page | Strategy | Rationale |
 |---|---|---|
 | **Home Dashboard** | SSR + ISR (60s) | Shows latest listings and news; must be fresh but cacheable |
-| **Subscription Listing** | SSR | Filter/sort params make each request unique; server rendering ensures SEO for filtered views |
-| **Subscription Detail** | SSG + ISR (300s) | Individual listing content changes infrequently; pre-render known IDs, ISR for long tail |
+| **Listings** | SSR | Filter/sort params make each request unique; server rendering ensures SEO for filtered views |
+| **Listing Detail** | SSG + ISR (300s) | Individual listing content changes infrequently; pre-render known IDs, ISR for long tail |
 | **News Feed** | SSR + ISR (120s) | Frequently updated feed; ISR balances freshness with performance |
 | **News Article** | SSG + ISR (600s) | Published articles are near-static; ISR handles edits |
-| **Search** | CSR | Interactive query UI; no SEO value for search results page |
+
+**Global Search:** Overlay component (no dedicated route) triggered by navigation icon or `⌘K`. CSR within the overlay.
 
 All pages use React Server Components by default. Client Components (`"use client"`) only where interactivity is required (filters, modals, search input).
 

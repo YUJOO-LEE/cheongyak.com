@@ -31,7 +31,7 @@
 
 | 기술 | 버전 | 용도 |
 |---|---|---|
-| Next.js | 15 (App Router) | 프레임워크 — SSR/SSG/ISR, 파일 기반 라우팅, Server Components |
+| Next.js | 16 (App Router) | 프레임워크 — SSR/SSG/ISR, 파일 기반 라우팅, Server Components |
 | React | 19 | UI 라이브러리 — Server Components, concurrent 기능 |
 | TypeScript | 5.x (strict) | 언어 — `strict: true`, implicit `any` 불허 |
 | Tailwind CSS | 4.x | 스타일링 — 유틸리티 우선, 디자인 토큰 시스템과 매핑 |
@@ -56,11 +56,10 @@
 | 경로 | 전략 | 재검증 |
 |---|---|---|
 | `/` (Home) | SSR + ISR | 60s |
-| `/subscriptions` (Listing) | SSR | 요청별 |
-| `/subscriptions/[id]` (Detail) | SSG + ISR | 300s |
+| `/listings` (Listing) | SSR | 요청별 |
+| `/listings/[id]` (Detail) | SSG + ISR | 300s |
 | `/news` (Feed) | SSR + ISR | 120s |
 | `/news/[id]` (Article) | SSG + ISR | 600s |
-| `/search` | CSR | N/A |
 
 **기본 원칙:** React Server Components 사용. 인터랙티비티가 필요한 경우에만 `"use client"` 사용.
 
@@ -70,13 +69,12 @@
 src/
 ├── app/                    # Next.js App Router — 플랫 구조, route group 없음
 │   ├── page.tsx            # / (Home)
-│   ├── subscriptions/      # /subscriptions, /subscriptions/:id
+│   ├── listings/           # /listings, /listings/:id
 │   ├── news/               # /news, /news/:id
-│   ├── search/             # /search
 │   ├── layout.tsx          # Root layout
 │   └── sitemap.ts
 ├── features/               # 기능 모듈 (로직 함께 배치)
-│   ├── subscriptions/      # components/, hooks/, types.ts, utils.ts
+│   ├── listings/           # components/, hooks/, types.ts, utils.ts
 │   └── news/
 ├── shared/                 # 공통 코드
 │   ├── components/         # 디자인 시스템 컴포넌트 (Button, Card, Chip...)
@@ -118,11 +116,12 @@ src/
 | 경로 | 페이지 | 용도 |
 |---|---|---|
 | `/` | 홈 대시보드 | 주간 일정, 주요 청약, 시장 인사이트, 최근 본 항목, 최신 뉴스 |
-| `/subscriptions` | 청약 목록 | 6가지 필터 유형을 갖춘 필터링/검색 가능 목록, 페이지네이션 |
-| `/subscriptions/[id]` | 청약 상세 | 전체 정보: 개요, 7단계 타임라인, 공급 내역, 관련 뉴스, 공식 링크 |
+| `/listings` | 청약 목록 | 6가지 필터 유형을 갖춘 필터링/검색 가능 목록, 페이지네이션 |
+| `/listings/[id]` | 청약 상세 | 전체 정보: 개요, 7단계 타임라인, 공급 내역, 관련 뉴스, 공식 링크 |
 | `/news` | 뉴스 피드 | 카테고리 탭 기사 피드 (정책/시장동향/분석/공지) |
 | `/news/[id]` | 뉴스 기사 | 전문 기사 및 관련 청약 정보 |
-| `/search` | 통합 검색 | 콘텐츠 전체 검색 (청약 + 뉴스) |
+
+**통합 검색:** 네비게이션 검색 아이콘 또는 `⌘K` 단축키로 오버레이 실행. 청약 + 뉴스 통합 검색 및 최근 검색어 기록 지원.
 
 **전체 사양:** 상세 섹션, 데이터 요구사항, 모바일 레이아웃, 수용 기준은 `PAGES.md` 참조.
 

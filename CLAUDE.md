@@ -29,7 +29,7 @@
 
 | Technology | Version | Purpose |
 |---|---|---|
-| Next.js | 15 (App Router) | Framework — SSR/SSG/ISR, file-based routing, Server Components |
+| Next.js | 16 (App Router) | Framework — SSR/SSG/ISR, file-based routing, Server Components |
 | React | 19 | UI library — Server Components, concurrent features |
 | TypeScript | 5.x (strict) | Language — `strict: true`, no implicit `any` |
 | Tailwind CSS | 4.x | Styling — utility-first, maps to design token system |
@@ -54,11 +54,10 @@
 | Route | Strategy | Revalidation |
 |---|---|---|
 | `/` (Home) | SSR + ISR | 60s |
-| `/subscriptions` (Listing) | SSR | Per-request |
-| `/subscriptions/[id]` (Detail) | SSG + ISR | 300s |
+| `/listings` (Listing) | SSR | Per-request |
+| `/listings/[id]` (Detail) | SSG + ISR | 300s |
 | `/news` (Feed) | SSR + ISR | 120s |
 | `/news/[id]` (Article) | SSG + ISR | 600s |
-| `/search` | CSR | N/A |
 
 **Default:** React Server Components. Use `"use client"` only where interactivity is required.
 
@@ -68,13 +67,12 @@
 src/
 ├── app/                    # Next.js App Router — flat, no route groups
 │   ├── page.tsx            # / (Home)
-│   ├── subscriptions/      # /subscriptions, /subscriptions/:id
+│   ├── listings/           # /listings, /listings/:id
 │   ├── news/               # /news, /news/:id
-│   ├── search/             # /search
 │   ├── layout.tsx          # Root layout
 │   └── sitemap.ts
 ├── features/               # Feature modules (co-located logic)
-│   ├── subscriptions/      # components/, hooks/, types.ts, utils.ts
+│   ├── listings/           # components/, hooks/, types.ts, utils.ts
 │   └── news/
 ├── shared/                 # Cross-cutting code
 │   ├── components/         # Design system components (Button, Card, Chip...)
@@ -115,12 +113,13 @@ src/
 
 | Route | Page | Purpose |
 |---|---|---|
-| `/` | Home Dashboard | Weekly schedule, featured subscription, market insights, recent views, latest news |
-| `/subscriptions` | Subscription Listing | Filterable/searchable list with 6 filter types, pagination |
-| `/subscriptions/[id]` | Subscription Detail | Full info: overview, 7-phase timeline, supply breakdown, related news, official links |
+| `/` | Home Dashboard | Weekly schedule, featured listing, market insights, recent views, latest news |
+| `/listings` | Listings | Filterable/searchable list with 6 filter types, pagination |
+| `/listings/[id]` | Listing Detail | Full info: overview, 7-phase timeline, supply breakdown, related news, official links |
 | `/news` | News Feed | Category-tabbed article feed (정책/시장동향/분석/공지) |
-| `/news/[id]` | News Article | Full article with related subscriptions |
-| `/search` | Global Search | Cross-content search (subscriptions + news) |
+| `/news/[id]` | News Article | Full article with related listings |
+
+**Global Search:** Overlay triggered by navigation search icon or `⌘K` shortcut. Cross-content search (listings + news) with recent search history.
 
 **Full specifications:** See `PAGES.md` for detailed sections, data requirements, mobile layouts, and acceptance criteria.
 

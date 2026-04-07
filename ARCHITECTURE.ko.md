@@ -6,7 +6,7 @@
 
 | 기술 | 버전 | 선정 근거 |
 |---|---|---|
-| **Next.js** | 15 (App Router) | SSR/SSG/ISR 유연성, 파일 기반 라우팅, React Server Components — SEO가 중요한 콘텐츠 사이트에 최적 |
+| **Next.js** | 16 (App Router) | SSR/SSG/ISR 유연성, 파일 기반 라우팅, React Server Components — SEO가 중요한 콘텐츠 사이트에 최적 |
 | **React** | 19 | Server Components, 동시성 기능, 향상된 hydration |
 | **TypeScript** | 5.x (strict mode) | 컴파일 타임에 오류 포착; strict mode로 암묵적 `any` 제거 |
 | **Tailwind CSS** | 4.x | 유틸리티 우선 방식이 디자인 시스템의 토큰 기반 접근법과 부합; 미사용 CSS 제거로 최소 번들 달성 |
@@ -32,22 +32,20 @@
 src/
 ├── app/                        # Next.js App Router (라우트 + 레이아웃)
 │   ├── page.tsx                # 홈 대시보드 (/)
-│   ├── subscriptions/
-│   │   ├── page.tsx            # 청약 목록 (/subscriptions)
+│   ├── listings/
+│   │   ├── page.tsx            # 청약 목록 (/listings)
 │   │   └── [id]/
-│   │       └── page.tsx        # 청약 상세 (/subscriptions/:id)
+│   │       └── page.tsx        # 청약 상세 (/listings/:id)
 │   ├── news/
 │   │   ├── page.tsx            # 뉴스 피드 (/news)
 │   │   └── [id]/
 │   │       └── page.tsx        # 뉴스 기사 (/news/:id)
-│   ├── search/
-│   │   └── page.tsx            # 통합 검색 (/search)
 │   ├── layout.tsx              # 루트 레이아웃 (폰트, 메타데이터, providers)
 │   ├── not-found.tsx
 │   ├── error.tsx
 │   └── sitemap.ts
 ├── features/                   # 기능 모듈 (관련 로직 집합)
-│   ├── subscriptions/
+│   ├── listings/
 │   │   ├── components/         # 기능별 UI
 │   │   ├── hooks/              # 기능별 hooks
 │   │   ├── types.ts            # 기능별 타입
@@ -85,7 +83,8 @@ src/
 | **청약 상세** | SSG + ISR (300s) | 개별 청약 정보는 변경 빈도가 낮음; 알려진 ID는 사전 렌더링, 나머지는 ISR로 처리 |
 | **뉴스 피드** | SSR + ISR (120s) | 자주 업데이트되는 피드; ISR로 신선도와 성능의 균형 |
 | **뉴스 기사** | SSG + ISR (600s) | 게시된 기사는 거의 정적; ISR로 수정사항 반영 |
-| **검색** | CSR | 인터랙티브 검색 UI; 검색 결과 페이지는 SEO 가치 없음 |
+
+**통합 검색:** 별도 라우트 없이 오버레이 컴포넌트로 구현. 네비게이션 아이콘 또는 `⌘K`로 실행. 오버레이 내부는 CSR.
 
 모든 페이지는 기본적으로 React Server Components를 사용. Client Components (`"use client"`)는 상호작용이 필요한 곳에서만 사용 (필터, 모달, 검색 입력).
 

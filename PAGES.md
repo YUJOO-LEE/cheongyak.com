@@ -9,7 +9,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 ### Bottom Navigation Bar (Mobile)
 
 - **Position:** Fixed bottom, glassmorphism surface (`color-bg-page` @ 80% + `backdrop-blur: 20px`)
-- **Items:** Home (`/`), Subscriptions (`/subscriptions`), News (`/news`), Search (`/search`)
+- **Items:** Home (`/`), Listings (`/listings`), News (`/news`), Search (overlay)
 - **Active state:** `brand-primary-500` icon + label; inactive uses `neutral-400`
 - **Height:** 64px + device bottom inset (safe area)
 
@@ -17,15 +17,17 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 - **Position:** Fixed top, glassmorphism surface
 - **Layout:** Logo (left) | Nav links (center) | Search icon (right)
-- **Nav links:** Home, Subscriptions, News
+- **Nav links:** Home, Listings, News
 - **Logo:** Use `logo.svg` from project root
 
-### Global Search (`/search`)
+### Global Search (Overlay)
 
-- **Scope:** Searches across subscriptions (name, location, builder) and news (title, body)
-- **UI:** Full-screen overlay on mobile, inline dropdown on desktop
-- **Results:** Grouped by type (Subscriptions, News) with max 5 preview results per group
+- **Trigger:** Navigation search icon click or `⌘K` (`Ctrl+K`) keyboard shortcut
+- **Scope:** Searches across listings (name, location, builder) and news (title, body)
+- **UI:** Full-screen modal overlay with backdrop, centered panel (max 640px)
+- **Results:** Grouped by type (Listings, News) with max 5 preview results per group
 - **Recent searches:** Persisted in localStorage, max 10 items
+- **Keyboard:** `Escape` to close, auto-focus on input when opened
 
 ### Footer
 
@@ -47,7 +49,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 - Full-width card highlighting the most notable upcoming subscription
 - Content: Apartment name, location, key dates, unit count, builder name
 - Background: Subtle gradient overlay on `white` card
-- CTA: "View Details" button linking to `/subscriptions/[id]`
+- CTA: "View Details" button linking to `/listings/[id]`
 
 #### 1.2 This Week's Schedule Timeline
 
@@ -87,7 +89,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 ### Key Interactions
 
-- Tap subscription card → navigate to `/subscriptions/[id]`
+- Tap subscription card → navigate to `/listings/[id]`
 - Tap news card → navigate to `/news/[id]`
 - Swipe schedule carousel horizontally
 - Pull down to refresh all dashboard data
@@ -104,7 +106,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 ## Page 2: Subscription Listing
 
-- **Route:** `/subscriptions`
+- **Route:** `/listings`
 - **Purpose:** Filterable, searchable list of all apartment subscriptions. The primary browse experience for users exploring available 청약 opportunities.
 
 ### Sections
@@ -149,7 +151,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 - Page-based navigation (not infinite scroll) for SEO
 - Shows: Previous / page numbers / Next
-- URL reflects current page: `/subscriptions?page=2`
+- URL reflects current page: `/listings?page=2`
 - 20 items per page
 
 ### Data Requirements
@@ -171,7 +173,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 ### Key Interactions
 
 - Select filter → results update immediately (no submit button)
-- Tap card → navigate to `/subscriptions/[id]`
+- Tap card → navigate to `/listings/[id]`
 - Change page → scroll to top, URL updates
 - Filter state persisted in URL query parameters for shareability
 
@@ -187,7 +189,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 ## Page 3: Subscription Detail
 
-- **Route:** `/subscriptions/[id]`
+- **Route:** `/listings/[id]`
 - **Purpose:** Complete information about a single subscription. The decision-making page where users determine eligibility and next steps.
 
 ### Sections
@@ -373,7 +375,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 - If article references specific subscriptions, show linked subscription cards
 - Compact format: name, location, status chip
-- Link to `/subscriptions/[id]`
+- Link to `/listings/[id]`
 
 #### 5.4 More Articles
 
@@ -398,7 +400,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 - Back button → return to news feed (preserve scroll position)
 - Share button → native share sheet or copy URL
-- Tap related subscription → navigate to `/subscriptions/[id]`
+- Tap related subscription → navigate to `/listings/[id]`
 - Tap more article → navigate to `/news/[id]`
 
 ### Acceptance Criteria
@@ -416,15 +418,15 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 | Route | Page | SSR | Auth |
 |---|---|---|---|
 | `/` | Home Dashboard | Yes (ISR) | Public |
-| `/subscriptions` | Subscription Listing | Yes (SSR) | Public |
-| `/subscriptions/[id]` | Subscription Detail | Yes (SSG + ISR) | Public |
+| `/listings` | Listings | Yes (SSR) | Public |
+| `/listings/[id]` | Listing Detail | Yes (SSG + ISR) | Public |
 | `/news` | News Feed | Yes (ISR) | Public |
 | `/news/[id]` | News Article Detail | Yes (SSG + ISR) | Public |
-| `/search` | Global Search | CSR | Public |
+
+**Global Search** is an overlay component (no route) — triggered by `⌘K` or search icon.
 
 - **ISR:** Incremental Static Regeneration (revalidation intervals vary per route — see ARCHITECTURE.md)
 - **SSR:** Server-Side Rendering (real-time data)
-- **CSR:** Client-Side Rendering
 - **Auth:** All pages are public. Admin routes for content management are out of scope for this document.
 
 ---
