@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function SubscriptionsPage() {
   return (
-    <div className="mx-auto max-w-300 py-6 lg:py-10">
+    <div className="mx-auto max-w-300 pt-3 pb-6 lg:py-10">
       <h1 className="sr-only">청약 목록</h1>
       <div className="lg:px-8">
         <SubscriptionListClient subscriptions={subscriptions} />

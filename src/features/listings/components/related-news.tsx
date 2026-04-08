@@ -23,7 +23,7 @@ export function RelatedNews({ articles }: RelatedNewsProps) {
         <Link key={article.id} href={`/news/${article.id}`}>
           <Card variant="compact">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-label-md font-semibold text-brand-primary-700">
+              <span className="text-label-md text-brand-primary-700">
                 {categoryLabels[article.category] || article.category}
               </span>
               <span className="text-caption text-text-tertiary">

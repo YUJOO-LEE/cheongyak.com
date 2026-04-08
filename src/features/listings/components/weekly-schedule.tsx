@@ -75,23 +75,23 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
                 onClick={() => setSelectedDay(i)}
                 className={[
                   'flex-1 flex flex-col items-center py-2 rounded-xl',
-                  'transition-all duration-fast ease-default cursor-pointer',
+                  'transition-all duration-normal ease-default cursor-pointer',
                   isSelected
-                    ? 'bg-brand-tertiary-500 text-neutral-0'
+                    ? 'bg-brand-tertiary-500 text-text-on-dark'
                     : day.isToday
                       ? 'bg-brand-tertiary-100 active:bg-brand-tertiary-200'
-                      : 'bg-bg-card active:bg-neutral-200',
+                      : 'bg-bg-card active:bg-bg-active',
                 ].join(' ')}
               >
                 <span className={[
-                  'text-label-md font-semibold',
-                  isSelected ? 'text-neutral-0' : 'text-text-primary',
+                  'text-label-md',
+                  isSelected ? 'text-text-on-dark' : 'text-text-primary',
                 ].join(' ')}>
                   {day.isToday ? '오늘' : day.shortLabel}
                 </span>
                 <span className={[
                   'text-caption',
-                  isSelected ? 'text-neutral-0/70' : 'text-text-tertiary',
+                  isSelected ? 'text-text-on-dark-muted' : 'text-text-tertiary',
                 ].join(' ')}>
                   {day.dateStr}
                 </span>
@@ -99,7 +99,7 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
                 <span className={[
                   'text-caption font-medium h-4 mt-0.5',
                   count === 0 ? 'invisible' : '',
-                  isSelected ? 'text-neutral-0/70' : 'text-brand-tertiary-700',
+                  isSelected ? 'text-text-on-dark-muted' : 'text-brand-tertiary-700',
                 ].join(' ')}>
                   {count}건
                 </span>
@@ -130,14 +130,14 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
               {/* Integrated header — part of the same card */}
               <div className="text-center py-3">
                 <p className={[
-                  'text-label-lg font-bold',
-                  day.isToday ? 'text-neutral-0' : 'text-text-primary',
+                  'text-label-lg',
+                  day.isToday ? 'text-text-on-dark' : 'text-text-primary',
                 ].join(' ')}>
                   {day.shortLabel}
                 </p>
                 <p className={[
                   'text-caption',
-                  day.isToday ? 'text-neutral-0/70' : 'text-text-tertiary',
+                  day.isToday ? 'text-text-on-dark-muted' : 'text-text-tertiary',
                 ].join(' ')}>
                   {day.dateStr}
                   {daySubs.length > 0 && (
@@ -206,7 +206,7 @@ function DesktopCard({ subscription: sub, isToday }: { subscription: Subscriptio
       ].join(' ')}
     >
       <StatusChip status={statusToChipStatus(sub.status)} className="mb-3" />
-      <p className="text-body-lg font-semibold text-text-primary line-clamp-2 mb-3">
+      <p className="text-body-lg text-text-primary line-clamp-2 mb-3">
         {sub.name}
       </p>
       <div className="flex flex-col gap-1.5 mb-3">
@@ -237,7 +237,7 @@ function MobileDayListings({ subscriptions }: { subscriptions: Subscription[] })
         <Link
           key={sub.id}
           href={`/listings/${sub.id}`}
-          className="block bg-bg-card rounded-xl p-4 active:bg-neutral-50 transition-all duration-fast ease-default"
+          className="block bg-bg-card rounded-xl p-4 active:bg-bg-active transition-all duration-normal ease-default"
         >
           <div className="flex items-center justify-between mb-2.5">
             <StatusChip status={statusToChipStatus(sub.status)} />
@@ -246,7 +246,7 @@ function MobileDayListings({ subscriptions }: { subscriptions: Subscription[] })
             </span>
           </div>
 
-          <h3 className="text-headline-sm font-bold text-text-primary mb-2.5">
+          <h3 className="text-headline-sm text-text-primary mb-2.5">
             {sub.name}
           </h3>
 

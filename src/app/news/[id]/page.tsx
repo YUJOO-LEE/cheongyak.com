@@ -59,10 +59,10 @@ export default async function NewsArticlePage({ params }: PageProps) {
 
       {/* Article Header */}
       <header className="mb-8">
-        <span className="text-label-lg font-semibold text-brand-primary-700 mb-2 block">
+        <span className="text-label-lg text-brand-primary-700 mb-2 block">
           {categoryLabels[article.category] || article.category}
         </span>
-        <h1 className="text-display-sm font-extrabold text-text-primary mb-3">
+        <h1 className="text-display-sm text-text-primary mb-3">
           {article.title}
         </h1>
         <time className="text-body-md text-text-tertiary">
@@ -87,7 +87,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
       {/* More Articles */}
       {moreArticles.length > 0 && (
         <section className="mb-10">
-          <h2 className="text-headline-sm font-bold text-text-primary mb-4">
+          <h2 className="text-headline-sm text-text-primary mb-4">
             관련 기사
           </h2>
           <div className="flex flex-col gap-6">

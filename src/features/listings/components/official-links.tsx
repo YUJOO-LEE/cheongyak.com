@@ -1,4 +1,4 @@
-import { ExternalLink, FileText, Home } from 'lucide-react';
+import { ExternalLink, FileText, Home, ChevronRight } from 'lucide-react';
 
 interface OfficialLinksProps {
   applyHomeUrl?: string;
@@ -53,13 +53,13 @@ export function OfficialLinks({
               'flex items-center gap-3 px-4 py-3 rounded-lg',
               'transition-colors duration-fast ease-default',
               link.primary
-                ? 'bg-brand-primary-500 text-neutral-0 hover:bg-brand-primary-600'
-                : 'bg-bg-sunken text-text-primary hover:bg-neutral-200',
+                ? 'bg-brand-primary-500 text-text-inverse hover:bg-brand-primary-600'
+                : 'bg-neutral-200 text-text-primary hover:bg-neutral-300',
             ].join(' ')}
           >
             <Icon size={20} aria-hidden="true" className="shrink-0" />
-            <span className="text-label-lg font-semibold truncate">{link.label}</span>
-            <ExternalLink size={14} aria-hidden="true" className="shrink-0 ml-auto opacity-50" />
+            <span className="text-label-lg truncate">{link.label}</span>
+            <ChevronRight size={16} aria-hidden="true" className="shrink-0 ml-auto text-text-tertiary" />
           </a>
         );
       })}

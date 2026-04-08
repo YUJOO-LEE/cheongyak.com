@@ -1,7 +1,21 @@
-import { MapPin, Building2, Home, Ruler, Banknote } from 'lucide-react';
 import { StatusChip } from '@/shared/components';
 import { statusToChipStatus } from '@/shared/lib/format';
 import type { SubscriptionDetail } from '@/shared/types/api';
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+}
+
+function formatDateRange(start: string, end: string): string {
+  const s = new Date(start);
+  const e = new Date(end);
+  const startStr = formatDate(start);
+  if (s.getFullYear() === e.getFullYear()) {
+    return `${startStr} ~ ${e.getMonth() + 1}.${e.getDate()}`;
+  }
+  return `${startStr} ~ ${formatDate(end)}`;
+}
 
 interface SubscriptionHeaderProps {
   subscription: SubscriptionDetail;
@@ -10,47 +24,51 @@ interface SubscriptionHeaderProps {
 export function SubscriptionHeader({ subscription }: SubscriptionHeaderProps) {
   return (
     <div>
-      <StatusChip status={statusToChipStatus(subscription.status)} className="mb-3" />
-
-      <h1 className="text-display-sm font-extrabold text-text-primary mb-4">
-        {subscription.name}
-      </h1>
-
-      <div className="flex flex-col gap-2">
-        <InfoRow icon={MapPin}>
-          {subscription.location.sido} {subscription.location.gugun}
-          {subscription.location.dong && ` ${subscription.location.dong}`}
-        </InfoRow>
-        <InfoRow icon={Building2}>
-          {subscription.builder}
-        </InfoRow>
-        <InfoRow icon={Home}>
-          총 {subscription.totalUnits.toLocaleString()}세대
-        </InfoRow>
-        <InfoRow icon={Ruler}>
-          {subscription.sizeRange}
-        </InfoRow>
-        {subscription.priceRange && (
-          <InfoRow icon={Banknote}>
-            {subscription.priceRange}
-          </InfoRow>
-        )}
+      <div className="mb-6">
+        <StatusChip status={statusToChipStatus(subscription.status)} className="mb-4" />
+        <h1 className="text-display-sm text-text-primary leading-tight">
+          {subscription.name}
+        </h1>
       </div>
+
+      <dl className="bg-bg-card rounded-lg p-6 grid grid-cols-1 min-[375px]:grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5">
+          <InfoItem label="위치">
+            {subscription.location.sido} {subscription.location.gugun}
+            {subscription.location.dong && ` ${subscription.location.dong}`}
+          </InfoItem>
+          <InfoItem label="시행사">
+            {subscription.builder}
+          </InfoItem>
+          <InfoItem label="세대수">
+            총 {subscription.totalUnits.toLocaleString()}세대
+          </InfoItem>
+          <InfoItem label="평형">
+            {subscription.sizeRange}
+          </InfoItem>
+          {subscription.priceRange && (
+            <InfoItem label="분양가">
+              {subscription.priceRange}
+            </InfoItem>
+          )}
+          <InfoItem label="접수기간">
+            {formatDateRange(subscription.applicationStart, subscription.applicationEnd)}
+          </InfoItem>
+      </dl>
     </div>
   );
 }
 
-function InfoRow({
-  icon: Icon,
+function InfoItem({
+  label,
   children,
 }: {
-  icon: typeof MapPin;
+  label: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-2 text-body-md text-text-secondary">
-      <Icon size={18} aria-hidden="true" className="shrink-0 text-text-tertiary" />
-      <span>{children}</span>
+    <div>
+      <dt className="text-label-md text-text-tertiary mb-0.5">{label}</dt>
+      <dd className="text-body-md text-text-primary font-medium">{children}</dd>
     </div>
   );
 }

@@ -7,8 +7,8 @@ interface ScheduleTimelineProps {
 
 const stateStyles = {
   past: {
-    dot: 'bg-neutral-300',
-    line: 'bg-neutral-200',
+    dot: 'bg-bg-active',
+    line: 'bg-border-divider',
     text: 'text-text-tertiary',
     label: 'text-text-tertiary',
   },
@@ -19,8 +19,8 @@ const stateStyles = {
     label: 'text-brand-primary-500',
   },
   future: {
-    dot: 'border-2 border-neutral-300 bg-neutral-0',
-    line: 'bg-neutral-200',
+    dot: 'border-2 border-border-divider bg-bg-card',
+    line: 'bg-border-divider',
     text: 'text-text-secondary',
     label: 'text-text-tertiary',
   },
@@ -30,7 +30,7 @@ export function ScheduleTimeline({ phases }: ScheduleTimelineProps) {
   return (
     <div className="relative pl-6">
       {/* Continuous vertical line */}
-      <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-neutral-200" />
+      <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-border-divider" />
 
       {phases.map((phase, i) => {
         const style = stateStyles[phase.state];
@@ -53,7 +53,7 @@ export function ScheduleTimeline({ phases }: ScheduleTimelineProps) {
             {!isLast && phase.state !== 'future' && (
               <div
                 className={[
-                  'absolute -left-5 top-3 w-0.5 h-full',
+                  'absolute -left-[18px] top-3 w-0.5 h-full',
                   style.line,
                 ].join(' ')}
               />
@@ -72,7 +72,7 @@ export function ScheduleTimeline({ phases }: ScheduleTimelineProps) {
               </div>
 
               {phase.state === 'current' && (
-                <span className="shrink-0 text-caption text-brand-primary-500 bg-brand-primary-50 px-2 py-0.5 rounded-full">
+                <span className="shrink-0 text-caption text-brand-primary-500 bg-brand-primary-50 px-2 py-0.5 rounded-full animate-pulse-soft">
                   진행중
                 </span>
               )}

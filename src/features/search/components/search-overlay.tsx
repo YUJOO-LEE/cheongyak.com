@@ -109,13 +109,13 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     <div className="fixed inset-0 z-modal" role="dialog" aria-modal="true" aria-label="검색">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-neutral-900/25 backdrop-blur-sm"
+        className="absolute inset-0 bg-bg-inverse/25 backdrop-blur-sm animate-fade-in"
         onClick={handleClose}
         aria-hidden="true"
       />
 
       {/* Panel */}
-      <div className="relative mx-4 sm:mx-auto max-w-160 mt-[8vh] sm:mt-[12vh] bg-bg-card rounded-xl shadow-lg max-h-[75vh] flex flex-col overflow-hidden">
+      <div className="relative mx-4 sm:mx-auto max-w-160 mt-[8vh] sm:mt-[12vh] bg-bg-card rounded-xl shadow-lg max-h-[75vh] flex flex-col overflow-hidden animate-slide-up">
         {/* Search Input */}
         <div className="relative flex items-center bg-bg-sunken/50 shrink-0">
           <SearchIcon
@@ -150,7 +150,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               <div className="flex flex-col gap-6">
                 {results.subscriptions.length > 0 && (
                   <section>
-                    <h2 className="text-label-lg font-semibold text-text-secondary mb-2">
+                    <h2 className="text-label-lg text-text-secondary mb-2">
                       청약 ({results.subscriptions.length})
                     </h2>
                     <div className="flex flex-col gap-2">
@@ -181,7 +181,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
 
                 {results.news.length > 0 && (
                   <section>
-                    <h2 className="text-label-lg font-semibold text-text-secondary mb-2">
+                    <h2 className="text-label-lg text-text-secondary mb-2">
                       뉴스 ({results.news.length})
                     </h2>
                     <div className="flex flex-col gap-2">
@@ -218,7 +218,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           ) : recentSearches.length > 0 ? (
             <section>
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-label-lg font-semibold text-text-secondary">최근 검색어</h2>
+                <h2 className="text-label-lg text-text-secondary">최근 검색어</h2>
                 <button
                   onClick={handleClearRecent}
                   className="text-body-sm text-text-tertiary hover:text-text-secondary cursor-pointer"
@@ -231,7 +231,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                   <button
                     key={q}
                     onClick={() => handleSearch(q)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bg-sunken text-body-md text-text-secondary hover:bg-neutral-200 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bg-sunken text-body-md text-text-secondary hover:bg-chip-bg-hover transition-colors cursor-pointer"
                   >
                     <Clock size={14} aria-hidden="true" />
                     {q}

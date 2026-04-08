@@ -35,7 +35,7 @@ function CollapsibleSection({ title, items, defaultOpen = false }: CollapsibleSe
         aria-expanded={open}
       >
         <div className="flex items-center gap-2">
-          <h3 className="text-headline-sm font-bold text-text-primary">{title}</h3>
+          <h3 className="text-headline-sm text-text-primary">{title}</h3>
           <span className="text-body-sm text-text-tertiary">
             총 {totalUnits.toLocaleString()}세대
           </span>
@@ -43,7 +43,7 @@ function CollapsibleSection({ title, items, defaultOpen = false }: CollapsibleSe
         <ChevronDown
           size={20}
           className={[
-            'text-text-tertiary transition-transform duration-fast',
+            'text-text-tertiary transition-transform duration-normal',
             open ? 'rotate-180' : '',
           ].join(' ')}
           aria-hidden="true"
@@ -51,17 +51,17 @@ function CollapsibleSection({ title, items, defaultOpen = false }: CollapsibleSe
       </button>
 
       {open && (
-        <div className="mt-2 rounded-lg overflow-hidden">
+        <div className="mt-2 rounded-lg overflow-hidden animate-expand">
           <table className="w-full">
             <thead>
               <tr className="bg-bg-sunken">
-                <th className="text-left text-label-lg font-semibold text-text-secondary px-4 py-3">
+                <th className="text-left text-label-lg text-text-secondary px-4 py-3">
                   구분
                 </th>
-                <th className="text-right text-label-lg font-semibold text-text-secondary px-4 py-3">
+                <th className="text-right text-label-lg text-text-secondary px-4 py-3">
                   세대수
                 </th>
-                <th className="text-left text-label-lg font-semibold text-text-secondary px-4 py-3 hidden sm:table-cell">
+                <th className="text-left text-label-lg text-text-secondary px-4 py-3 hidden sm:table-cell">
                   평형
                 </th>
               </tr>
