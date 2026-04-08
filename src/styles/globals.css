@@ -158,6 +158,11 @@
   --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.08);
 
   /* --------------------------------------------------
+     BLUR
+     -------------------------------------------------- */
+  --blur-glass: 20px;
+
+  /* --------------------------------------------------
      Z-INDEX
      -------------------------------------------------- */
   --z-base: 0;
@@ -387,6 +392,9 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
+
+  /* Blur */
+  --blur-glass: var(--blur-glass);
 }
 
 /* ============================================================
@@ -408,70 +416,60 @@ body {
 .text-display-lg {
   font-size: var(--text-display-lg-size);
   line-height: var(--text-display-lg-line);
-  font-weight: var(--text-display-lg-weight);
   letter-spacing: var(--text-display-lg-tracking);
 }
 
 .text-display-sm {
   font-size: var(--text-display-sm-size);
   line-height: var(--text-display-sm-line);
-  font-weight: var(--text-display-sm-weight);
   letter-spacing: var(--text-display-sm-tracking);
 }
 
 .text-headline-lg {
   font-size: var(--text-headline-lg-size);
   line-height: var(--text-headline-lg-line);
-  font-weight: var(--text-headline-lg-weight);
   letter-spacing: var(--text-headline-lg-tracking);
 }
 
 .text-headline-sm {
   font-size: var(--text-headline-sm-size);
   line-height: var(--text-headline-sm-line);
-  font-weight: var(--text-headline-sm-weight);
   letter-spacing: var(--text-headline-sm-tracking);
 }
 
 .text-body-lg {
   font-size: var(--text-body-lg-size);
   line-height: var(--text-body-lg-line);
-  font-weight: var(--text-body-lg-weight);
   letter-spacing: var(--text-body-lg-tracking);
 }
 
 .text-body-md {
   font-size: var(--text-body-md-size);
   line-height: var(--text-body-md-line);
-  font-weight: var(--text-body-md-weight);
   letter-spacing: var(--text-body-md-tracking);
 }
 
 .text-body-sm {
   font-size: var(--text-body-sm-size);
   line-height: var(--text-body-sm-line);
-  font-weight: var(--text-body-sm-weight);
   letter-spacing: var(--text-body-sm-tracking);
 }
 
 .text-label-lg {
   font-size: var(--text-label-lg-size);
   line-height: var(--text-label-lg-line);
-  font-weight: var(--text-label-lg-weight);
   letter-spacing: var(--text-label-lg-tracking);
 }
 
 .text-label-md {
   font-size: var(--text-label-md-size);
   line-height: var(--text-label-md-line);
-  font-weight: var(--text-label-md-weight);
   letter-spacing: var(--text-label-md-tracking);
 }
 
 .text-caption {
   font-size: var(--text-caption-size);
   line-height: var(--text-caption-line);
-  font-weight: var(--text-caption-weight);
   letter-spacing: var(--text-caption-tracking);
 }
 

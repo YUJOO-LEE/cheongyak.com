@@ -39,7 +39,7 @@ export function NewsCard({ article }: NewsCardProps) {
 
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-label-md text-brand-primary-600">
+            <span className="text-label-md font-semibold text-brand-primary-600">
               {categoryLabels[article.category] || article.category}
             </span>
             <span className="text-caption text-text-tertiary">

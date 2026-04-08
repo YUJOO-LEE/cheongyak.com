@@ -12,7 +12,7 @@ export function SubscriptionHeader({ subscription }: SubscriptionHeaderProps) {
     <div>
       <StatusChip status={statusToChipStatus(subscription.status)} className="mb-3" />
 
-      <h1 className="text-display-sm text-text-primary mb-4">
+      <h1 className="text-display-sm font-extrabold text-text-primary mb-4">
         {subscription.name}
       </h1>
 

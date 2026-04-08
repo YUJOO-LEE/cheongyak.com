@@ -10,7 +10,7 @@ interface ErrorPageProps {
 export default function ErrorPage({ reset }: ErrorPageProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
-      <h1 className="text-display-sm text-text-primary mb-4">
+      <h1 className="text-display-sm font-extrabold text-text-primary mb-4">
         오류가 발생했습니다
       </h1>
       <p className="text-body-lg text-text-secondary mb-8">

@@ -62,7 +62,7 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-headline-lg text-text-primary mb-4">
+            <h2 className="text-headline-lg font-bold text-text-primary mb-4">
               청약 일정
             </h2>
             <div className="bg-bg-card rounded-lg p-6">
@@ -71,7 +71,7 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-headline-lg text-text-primary mb-4">
+            <h2 className="text-headline-lg font-bold text-text-primary mb-4">
               공급 내역
             </h2>
             <div className="bg-bg-card rounded-lg p-6">
@@ -84,7 +84,7 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
         <div className="lg:col-span-1">
           <div className="lg:sticky lg:top-24 flex flex-col gap-8">
             <section>
-              <h2 className="text-headline-sm text-text-primary mb-4">
+              <h2 className="text-headline-sm font-bold text-text-primary mb-4">
                 공식 링크
               </h2>
               <OfficialLinks
@@ -96,7 +96,7 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
 
             {relatedNews.length > 0 && (
               <section>
-                <h2 className="text-headline-sm text-text-primary mb-4">
+                <h2 className="text-headline-sm font-bold text-text-primary mb-4">
                   관련 뉴스
                 </h2>
                 <RelatedNews articles={relatedNews} />

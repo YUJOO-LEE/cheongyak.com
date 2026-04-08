@@ -150,7 +150,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               <div className="flex flex-col gap-6">
                 {results.subscriptions.length > 0 && (
                   <section>
-                    <h2 className="text-label-lg text-text-secondary mb-2">
+                    <h2 className="text-label-lg font-semibold text-text-secondary mb-2">
                       청약 ({results.subscriptions.length})
                     </h2>
                     <div className="flex flex-col gap-2">
@@ -181,7 +181,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
 
                 {results.news.length > 0 && (
                   <section>
-                    <h2 className="text-label-lg text-text-secondary mb-2">
+                    <h2 className="text-label-lg font-semibold text-text-secondary mb-2">
                       뉴스 ({results.news.length})
                     </h2>
                     <div className="flex flex-col gap-2">
@@ -218,7 +218,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           ) : recentSearches.length > 0 ? (
             <section>
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-label-lg text-text-secondary">최근 검색어</h2>
+                <h2 className="text-label-lg font-semibold text-text-secondary">최근 검색어</h2>
                 <button
                   onClick={handleClearRecent}
                   className="text-body-sm text-text-tertiary hover:text-text-secondary cursor-pointer"

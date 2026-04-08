@@ -67,7 +67,7 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
           </p>
           <button
             onClick={handleReset}
-            className="mt-2 text-label-lg text-interactive-default hover:text-interactive-hover transition-colors cursor-pointer"
+            className="mt-2 text-label-lg font-semibold text-interactive-default hover:text-interactive-hover transition-colors cursor-pointer"
           >
             필터 초기화
           </button>

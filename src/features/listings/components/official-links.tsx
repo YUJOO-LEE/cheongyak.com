@@ -58,7 +58,7 @@ export function OfficialLinks({
             ].join(' ')}
           >
             <Icon size={20} aria-hidden="true" className="shrink-0" />
-            <span className="text-label-lg truncate">{link.label}</span>
+            <span className="text-label-lg font-semibold truncate">{link.label}</span>
             <ExternalLink size={14} aria-hidden="true" className="shrink-0 ml-auto opacity-50" />
           </a>
         );

@@ -46,7 +46,7 @@ export function Navigation() {
   return (
     <>
       {/* Desktop: Top header */}
-      <header className="hidden lg:block fixed top-0 left-0 right-0 z-sticky bg-bg-page/80 backdrop-blur-[20px] shadow-sm">
+      <header className="hidden lg:block fixed top-0 left-0 right-0 z-sticky bg-bg-page/80 backdrop-blur-glass shadow-sm">
         <div className="mx-auto max-w-300 px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="청약닷컴 홈">
             <Image src="/logo.svg" alt="" width={22} height={20} aria-hidden="true" />
@@ -61,7 +61,7 @@ export function Navigation() {
                 key={item.href}
                 href={item.href}
                 className={[
-                  'text-label-lg transition-colors duration-fast ease-default',
+                  'text-label-lg font-semibold transition-colors duration-fast ease-default',
                   isActive(item.href)
                     ? 'text-brand-primary-500'
                     : 'text-text-secondary hover:text-text-primary',

@@ -14,7 +14,7 @@ export function CategoryTabs({ categories, selected, onChange }: CategoryTabsPro
           key={cat.value}
           onClick={() => onChange(cat.value)}
           className={[
-            'shrink-0 px-4 py-2 rounded-full text-label-lg transition-colors duration-fast cursor-pointer',
+            'shrink-0 px-4 py-2 rounded-full text-label-lg font-semibold transition-colors duration-fast cursor-pointer',
             selected === cat.value
               ? 'bg-brand-primary-500 text-neutral-0'
               : 'bg-bg-sunken text-text-secondary hover:bg-neutral-200',

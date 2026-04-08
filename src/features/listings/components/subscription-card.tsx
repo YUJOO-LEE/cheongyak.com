@@ -16,7 +16,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
           <StatusChip status={statusToChipStatus(subscription.status)} />
         </div>
 
-        <h3 className="text-headline-sm text-text-primary mb-2 line-clamp-1">
+        <h3 className="text-headline-sm font-bold text-text-primary mb-2 line-clamp-1">
           {subscription.name}
         </h3>
 

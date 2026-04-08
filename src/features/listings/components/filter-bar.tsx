@@ -39,8 +39,8 @@ export function FilterBar({
   return (
     <>
       {/* Desktop filter bar */}
-      <div className="hidden lg:flex items-center gap-3 sticky top-16 z-dropdown bg-bg-card/80 backdrop-blur-[20px] px-6 py-3 rounded-lg shadow-sm mb-6">
-        <span className="text-label-lg text-text-secondary shrink-0">상태</span>
+      <div className="hidden lg:flex items-center gap-3 sticky top-16 z-dropdown bg-bg-card/80 backdrop-blur-glass px-6 py-3 rounded-lg shadow-sm mb-6">
+        <span className="text-label-lg font-semibold text-text-secondary shrink-0">상태</span>
         <div className="flex gap-2">
           {statusOptions.map((opt) => (
             <button
@@ -49,7 +49,7 @@ export function FilterBar({
                 onStatusChange(selectedStatus === opt.value ? null : opt.value)
               }
               className={[
-                'px-3 py-1.5 rounded-full text-label-md transition-colors duration-fast cursor-pointer',
+                'px-3 py-1.5 rounded-full text-label-md font-semibold transition-colors duration-fast cursor-pointer',
                 selectedStatus === opt.value
                   ? 'bg-brand-primary-500 text-neutral-0'
                   : 'bg-bg-sunken text-text-secondary hover:bg-neutral-200',
@@ -62,7 +62,7 @@ export function FilterBar({
 
         <div className="w-px h-6 bg-neutral-200 mx-2" />
 
-        <span className="text-label-lg text-text-secondary shrink-0">유형</span>
+        <span className="text-label-lg font-semibold text-text-secondary shrink-0">유형</span>
         <div className="flex gap-2">
           {typeOptions.map((opt) => (
             <button
@@ -71,7 +71,7 @@ export function FilterBar({
                 onTypeChange(selectedType === opt.value ? null : opt.value)
               }
               className={[
-                'px-3 py-1.5 rounded-full text-label-md transition-colors duration-fast cursor-pointer',
+                'px-3 py-1.5 rounded-full text-label-md font-semibold transition-colors duration-fast cursor-pointer',
                 selectedType === opt.value
                   ? 'bg-brand-primary-500 text-neutral-0'
                   : 'bg-bg-sunken text-text-secondary hover:bg-neutral-200',
@@ -85,7 +85,7 @@ export function FilterBar({
         {activeCount > 0 && (
           <button
             onClick={onReset}
-            className="ml-auto flex items-center gap-1 text-label-md text-text-tertiary hover:text-text-secondary transition-colors cursor-pointer"
+            className="ml-auto flex items-center gap-1 text-label-md font-semibold text-text-tertiary hover:text-text-secondary transition-colors cursor-pointer"
           >
             <X size={14} aria-hidden="true" />
             초기화
@@ -94,10 +94,10 @@ export function FilterBar({
       </div>
 
       {/* Mobile filter button */}
-      <div className="lg:hidden sticky top-0 z-dropdown bg-bg-page/80 backdrop-blur-[20px] px-4 py-3 mb-4">
+      <div className="lg:hidden sticky top-0 z-dropdown bg-bg-page/80 backdrop-blur-glass px-4 py-3 mb-4">
         <button
           onClick={() => setMobileOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-md bg-bg-card text-text-secondary text-label-lg shadow-sm cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 rounded-md bg-bg-card text-text-secondary text-label-lg font-semibold shadow-sm cursor-pointer"
         >
           <SlidersHorizontal size={18} aria-hidden="true" />
           필터
@@ -119,7 +119,7 @@ export function FilterBar({
           />
           <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-headline-sm">필터</h2>
+              <h2 className="text-headline-sm font-bold">필터</h2>
               <button
                 onClick={() => setMobileOpen(false)}
                 className="p-2 cursor-pointer"
@@ -130,7 +130,7 @@ export function FilterBar({
             </div>
 
             <div className="mb-6">
-              <p className="text-label-lg text-text-secondary mb-2">상태</p>
+              <p className="text-label-lg font-semibold text-text-secondary mb-2">상태</p>
               <div className="flex flex-wrap gap-2">
                 {statusOptions.map((opt) => (
                   <button
@@ -139,7 +139,7 @@ export function FilterBar({
                       onStatusChange(selectedStatus === opt.value ? null : opt.value)
                     }
                     className={[
-                      'px-4 py-2 rounded-full text-label-lg transition-colors cursor-pointer',
+                      'px-4 py-2 rounded-full text-label-lg font-semibold transition-colors cursor-pointer',
                       selectedStatus === opt.value
                         ? 'bg-brand-primary-500 text-neutral-0'
                         : 'bg-bg-sunken text-text-secondary',
@@ -152,7 +152,7 @@ export function FilterBar({
             </div>
 
             <div className="mb-6">
-              <p className="text-label-lg text-text-secondary mb-2">유형</p>
+              <p className="text-label-lg font-semibold text-text-secondary mb-2">유형</p>
               <div className="flex flex-wrap gap-2">
                 {typeOptions.map((opt) => (
                   <button
@@ -161,7 +161,7 @@ export function FilterBar({
                       onTypeChange(selectedType === opt.value ? null : opt.value)
                     }
                     className={[
-                      'px-4 py-2 rounded-full text-label-lg transition-colors cursor-pointer',
+                      'px-4 py-2 rounded-full text-label-lg font-semibold transition-colors cursor-pointer',
                       selectedType === opt.value
                         ? 'bg-brand-primary-500 text-neutral-0'
                         : 'bg-bg-sunken text-text-secondary',

@@ -30,7 +30,7 @@ export function ScheduleTimeline({ phases }: ScheduleTimelineProps) {
   return (
     <div className="relative pl-6">
       {/* Continuous vertical line */}
-      <div className="absolute left-[5px] top-2 bottom-2 w-0.5 bg-neutral-200" />
+      <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-neutral-200" />
 
       {phases.map((phase, i) => {
         const style = stateStyles[phase.state];
@@ -53,7 +53,7 @@ export function ScheduleTimeline({ phases }: ScheduleTimelineProps) {
             {!isLast && phase.state !== 'future' && (
               <div
                 className={[
-                  'absolute -left-[19px] top-3 w-0.5 h-full',
+                  'absolute -left-5 top-3 w-0.5 h-full',
                   style.line,
                 ].join(' ')}
               />
