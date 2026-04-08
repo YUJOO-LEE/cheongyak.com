@@ -124,6 +124,33 @@
   --color-interactive-active: var(--brand-primary-700);
   --color-focus-ring: var(--brand-primary-500);
 
+  /* Surface interaction states */
+  --color-bg-hover: var(--neutral-200);
+  --color-bg-active: var(--neutral-300);
+  --color-bg-disabled: var(--neutral-100);
+
+  /* Inverse context (dark/brand backgrounds) */
+  --color-bg-inverse: var(--neutral-900);
+  --color-bg-inverse-subtle: rgba(255, 255, 255, 0.10);
+  --color-bg-inverse-hover: rgba(255, 255, 255, 0.15);
+  --color-text-on-dark: var(--neutral-0);
+  --color-text-on-dark-muted: rgba(255, 255, 255, 0.70);
+  --color-text-on-dark-subtle: rgba(255, 255, 255, 0.50);
+  --color-text-disabled: var(--neutral-300);
+
+  /* Divider */
+  --color-border-divider: var(--neutral-200);
+
+  /* Chip/pill */
+  --color-chip-bg: var(--color-bg-sunken);
+  --color-chip-bg-hover: var(--neutral-200);
+  --color-chip-text: var(--color-text-secondary);
+
+  /* Icon */
+  --color-icon-default: var(--neutral-500);
+  --color-icon-subtle: var(--neutral-400);
+  --color-icon-inverse: rgba(255, 255, 255, 0.50);
+
   /* --------------------------------------------------
      SPACING (4px base unit)
      -------------------------------------------------- */
@@ -352,6 +379,28 @@
   --color-interactive-hover: var(--color-interactive-hover);
   --color-interactive-active: var(--color-interactive-active);
 
+  --color-bg-hover: var(--color-bg-hover);
+  --color-bg-active: var(--color-bg-active);
+  --color-bg-disabled: var(--color-bg-disabled);
+
+  --color-bg-inverse: var(--color-bg-inverse);
+  --color-bg-inverse-subtle: var(--color-bg-inverse-subtle);
+  --color-bg-inverse-hover: var(--color-bg-inverse-hover);
+  --color-text-on-dark: var(--color-text-on-dark);
+  --color-text-on-dark-muted: var(--color-text-on-dark-muted);
+  --color-text-on-dark-subtle: var(--color-text-on-dark-subtle);
+  --color-text-disabled: var(--color-text-disabled);
+
+  --color-border-divider: var(--color-border-divider);
+
+  --color-chip-bg: var(--color-chip-bg);
+  --color-chip-bg-hover: var(--color-chip-bg-hover);
+  --color-chip-text: var(--color-chip-text);
+
+  --color-icon-default: var(--color-icon-default);
+  --color-icon-subtle: var(--color-icon-subtle);
+  --color-icon-inverse: var(--color-icon-inverse);
+
   /* Spacing */
   --spacing-0: var(--space-0);
   --spacing-1: var(--space-1);
@@ -416,24 +465,28 @@ body {
 .text-display-lg {
   font-size: var(--text-display-lg-size);
   line-height: var(--text-display-lg-line);
+  font-weight: var(--text-display-lg-weight);
   letter-spacing: var(--text-display-lg-tracking);
 }
 
 .text-display-sm {
   font-size: var(--text-display-sm-size);
   line-height: var(--text-display-sm-line);
+  font-weight: var(--text-display-sm-weight);
   letter-spacing: var(--text-display-sm-tracking);
 }
 
 .text-headline-lg {
   font-size: var(--text-headline-lg-size);
   line-height: var(--text-headline-lg-line);
+  font-weight: var(--text-headline-lg-weight);
   letter-spacing: var(--text-headline-lg-tracking);
 }
 
 .text-headline-sm {
   font-size: var(--text-headline-sm-size);
   line-height: var(--text-headline-sm-line);
+  font-weight: var(--text-headline-sm-weight);
   letter-spacing: var(--text-headline-sm-tracking);
 }
 
@@ -458,12 +511,14 @@ body {
 .text-label-lg {
   font-size: var(--text-label-lg-size);
   line-height: var(--text-label-lg-line);
+  font-weight: var(--text-label-lg-weight);
   letter-spacing: var(--text-label-lg-tracking);
 }
 
 .text-label-md {
   font-size: var(--text-label-md-size);
   line-height: var(--text-label-md-line);
+  font-weight: var(--text-label-md-weight);
   letter-spacing: var(--text-label-md-tracking);
 }
 
@@ -519,6 +574,65 @@ body {
 .skeleton {
   animation: skeleton-pulse var(--duration-slow) var(--easing-default) infinite;
   border-radius: var(--radius-md);
+}
+
+/* ============================================================
+   INTERACTION ANIMATIONS
+   ============================================================ */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up-sheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes expand {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 500px; }
+}
+
+.animate-fade-in {
+  animation: fade-in var(--duration-fast) var(--easing-out);
+}
+
+.animate-slide-up {
+  animation: slide-up var(--duration-normal) var(--easing-out);
+}
+
+.animate-slide-up-sheet {
+  animation: slide-up-sheet var(--duration-normal) var(--easing-out);
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up var(--duration-normal) var(--easing-out) both;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s var(--easing-default) infinite;
+}
+
+.animate-expand {
+  animation: expand var(--duration-normal) var(--easing-out) forwards;
+  overflow: hidden;
 }
 
 /* ============================================================

@@ -161,6 +161,13 @@ Colors are split into **Brand** (identity) and **Functional** (semantic meaning)
 - Tailwind config maps design tokens to utility classes
 - `brand-secondary-500` has ~1.6:1 contrast on white — decorative only, never for text
 
+**Token-first rule (mandatory):**
+- All colors MUST use design token classes (e.g., `text-brand-primary-500`, `bg-bg-sunken`) — never raw hex, RGB, or Tailwind default palette (e.g., `bg-blue-500`, `text-gray-400`)
+- All spacing MUST use token-mapped values (`gap-3`, `p-4`, `mb-6`) — never arbitrary values like `p-[13px]`
+- All font sizes MUST use typography token classes (`text-body-md`, `text-headline-lg`) — never raw `text-sm`, `text-lg`
+- All border-radius MUST use token values (`rounded-md`, `rounded-lg`) — never arbitrary values
+- If no suitable token exists for a needed value, do NOT invent an arbitrary value. Instead, flag it as a design gap: add a `TODO: [DESIGN_TOKEN_NEEDED]` comment and note the missing token in the PR description so designers can review and extend the token system
+
 **Full specification:** See `DESIGN.md` for complete token scales, typography, spacing, breakpoints, components, and accessibility specs.
 
 ---
