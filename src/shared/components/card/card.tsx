@@ -38,8 +38,8 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           'bg-bg-card',
           variantStyles[variant],
           interactive && [
-            'transition-all duration-fast ease-default',
-            'hover:-translate-y-0.5 hover:shadow-md',
+            'transition-all duration-normal ease-default',
+            'hover:-translate-y-0.5 hover:shadow-md hover:bg-bg-elevated',
             'active:translate-y-0 active:shadow-sm',
           ].join(' '),
           className,

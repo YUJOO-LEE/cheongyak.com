@@ -50,8 +50,8 @@ const chipConfigs: Record<ChipStatus, ChipConfig> = {
   closed: {
     label: '마감',
     icon: XCircle,
-    bg: 'bg-neutral-100',
-    text: 'text-neutral-500',
+    bg: 'bg-bg-sunken',
+    text: 'text-text-secondary',
   },
   special: {
     label: '특별공급',

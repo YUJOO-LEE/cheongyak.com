@@ -88,7 +88,7 @@ function PaginationLink({
 
   if (disabled || !href) {
     return (
-      <span className={[baseClass, 'text-neutral-300 cursor-not-allowed'].join(' ')} {...props}>
+      <span className={[baseClass, 'text-text-disabled cursor-not-allowed'].join(' ')} {...props}>
         {children}
       </span>
     );
@@ -101,8 +101,8 @@ function PaginationLink({
       className={[
         baseClass,
         active
-          ? 'bg-brand-primary-500 text-neutral-0 font-semibold'
-          : 'text-text-secondary hover:bg-neutral-100',
+          ? 'bg-brand-primary-500 text-text-inverse font-semibold'
+          : 'text-text-secondary hover:bg-bg-hover',
       ].join(' ')}
       {...props}
     >

@@ -14,28 +14,28 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: [
-    'bg-brand-primary-500 text-neutral-0',
+    'bg-brand-primary-500 text-text-inverse',
     'hover:bg-brand-primary-600',
     'active:bg-brand-primary-700',
-    'disabled:bg-neutral-200 disabled:text-neutral-400',
+    'disabled:bg-bg-disabled disabled:text-text-tertiary',
   ].join(' '),
   secondary: [
-    'bg-brand-secondary-700 text-neutral-0',
+    'bg-brand-secondary-700 text-text-inverse',
     'hover:bg-brand-secondary-800',
     'active:bg-brand-secondary-900',
-    'disabled:bg-neutral-200 disabled:text-neutral-400',
+    'disabled:bg-bg-disabled disabled:text-text-tertiary',
   ].join(' '),
   tertiary: [
     'bg-transparent text-brand-primary-500',
-    'hover:bg-neutral-50',
-    'active:bg-neutral-100',
-    'disabled:text-neutral-400 disabled:bg-transparent',
+    'hover:bg-bg-hover',
+    'active:bg-bg-active',
+    'disabled:text-text-tertiary disabled:bg-transparent',
   ].join(' '),
   danger: [
-    'bg-danger-500 text-neutral-0',
+    'bg-danger-500 text-text-inverse',
     'hover:bg-danger-600',
     'active:bg-danger-700',
-    'disabled:bg-neutral-200 disabled:text-neutral-400',
+    'disabled:bg-bg-disabled disabled:text-text-tertiary',
   ].join(' '),
 };
 

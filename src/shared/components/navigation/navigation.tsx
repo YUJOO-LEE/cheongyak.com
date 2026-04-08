@@ -50,7 +50,7 @@ export function Navigation() {
         <div className="mx-auto max-w-300 px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="청약닷컴 홈">
             <Image src="/logo.svg" alt="" width={22} height={20} aria-hidden="true" />
-            <span className="text-headline-sm text-brand-primary-500 font-bold">
+            <span className="text-headline-sm text-brand-primary-500">
               청약닷컴
             </span>
           </Link>
@@ -61,7 +61,7 @@ export function Navigation() {
                 key={item.href}
                 href={item.href}
                 className={[
-                  'text-label-lg font-semibold transition-colors duration-fast ease-default',
+                  'text-label-lg transition-colors duration-fast ease-default',
                   isActive(item.href)
                     ? 'text-brand-primary-500'
                     : 'text-text-secondary hover:text-text-primary',
@@ -100,7 +100,7 @@ export function Navigation() {
                 'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-fast ease-default',
                 isActive('/')
                   ? 'bg-brand-primary-500/10'
-                  : 'bg-neutral-100',
+                  : 'bg-bg-sunken',
               ].join(' ')}
             >
               <Image
@@ -117,7 +117,7 @@ export function Navigation() {
             </span>
             <span className={[
               'text-caption',
-              isActive('/') ? 'text-brand-primary-500' : 'text-neutral-400',
+              isActive('/') ? 'text-brand-primary-500' : 'text-text-tertiary',
             ].join(' ')}>홈</span>
           </Link>
 
@@ -136,7 +136,7 @@ export function Navigation() {
                   'transition-colors duration-fast ease-default',
                   active
                     ? 'text-brand-primary-500'
-                    : 'text-neutral-400',
+                    : 'text-text-tertiary',
                 ].join(' ')}
                 aria-current={active ? 'page' : undefined}
               >
@@ -153,7 +153,7 @@ export function Navigation() {
               'flex flex-col items-center justify-center gap-0.5',
               'min-w-11 min-h-11',
               'transition-colors duration-fast ease-default',
-              'text-neutral-400 cursor-pointer',
+              'text-text-tertiary cursor-pointer',
             ].join(' ')}
             aria-label="검색"
           >
