@@ -31,11 +31,12 @@ export function formatRelativeDate(dateString: string): string {
 
 export function statusToChipStatus(
   status: string,
-): 'active' | 'upcoming' | 'closing-soon' | 'closed' {
-  const map: Record<string, 'active' | 'upcoming' | 'closing-soon' | 'closed'> = {
+): 'active' | 'upcoming' | 'pending' | 'contracting' | 'closed' {
+  const map: Record<string, 'active' | 'upcoming' | 'pending' | 'contracting' | 'closed'> = {
     accepting: 'active',
     upcoming: 'upcoming',
-    closing_soon: 'closing-soon',
+    pending: 'pending',
+    contracting: 'contracting',
     closed: 'closed',
   };
   return map[status] || 'closed';

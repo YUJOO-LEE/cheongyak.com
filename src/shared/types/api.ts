@@ -5,9 +5,10 @@ import { z } from 'zod';
 // ============================================================
 
 export const SubscriptionStatusSchema = z.enum([
-  'accepting',
   'upcoming',
-  'closing_soon',
+  'accepting',
+  'pending',
+  'contracting',
   'closed',
 ]);
 export type SubscriptionStatus = z.infer<typeof SubscriptionStatusSchema>;

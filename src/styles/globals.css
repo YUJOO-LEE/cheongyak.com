@@ -69,9 +69,10 @@
      FUNCTIONAL COLORS (Semantic)
      -------------------------------------------------- */
 
-  /* Success — 접수중 (Active/Accepting) */
+  /* Success */
   --success-50: #F0FDF4;
   --success-100: #DCFCE7;
+  --success-200: #BBF7D0;
   --success-500: #22C55E;
   --success-600: #16A34A;
   --success-700: #15803D;
@@ -83,16 +84,18 @@
   --danger-600: #BE123C;
   --danger-700: #9F1239;
 
-  /* Warning — 마감임박 (Closing soon) */
+  /* Warning */
   --warning-50: #FFFBEB;
   --warning-100: #FEF3C7;
+  --warning-200: #FDE68A;
   --warning-500: #F79009;
   --warning-600: #D97706;
   --warning-700: #B45309;
 
-  /* Info — 접수예정 (Upcoming) */
+  /* Info */
   --info-50: #ECFEFF;
   --info-100: #CFFAFE;
+  --info-200: #A5F3FC;
   --info-500: #06B6D4;
   --info-600: #0891B2;
   --info-700: #0E7490;
@@ -340,6 +343,7 @@
   /* Functional */
   --color-success-50: var(--success-50);
   --color-success-100: var(--success-100);
+  --color-success-200: var(--success-200);
   --color-success-500: var(--success-500);
   --color-success-600: var(--success-600);
   --color-success-700: var(--success-700);
@@ -352,12 +356,14 @@
 
   --color-warning-50: var(--warning-50);
   --color-warning-100: var(--warning-100);
+  --color-warning-200: var(--warning-200);
   --color-warning-500: var(--warning-500);
   --color-warning-600: var(--warning-600);
   --color-warning-700: var(--warning-700);
 
   --color-info-50: var(--info-50);
   --color-info-100: var(--info-100);
+  --color-info-200: var(--info-200);
   --color-info-500: var(--info-500);
   --color-info-600: var(--info-600);
   --color-info-700: var(--info-700);
@@ -620,6 +626,18 @@ body {
 
 .animate-slide-up-sheet {
   animation: slide-up-sheet var(--duration-normal) var(--easing-out);
+}
+
+.overlay-closing {
+  animation: none !important;
+  transition: opacity var(--duration-normal) var(--easing-in);
+  opacity: 0;
+}
+
+.sheet-closing {
+  animation: none !important;
+  transition: transform var(--duration-normal) var(--easing-in);
+  transform: translateY(100%);
 }
 
 .animate-fade-in-up {

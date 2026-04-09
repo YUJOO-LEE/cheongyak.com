@@ -3,6 +3,7 @@ import {
   Calendar,
   Clock,
   Archive,
+  FileCheck,
   Star,
   Flame,
   type LucideIcon,
@@ -11,7 +12,8 @@ import {
 type ChipStatus =
   | 'active'
   | 'upcoming'
-  | 'closing-soon'
+  | 'pending'
+  | 'contracting'
   | 'closed'
   | 'special'
   | 'trending';
@@ -32,8 +34,8 @@ const chipConfigs: Record<ChipStatus, ChipConfig> = {
   active: {
     label: '접수중',
     icon: CheckCircle,
-    bg: 'bg-success-100',
-    text: 'text-success-700',
+    bg: 'bg-brand-secondary-200',
+    text: 'text-brand-secondary-800',
   },
   upcoming: {
     label: '접수예정',
@@ -41,14 +43,20 @@ const chipConfigs: Record<ChipStatus, ChipConfig> = {
     bg: 'bg-info-100',
     text: 'text-info-700',
   },
-  'closing-soon': {
-    label: '마감임박',
+  pending: {
+    label: '발표대기',
     icon: Clock,
     bg: 'bg-warning-100',
     text: 'text-warning-700',
   },
+  contracting: {
+    label: '계약중',
+    icon: FileCheck,
+    bg: 'bg-brand-tertiary-100',
+    text: 'text-brand-tertiary-700',
+  },
   closed: {
-    label: '접수완료',
+    label: '청약완료',
     icon: Archive,
     bg: 'bg-neutral-200',
     text: 'text-neutral-600',

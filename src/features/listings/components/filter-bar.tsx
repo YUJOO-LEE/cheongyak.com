@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { SlidersHorizontal, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import { Button } from '@/shared/components';
 import type { SubscriptionStatus } from '@/shared/types/api';
 
@@ -15,10 +15,11 @@ interface FilterBarProps {
 }
 
 const statusOptions: { value: SubscriptionStatus; label: string }[] = [
-  { value: 'accepting', label: '접수중' },
   { value: 'upcoming', label: '접수예정' },
-  { value: 'closing_soon', label: '마감임박' },
-  { value: 'closed', label: '마감' },
+  { value: 'accepting', label: '접수중' },
+  { value: 'pending', label: '발표대기' },
+  { value: 'contracting', label: '계약중' },
+  { value: 'closed', label: '청약완료' },
 ];
 
 const typeOptions = [
@@ -35,6 +36,27 @@ export function FilterBar({
   activeCount,
 }: FilterBarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (!closing) return;
+    const timer = setTimeout(() => {
+      setMobileOpen(false);
+      setClosing(false);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [closing]);
+
+  const handleClose = () => setClosing(true);
 
   return (
     <>
@@ -51,7 +73,7 @@ export function FilterBar({
               className={[
                 'px-3 py-1.5 rounded-full text-label-md transition-colors duration-fast cursor-pointer active:scale-95',
                 selectedStatus === opt.value
-                  ? 'bg-brand-primary-500 text-text-inverse shadow-sm'
+                  ? 'bg-neutral-500 text-text-inverse shadow-sm'
                   : 'bg-chip-bg text-text-secondary hover:bg-chip-bg-hover',
               ].join(' ')}
             >
@@ -73,7 +95,7 @@ export function FilterBar({
               className={[
                 'px-3 py-1.5 rounded-full text-label-md transition-colors duration-fast cursor-pointer active:scale-95',
                 selectedType === opt.value
-                  ? 'bg-brand-primary-500 text-text-inverse shadow-sm'
+                  ? 'bg-neutral-500 text-text-inverse shadow-sm'
                   : 'bg-chip-bg text-text-secondary hover:bg-chip-bg-hover',
               ].join(' ')}
             >
@@ -87,14 +109,14 @@ export function FilterBar({
             onClick={onReset}
             className="ml-auto flex items-center gap-1 text-label-md text-text-tertiary hover:text-text-secondary transition-colors cursor-pointer"
           >
-            <X size={14} aria-hidden="true" />
+            <RotateCcw size={14} aria-hidden="true" />
             초기화
           </button>
         )}
       </div>
 
       {/* Mobile filter button */}
-      <div className="lg:hidden sticky top-0 z-dropdown bg-bg-page/80 backdrop-blur-glass px-4 py-3 mb-4">
+      <div className="lg:hidden px-4 py-3 mb-4">
         <button
           onClick={() => setMobileOpen(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-md bg-bg-card text-text-secondary text-label-lg shadow-sm cursor-pointer"
@@ -102,7 +124,7 @@ export function FilterBar({
           <SlidersHorizontal size={18} aria-hidden="true" />
           필터
           {activeCount > 0 && (
-            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-brand-primary-500 text-text-inverse text-caption">
+            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-neutral-500 text-text-inverse text-caption">
               {activeCount}
             </span>
           )}
@@ -113,15 +135,17 @@ export function FilterBar({
       {mobileOpen && (
         <div className="fixed inset-0 z-modal lg:hidden">
           <div
-            className="absolute inset-0 bg-bg-overlay animate-fade-in"
-            onClick={() => setMobileOpen(false)}
+            className={`absolute inset-0 bg-bg-overlay animate-fade-in ${closing ? 'overlay-closing' : ''}`}
+            onClick={handleClose}
             aria-hidden="true"
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-bg-card rounded-t-xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up-sheet">
+          <div
+            className={`absolute bottom-0 left-0 right-0 bg-bg-page/55 backdrop-blur-glass rounded-t-xl shadow-[0_-0.5px_0_rgba(15,23,42,0.08),0_-12px_40px_rgba(15,23,42,0.12)] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up-sheet ${closing ? 'sheet-closing' : ''}`}
+          >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-headline-sm">필터</h2>
               <button
-                onClick={() => setMobileOpen(false)}
+                onClick={handleClose}
                 className="p-2 cursor-pointer"
                 aria-label="필터 닫기"
               >
@@ -141,8 +165,8 @@ export function FilterBar({
                     className={[
                       'px-4 py-2 rounded-full text-label-lg transition-colors cursor-pointer active:scale-95',
                       selectedStatus === opt.value
-                        ? 'bg-brand-primary-500 text-text-inverse shadow-sm'
-                        : 'bg-chip-bg text-text-secondary',
+                        ? 'bg-neutral-500 text-text-inverse shadow-sm'
+                        : 'bg-neutral-200 text-text-secondary',
                     ].join(' ')}
                   >
                     {opt.label}
@@ -163,8 +187,8 @@ export function FilterBar({
                     className={[
                       'px-4 py-2 rounded-full text-label-lg transition-colors cursor-pointer active:scale-95',
                       selectedType === opt.value
-                        ? 'bg-brand-primary-500 text-text-inverse shadow-sm'
-                        : 'bg-chip-bg text-text-secondary',
+                        ? 'bg-neutral-500 text-text-inverse shadow-sm'
+                        : 'bg-neutral-200 text-text-secondary',
                     ].join(' ')}
                   >
                     {opt.label}
@@ -175,14 +199,14 @@ export function FilterBar({
 
             <div className="flex gap-3">
               {activeCount > 0 && (
-                <Button variant="tertiary" size="lg" onClick={onReset} className="flex-1">
+                <Button variant="secondary" size="lg" onClick={onReset} className="flex-1">
                   초기화
                 </Button>
               )}
               <Button
                 variant="primary"
                 size="lg"
-                onClick={() => setMobileOpen(false)}
+                onClick={handleClose}
                 className="flex-1"
               >
                 적용

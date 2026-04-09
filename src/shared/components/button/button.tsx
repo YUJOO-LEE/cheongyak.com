@@ -20,9 +20,9 @@ const variantStyles: Record<ButtonVariant, string> = {
     'disabled:bg-bg-disabled disabled:text-text-tertiary',
   ].join(' '),
   secondary: [
-    'bg-brand-secondary-700 text-text-inverse',
-    'hover:bg-brand-secondary-800',
-    'active:bg-brand-secondary-900',
+    'bg-neutral-200 text-text-primary',
+    'hover:bg-neutral-300',
+    'active:bg-bg-active',
     'disabled:bg-bg-disabled disabled:text-text-tertiary',
   ].join(' '),
   tertiary: [
