@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { MapPin, Building2, Calendar, Home } from 'lucide-react';
-import { Card, StatusChip } from '@/shared/components';
+import { Card, StatusChip, TypeChip } from '@/shared/components';
 import { formatDateRange, statusToChipStatus } from '@/shared/lib/format';
 import type { Subscription } from '@/shared/types/api';
 
@@ -12,8 +12,9 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
   return (
     <Link href={`/listings/${subscription.id}`} className="block">
       <Card variant="subscription" as="article">
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2 mb-3">
           <StatusChip status={statusToChipStatus(subscription.status)} />
+          <TypeChip type={subscription.type} />
         </div>
 
         <h3 className="text-headline-sm text-text-primary mb-2 line-clamp-1">

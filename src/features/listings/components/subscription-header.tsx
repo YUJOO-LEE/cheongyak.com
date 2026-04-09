@@ -1,4 +1,4 @@
-import { StatusChip } from '@/shared/components';
+import { StatusChip, TypeChip } from '@/shared/components';
 import { statusToChipStatus } from '@/shared/lib/format';
 import type { SubscriptionDetail } from '@/shared/types/api';
 
@@ -25,7 +25,10 @@ export function SubscriptionHeader({ subscription }: SubscriptionHeaderProps) {
   return (
     <div>
       <div className="mb-6">
-        <StatusChip status={statusToChipStatus(subscription.status)} className="mb-4" />
+        <div className="flex items-center gap-2 mb-4">
+          <StatusChip status={statusToChipStatus(subscription.status)} />
+          <TypeChip type={subscription.type} />
+        </div>
         <h1 className="text-display-sm text-text-primary leading-tight">
           {subscription.name}
         </h1>

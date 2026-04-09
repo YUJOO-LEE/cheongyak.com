@@ -22,17 +22,11 @@ export function Footer() {
             >
               이용약관
             </Link>
-            <Link
-              href="/privacy"
-              className="text-body-sm text-text-tertiary hover:text-text-secondary transition-colors duration-fast ease-default"
-            >
-              개인정보처리방침
-            </Link>
           </nav>
         </div>
 
         <p className="mt-4 text-caption text-text-tertiary">
-          © {new Date().getFullYear()} 청약닷컴. All rights reserved.
+          © {new Date().getFullYear()}. All rights reserved.
         </p>
       </div>
     </footer>

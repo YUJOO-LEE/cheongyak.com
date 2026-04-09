@@ -12,6 +12,9 @@ export const SubscriptionStatusSchema = z.enum([
 ]);
 export type SubscriptionStatus = z.infer<typeof SubscriptionStatusSchema>;
 
+export const SubscriptionTypeSchema = z.enum(['public', 'private']);
+export type SubscriptionType = z.infer<typeof SubscriptionTypeSchema>;
+
 export const NewsCategorySchema = z.enum([
   'all',
   'policy',
@@ -35,6 +38,7 @@ export const SubscriptionSchema = z.object({
   }),
   builder: z.string(),
   status: SubscriptionStatusSchema,
+  type: SubscriptionTypeSchema,
   applicationStart: z.string(),
   applicationEnd: z.string(),
   totalUnits: z.number(),
