@@ -16,6 +16,7 @@ interface DayInfo {
   date: Date;
   dateStr: string;
   isToday: boolean;
+  isPast: boolean;
 }
 
 function getWeekdays(): DayInfo[] {
@@ -33,6 +34,7 @@ function getWeekdays(): DayInfo[] {
       date,
       dateStr: `${date.getMonth() + 1}.${date.getDate()}`,
       isToday: date.toDateString() === now.toDateString(),
+      isPast: date < new Date(now.getFullYear(), now.getMonth(), now.getDate()),
     };
   });
 }
@@ -114,55 +116,60 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
         />
       </div>
 
-      {/* ═══════ Desktop: unified column cards ═══════ */}
-      <div className="hidden lg:grid grid-cols-5 gap-4">
-        {weekdays.map((day) => {
+      {/* ═══════ Desktop: flat columns, cards only ═══════ */}
+      <div className="hidden lg:grid grid-cols-5 gap-6">
+        {weekdays.map((day, i) => {
           const daySubs = getSubsForDate(subscriptions, day.date);
 
           return (
             <div
               key={day.dateStr}
-              className={[
-                'rounded-xl overflow-hidden',
-                day.isToday ? 'bg-brand-tertiary-500' : 'bg-bg-card',
-              ].join(' ')}
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${i * 60}ms` }}
             >
-              {/* Integrated header — part of the same card */}
-              <div className="text-center py-3">
-                <p className={[
-                  'text-label-lg',
-                  day.isToday ? 'text-text-on-dark' : 'text-text-primary',
-                ].join(' ')}>
-                  {day.shortLabel}
-                </p>
-                <p className={[
-                  'text-caption',
-                  day.isToday ? 'text-text-on-dark-muted' : 'text-text-tertiary',
-                ].join(' ')}>
-                  {day.dateStr}
-                  {daySubs.length > 0 && (
-                    <span className="ml-1.5 font-medium">
-                      · {daySubs.length}건
-                    </span>
-                  )}
-                </p>
-              </div>
-
-              {/* Body — seamless continuation */}
-              <div className="p-3 pt-1 min-h-36">
-                {daySubs.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-28 text-text-tertiary">
-                    <CalendarOff size={18} aria-hidden="true" />
-                    <span className="text-caption mt-1.5">일정 없음</span>
-                  </div>
+              {/* Column header — no wrapper, just text */}
+              <div className="text-center mb-3">
+                {day.isToday ? (
+                  <>
+                    <div className="flex items-center justify-center gap-1.5">
+                      <p className="text-label-lg text-brand-primary-700">오늘</p>
+                      <span className="inline-block size-1.5 rounded-full bg-brand-primary-500 animate-pulse-soft" />
+                    </div>
+                    <p className="text-caption text-brand-primary-600">
+                      {day.dateStr}
+                      {daySubs.length > 0 && (
+                        <span className="ml-1.5 font-medium">{daySubs.length}건</span>
+                      )}
+                    </p>
+                  </>
                 ) : (
-                  <div className="flex flex-col gap-3">
-                    {daySubs.map((sub) => (
-                      <DesktopCard key={sub.id} subscription={sub} isToday={day.isToday} />
-                    ))}
-                  </div>
+                  <>
+                    <p className={[
+                      'text-label-lg',
+                      day.isPast ? 'text-text-tertiary' : 'text-text-primary',
+                    ].join(' ')}>
+                      {day.shortLabel}
+                    </p>
+                    <p className="text-caption text-text-tertiary">
+                      {day.dateStr}
+                      {daySubs.length > 0 && (
+                        <span className="ml-1.5 font-medium">· {daySubs.length}건</span>
+                      )}
+                    </p>
+                  </>
                 )}
               </div>
+
+              {/* Cards — single level, no nesting */}
+              {daySubs.length === 0 ? (
+                <p className="text-caption text-text-tertiary text-center py-8">일정 없음</p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {daySubs.map((sub) => (
+                    <DesktopCard key={sub.id} subscription={sub} isPast={day.isPast} isToday={day.isToday} />
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}
@@ -196,23 +203,27 @@ function SubscriptionInfo({ sub, compact = false }: { sub: Subscription; compact
 
 /* ─── Desktop mini card ─── */
 
-function DesktopCard({ subscription: sub, isToday }: { subscription: Subscription; isToday: boolean }) {
+function DesktopCard({ subscription: sub, isPast, isToday }: { subscription: Subscription; isPast: boolean; isToday: boolean }) {
   return (
     <Link
       href={`/listings/${sub.id}`}
       className={[
-        'block rounded-lg p-4 transition-all duration-fast ease-default',
-        isToday ? 'bg-brand-tertiary-200 hover:bg-brand-tertiary-100' : 'bg-brand-tertiary-50 hover:bg-brand-tertiary-100',
+        'block rounded-lg p-3 bg-bg-card',
+        isToday ? 'shadow-md' : '',
+        'transition-all duration-fast ease-default',
+        'hover:-translate-y-0.5 hover:shadow-md',
+        'active:translate-y-0 active:shadow-sm',
+        isPast ? 'opacity-80 hover:opacity-100' : '',
       ].join(' ')}
     >
-      <StatusChip status={statusToChipStatus(sub.status)} className="mb-3" />
-      <p className="text-body-lg text-text-primary line-clamp-2 mb-3">
+      <StatusChip status={statusToChipStatus(sub.status)} className="mb-2" />
+      <p className="text-body-md font-medium text-text-primary line-clamp-2 mb-2">
         {sub.name}
       </p>
-      <div className="flex flex-col gap-1.5 mb-3">
+      <div className="flex flex-col gap-1 mb-2">
         <SubscriptionInfo sub={sub} compact />
       </div>
-      <p className="text-caption text-text-secondary">
+      <p className="text-caption text-text-tertiary">
         {sub.totalUnits.toLocaleString()}세대 · {sub.sizeRange}
       </p>
     </Link>
