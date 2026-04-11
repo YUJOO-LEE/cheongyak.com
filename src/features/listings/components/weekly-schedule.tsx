@@ -22,8 +22,14 @@ interface DayInfo {
 function getWeekdays(): DayInfo[] {
   const now = new Date();
   const dayOfWeek = now.getDay();
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
   const monday = new Date(now);
-  monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  if (isWeekend) {
+    const daysUntilMonday = dayOfWeek === 0 ? 1 : 2;
+    monday.setDate(now.getDate() + daysUntilMonday);
+  } else {
+    monday.setDate(now.getDate() - (dayOfWeek - 1));
+  }
   const shortNames = ['월', '화', '수', '목', '금'];
 
   return Array.from({ length: 5 }, (_, i) => {
@@ -53,7 +59,7 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
     return (
       <div className="text-center py-12">
         <CalendarOff size={32} className="mx-auto text-text-tertiary mb-3" aria-hidden="true" />
-        <p className="text-body-md text-text-secondary mb-2">이번 주 예정된 청약이 없습니다.</p>
+        <p className="text-body-md text-text-secondary mb-2">예정된 청약이 없어요</p>
         <Link href="/listings" className="text-body-md text-brand-primary-500 hover:text-brand-primary-600 transition-colors">
           전체 청약 보기
         </Link>
@@ -162,7 +168,9 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
 
               {/* Cards — single level, no nesting */}
               {daySubs.length === 0 ? (
-                <p className="text-caption text-text-tertiary text-center py-8">일정 없음</p>
+                <div className="rounded-lg bg-bg-sunken py-8">
+                  <p className="text-caption text-text-tertiary text-center">예정된 일정이 없어요</p>
+                </div>
               ) : (
                 <div className="flex flex-col gap-2">
                   {daySubs.map((sub) => (
@@ -235,9 +243,9 @@ function DesktopCard({ subscription: sub, isPast, isToday }: { subscription: Sub
 function MobileDayListings({ subscriptions }: { subscriptions: Subscription[] }) {
   if (subscriptions.length === 0) {
     return (
-      <div className="bg-bg-card rounded-xl p-8 text-center">
+      <div className="bg-bg-sunken rounded-xl p-8 text-center">
         <CalendarOff size={24} className="mx-auto text-text-tertiary mb-2" aria-hidden="true" />
-        <p className="text-body-md text-text-secondary">이 날은 청약 일정이 없습니다.</p>
+        <p className="text-body-md text-text-tertiary">예정된 청약이 없어요</p>
       </div>
     );
   }
