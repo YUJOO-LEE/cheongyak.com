@@ -8,15 +8,10 @@ import {
   Flame,
   type LucideIcon,
 } from 'lucide-react';
+import { STATUS_LABELS } from '@/shared/lib/constants';
+import type { SubscriptionStatus } from '@/shared/types/api';
 
-type ChipStatus =
-  | 'active'
-  | 'upcoming'
-  | 'pending'
-  | 'contracting'
-  | 'closed'
-  | 'special'
-  | 'trending';
+type ChipStatus = SubscriptionStatus | 'special' | 'trending';
 
 interface StatusChipProps {
   status: ChipStatus;
@@ -31,32 +26,32 @@ interface ChipConfig {
 }
 
 const chipConfigs: Record<ChipStatus, ChipConfig> = {
-  active: {
-    label: '접수중',
+  accepting: {
+    label: STATUS_LABELS.accepting,
     icon: CheckCircle,
     bg: 'bg-brand-secondary-200',
     text: 'text-brand-secondary-800',
   },
   upcoming: {
-    label: '접수예정',
+    label: STATUS_LABELS.upcoming,
     icon: Calendar,
     bg: 'bg-info-100',
     text: 'text-info-700',
   },
   pending: {
-    label: '발표대기',
+    label: STATUS_LABELS.pending,
     icon: Clock,
     bg: 'bg-warning-100',
     text: 'text-warning-700',
   },
   contracting: {
-    label: '계약중',
+    label: STATUS_LABELS.contracting,
     icon: FileCheck,
     bg: 'bg-brand-tertiary-100',
     text: 'text-brand-tertiary-700',
   },
   closed: {
-    label: '청약완료',
+    label: STATUS_LABELS.closed,
     icon: Archive,
     bg: 'bg-neutral-200',
     text: 'text-neutral-600',

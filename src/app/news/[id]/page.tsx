@@ -5,15 +5,9 @@ import { RelatedSubscriptions } from '@/features/news/components/related-subscri
 import { NewsCard } from '@/features/news/components/news-card';
 import { NewsArticleJsonLd } from '@/shared/components/json-ld';
 import { formatDate } from '@/shared/lib/format';
+import { NEWS_CATEGORY_LABELS } from '@/shared/lib/constants';
 import { newsArticles } from '@/mocks/fixtures/news';
 import { subscriptions } from '@/mocks/fixtures/subscriptions';
-
-const categoryLabels: Record<string, string> = {
-  policy: '정책',
-  market: '시장동향',
-  analysis: '분석',
-  notice: '공지',
-};
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -60,7 +54,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
       {/* Article Header */}
       <header className="mb-8">
         <span className="text-label-lg text-brand-primary-700 mb-2 block">
-          {categoryLabels[article.category] || article.category}
+          {NEWS_CATEGORY_LABELS[article.category as keyof typeof NEWS_CATEGORY_LABELS] || article.category}
         </span>
         <h1 className="text-display-sm text-text-primary mb-3">
           {article.title}

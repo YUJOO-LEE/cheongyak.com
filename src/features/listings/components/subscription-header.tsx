@@ -1,5 +1,5 @@
 import { StatusChip, TypeChip } from '@/shared/components';
-import { statusToChipStatus } from '@/shared/lib/format';
+
 import type { SubscriptionDetail } from '@/shared/types/api';
 
 function formatDate(dateStr: string): string {
@@ -26,7 +26,7 @@ export function SubscriptionHeader({ subscription }: SubscriptionHeaderProps) {
     <div>
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <StatusChip status={statusToChipStatus(subscription.status)} />
+          <StatusChip status={subscription.status} />
           <TypeChip type={subscription.type} />
         </div>
         <h1 className="text-display-sm text-text-primary leading-tight">

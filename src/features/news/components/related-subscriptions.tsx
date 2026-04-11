@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Card, StatusChip } from '@/shared/components';
-import { statusToChipStatus } from '@/shared/lib/format';
+
 import type { Subscription } from '@/shared/types/api';
 
 interface RelatedSubscriptionsProps {
@@ -25,7 +25,7 @@ export function RelatedSubscriptions({ subscriptions }: RelatedSubscriptionsProp
                   {sub.location.sido} {sub.location.gugun}
                 </p>
               </div>
-              <StatusChip status={statusToChipStatus(sub.status)} />
+              <StatusChip status={sub.status} />
             </div>
           </Card>
         </Link>

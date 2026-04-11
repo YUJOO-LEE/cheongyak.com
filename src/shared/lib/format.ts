@@ -28,16 +28,3 @@ export function formatRelativeDate(dateString: string): string {
   if (diffMonths < 12) return `${diffMonths}개월 전`;
   return formatDate(dateString);
 }
-
-export function statusToChipStatus(
-  status: string,
-): 'active' | 'upcoming' | 'pending' | 'contracting' | 'closed' {
-  const map: Record<string, 'active' | 'upcoming' | 'pending' | 'contracting' | 'closed'> = {
-    accepting: 'active',
-    upcoming: 'upcoming',
-    pending: 'pending',
-    contracting: 'contracting',
-    closed: 'closed',
-  };
-  return map[status] || 'closed';
-}

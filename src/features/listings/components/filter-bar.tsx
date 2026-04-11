@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import { Button } from '@/shared/components';
-import type { SubscriptionStatus } from '@/shared/types/api';
+import { STATUS_LABELS, TYPE_LABELS } from '@/shared/lib/constants';
+import type { SubscriptionStatus, SubscriptionType } from '@/shared/types/api';
 
 interface FilterBarProps {
   selectedStatus: string | null;
@@ -14,18 +15,13 @@ interface FilterBarProps {
   activeCount: number;
 }
 
-const statusOptions: { value: SubscriptionStatus; label: string }[] = [
-  { value: 'upcoming', label: '접수예정' },
-  { value: 'accepting', label: '접수중' },
-  { value: 'pending', label: '발표대기' },
-  { value: 'contracting', label: '계약중' },
-  { value: 'closed', label: '청약완료' },
-];
+const statusOptions = (Object.entries(STATUS_LABELS) as [SubscriptionStatus, string][]).map(
+  ([value, label]) => ({ value, label }),
+);
 
-const typeOptions = [
-  { value: 'public', label: '공공' },
-  { value: 'private', label: '민간' },
-];
+const typeOptions = (Object.entries(TYPE_LABELS) as [SubscriptionType, string][]).map(
+  ([value, label]) => ({ value, label }),
+);
 
 export function FilterBar({
   selectedStatus,

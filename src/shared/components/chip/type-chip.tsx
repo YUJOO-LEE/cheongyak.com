@@ -1,4 +1,5 @@
 import type { SubscriptionType } from '@/shared/types/api';
+import { TYPE_LABELS } from '@/shared/lib/constants';
 
 interface TypeChipProps {
   type: SubscriptionType;
@@ -7,12 +8,12 @@ interface TypeChipProps {
 
 const typeConfigs: Record<SubscriptionType, { label: string; bg: string; text: string }> = {
   public: {
-    label: '공공',
+    label: TYPE_LABELS.public,
     bg: 'bg-neutral-200',
     text: 'text-neutral-700',
   },
   private: {
-    label: '민간',
+    label: TYPE_LABELS.private,
     bg: 'bg-neutral-200',
     text: 'text-neutral-700',
   },

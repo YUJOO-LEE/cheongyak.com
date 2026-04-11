@@ -5,7 +5,7 @@ import { Search as SearchIcon, X, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useDebounce } from '@/shared/hooks/use-debounce';
 import { Card, StatusChip } from '@/shared/components';
-import { statusToChipStatus } from '@/shared/lib/format';
+
 import { subscriptions } from '@/mocks/fixtures/subscriptions';
 import { newsArticles } from '@/mocks/fixtures/news';
 import type { Subscription, NewsArticle } from '@/shared/types/api';
@@ -170,7 +170,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                                   {sub.location.sido} {sub.location.gugun} · {sub.builder}
                                 </p>
                               </div>
-                              <StatusChip status={statusToChipStatus(sub.status)} />
+                              <StatusChip status={sub.status} />
                             </div>
                           </Card>
                         </button>

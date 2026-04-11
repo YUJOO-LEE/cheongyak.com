@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Building2, CalendarOff } from 'lucide-react';
 import { StatusChip } from '@/shared/components';
-import { statusToChipStatus, formatDateRange } from '@/shared/lib/format';
+import { formatDateRange } from '@/shared/lib/format';
 import type { Subscription } from '@/shared/types/api';
 
 interface WeeklyScheduleProps {
@@ -216,7 +216,7 @@ function DesktopCard({ subscription: sub, isPast, isToday }: { subscription: Sub
         isPast ? 'opacity-80 hover:opacity-100' : '',
       ].join(' ')}
     >
-      <StatusChip status={statusToChipStatus(sub.status)} className="mb-2" />
+      <StatusChip status={sub.status} className="mb-2" />
       <p className="text-body-md font-medium text-text-primary line-clamp-2 mb-2">
         {sub.name}
       </p>
@@ -251,7 +251,7 @@ function MobileDayListings({ subscriptions }: { subscriptions: Subscription[] })
           className="block bg-bg-card rounded-xl p-4 active:bg-bg-active transition-all duration-normal ease-default"
         >
           <div className="flex items-center justify-between mb-2.5">
-            <StatusChip status={statusToChipStatus(sub.status)} />
+            <StatusChip status={sub.status} />
             <span className="text-caption text-text-tertiary">
               {formatDateRange(sub.applicationStart, sub.applicationEnd)}
             </span>

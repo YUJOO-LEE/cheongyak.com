@@ -4,14 +4,12 @@ import { useState, useMemo } from 'react';
 import { CategoryTabs } from './category-tabs';
 import { NewsCard } from './news-card';
 import { Pagination } from '@/shared/components';
+import { NEWS_CATEGORY_LABELS } from '@/shared/lib/constants';
 import type { NewsArticle } from '@/shared/types/api';
 
 const categories = [
   { value: 'all', label: '전체' },
-  { value: 'policy', label: '정책' },
-  { value: 'market', label: '시장동향' },
-  { value: 'analysis', label: '분석' },
-  { value: 'notice', label: '공지' },
+  ...Object.entries(NEWS_CATEGORY_LABELS).map(([value, label]) => ({ value, label })),
 ];
 
 interface NewsListClientProps {

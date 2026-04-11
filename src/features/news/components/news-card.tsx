@@ -3,14 +3,8 @@ import Image from 'next/image';
 import { Newspaper } from 'lucide-react';
 import { Card } from '@/shared/components';
 import { formatRelativeDate } from '@/shared/lib/format';
+import { NEWS_CATEGORY_LABELS } from '@/shared/lib/constants';
 import type { NewsArticle } from '@/shared/types/api';
-
-const categoryLabels: Record<string, string> = {
-  policy: '정책',
-  market: '시장동향',
-  analysis: '분석',
-  notice: '공지',
-};
 
 interface NewsCardProps {
   article: NewsArticle;
@@ -40,7 +34,7 @@ export function NewsCard({ article }: NewsCardProps) {
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-label-md text-brand-primary-600">
-              {categoryLabels[article.category] || article.category}
+              {NEWS_CATEGORY_LABELS[article.category as keyof typeof NEWS_CATEGORY_LABELS] || article.category}
             </span>
             <span className="text-caption text-text-tertiary">
               {formatRelativeDate(article.publishedAt)}
