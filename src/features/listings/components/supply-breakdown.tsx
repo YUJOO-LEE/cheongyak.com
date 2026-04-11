@@ -31,7 +31,7 @@ function CollapsibleSection({ title, items, defaultOpen = false }: CollapsibleSe
     <div>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full text-left py-2 cursor-pointer"
+        className="flex items-center justify-between w-full text-left py-2 cursor-pointer active:bg-bg-hover transition-colors duration-fast rounded-md"
         aria-expanded={open}
       >
         <div className="flex items-center gap-2">
@@ -70,7 +70,8 @@ function CollapsibleSection({ title, items, defaultOpen = false }: CollapsibleSe
               {items.map((item, i) => (
                 <tr
                   key={item.category}
-                  className={i % 2 === 0 ? 'bg-bg-card' : 'bg-bg-page'}
+                  className={[i % 2 === 0 ? 'bg-bg-card' : 'bg-bg-page', 'animate-fade-in-up'].join(' ')}
+                  style={{ animationDelay: `${i * 30}ms` }}
                 >
                   <td className="text-body-md text-text-primary px-4 py-3">
                     {item.category}

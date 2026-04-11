@@ -39,7 +39,8 @@ export function ScheduleTimeline({ phases }: ScheduleTimelineProps) {
         return (
           <div
             key={phase.phase}
-            className={['relative flex items-start gap-4', !isLast ? 'pb-8' : ''].join(' ')}
+            className={['relative flex items-start gap-4 animate-fade-in-up', !isLast ? 'pb-8' : ''].join(' ')}
+            style={{ animationDelay: `${i * 80}ms` }}
           >
             {/* Dot — positioned over the continuous line */}
             <div

@@ -5,7 +5,7 @@ interface ArticleBodyProps {
 export function ArticleBody({ html }: ArticleBodyProps) {
   return (
     <div
-      className="prose-custom"
+      className="prose-custom animate-fade-in"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

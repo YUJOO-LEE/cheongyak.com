@@ -67,7 +67,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={[
           'inline-flex items-center justify-center gap-2',
           'font-semibold cursor-pointer',
-          'transition-colors duration-fast ease-default',
+          'transition-all duration-fast ease-default',
+          'active:scale-[0.97]',
           'disabled:cursor-not-allowed',
           variantStyles[variant],
           sizeStyles[size],

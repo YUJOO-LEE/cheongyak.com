@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Card } from '@/shared/components';
+import { Card, StaggerChildren } from '@/shared/components';
 import { formatRelativeDate } from '@/shared/lib/format';
 import { NEWS_CATEGORY_LABELS } from '@/shared/lib/constants';
 import type { NewsArticle } from '@/shared/types/api';
@@ -12,7 +12,7 @@ export function RelatedNews({ articles }: RelatedNewsProps) {
   if (articles.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-3">
+    <StaggerChildren animation="fade-in-up" interval={50} className="flex flex-col gap-3">
       {articles.map((article) => (
         <Link key={article.id} href={`/news/${article.id}`}>
           <Card variant="compact">
@@ -30,6 +30,6 @@ export function RelatedNews({ articles }: RelatedNewsProps) {
           </Card>
         </Link>
       ))}
-    </div>
+    </StaggerChildren>
   );
 }

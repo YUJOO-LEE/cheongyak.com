@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { SubscriptionCard } from './subscription-card';
 import { FilterBar } from './filter-bar';
-import { Pagination } from '@/shared/components';
+import { Pagination, StaggerChildren } from '@/shared/components';
 import type { Subscription } from '@/shared/types/api';
 
 interface SubscriptionListClientProps {
@@ -61,7 +61,7 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
       />
 
       {paged.length === 0 ? (
-        <div className="text-center py-16">
+        <div className="text-center py-16 animate-scale-in">
           <p className="text-body-lg text-text-secondary">
             조건에 맞는 청약 정보가 없습니다.
           </p>
@@ -74,15 +74,21 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
         </div>
       ) : (
         <>
-          <p className="text-body-sm text-text-tertiary mb-4 px-4 lg:px-0">
+          <p className="text-body-sm text-text-tertiary mb-4 px-4 lg:px-0 animate-count-up-fade">
             총 {filtered.length}건
           </p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 lg:px-0">
+          <StaggerChildren
+            key={`${selectedStatus}-${selectedType}-${currentPage}`}
+            animation="fade-in-up"
+            interval={50}
+            maxItems={6}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 lg:px-0"
+          >
             {paged.map((sub) => (
               <SubscriptionCard key={sub.id} subscription={sub} />
             ))}
-          </div>
+          </StaggerChildren>
 
           <Pagination
             currentPage={currentPage}

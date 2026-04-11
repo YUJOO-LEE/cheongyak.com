@@ -25,16 +25,16 @@ export function SubscriptionHeader({ subscription }: SubscriptionHeaderProps) {
   return (
     <div>
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-4 animate-fade-in-up">
           <StatusChip status={subscription.status} />
           <TypeChip type={subscription.type} />
         </div>
-        <h1 className="text-display-sm text-text-primary leading-tight">
+        <h1 className="text-display-sm text-text-primary leading-tight animate-fade-in-up" style={{ animationDelay: '60ms' }}>
           {subscription.name}
         </h1>
       </div>
 
-      <dl className="bg-bg-card rounded-lg p-6 grid grid-cols-1 min-[375px]:grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5">
+      <dl className="bg-bg-card rounded-lg p-6 grid grid-cols-1 min-[375px]:grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5 animate-fade-in-up" style={{ animationDelay: '120ms' }}>
           <InfoItem label="위치">
             {subscription.location.sido} {subscription.location.gugun}
             {subscription.location.dong && ` ${subscription.location.dong}`}

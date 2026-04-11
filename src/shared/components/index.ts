@@ -15,3 +15,5 @@ export type { InputProps, InputSize } from './input';
 
 export { Pagination } from './pagination';
 export type { PaginationProps } from './pagination';
+
+export { AnimateOnScroll, StaggerChildren } from './animate-on-scroll';

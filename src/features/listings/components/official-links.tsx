@@ -50,8 +50,9 @@ export function OfficialLinks({
             target="_blank"
             rel="noopener noreferrer"
             className={[
-              'flex items-center gap-3 px-4 py-3 rounded-lg',
-              'transition-colors duration-fast ease-default',
+              'group flex items-center gap-3 px-4 py-3 rounded-lg',
+              'transition-all duration-fast ease-default',
+              'hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-sm',
               link.primary
                 ? 'bg-brand-primary-500 text-text-inverse hover:bg-brand-primary-600'
                 : 'bg-neutral-200 text-text-primary hover:bg-neutral-300',
@@ -59,7 +60,7 @@ export function OfficialLinks({
           >
             <Icon size={20} aria-hidden="true" className="shrink-0" />
             <span className="text-label-lg truncate">{link.label}</span>
-            <ChevronRight size={16} aria-hidden="true" className="shrink-0 ml-auto text-text-tertiary" />
+            <ChevronRight size={16} aria-hidden="true" className="shrink-0 ml-auto text-text-tertiary transition-transform duration-fast group-hover:translate-x-1" />
           </a>
         );
       })}

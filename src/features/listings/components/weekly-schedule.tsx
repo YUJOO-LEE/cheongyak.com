@@ -88,7 +88,7 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
                     ? 'bg-brand-tertiary-500 text-text-on-dark'
                     : day.isToday
                       ? 'bg-brand-tertiary-100 active:bg-brand-tertiary-200'
-                      : 'bg-bg-card active:bg-bg-active',
+                      : 'bg-bg-card active:bg-bg-active active:scale-[0.96]',
                 ].join(' ')}
               >
                 <span className={[
@@ -252,11 +252,12 @@ function MobileDayListings({ subscriptions }: { subscriptions: Subscription[] })
 
   return (
     <div className="flex flex-col gap-3">
-      {subscriptions.map((sub) => (
+      {subscriptions.map((sub, i) => (
         <Link
           key={sub.id}
           href={`/listings/${sub.id}`}
-          className="block bg-bg-card rounded-xl p-4 active:bg-bg-active transition-all duration-normal ease-default"
+          className="block bg-bg-card rounded-xl p-4 active:bg-bg-active transition-all duration-normal ease-default animate-fade-in-up"
+          style={{ animationDelay: `${i * 50}ms` }}
         >
           <div className="flex items-center justify-between mb-2.5">
             <StatusChip status={sub.status} />

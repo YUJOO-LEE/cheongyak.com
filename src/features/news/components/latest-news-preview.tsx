@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card } from '@/shared/components';
+import { Card, StaggerChildren } from '@/shared/components';
 import { formatRelativeDate } from '@/shared/lib/format';
 import { NEWS_CATEGORY_LABELS } from '@/shared/lib/constants';
 import type { NewsArticle } from '@/shared/types/api';
@@ -11,9 +11,9 @@ interface LatestNewsPreviewProps {
 
 export function LatestNewsPreview({ articles }: LatestNewsPreviewProps) {
   return (
-    <div className="flex flex-col gap-4">
+    <StaggerChildren animation="fade-in-up" interval={60} className="flex flex-col gap-4">
       {articles.map((article) => (
-        <Link key={article.id} href={`/news/${article.id}`}>
+        <Link key={article.id} href={`/news/${article.id}`} className="group">
           <Card variant="news" className="flex gap-4">
             {article.thumbnailUrl && (
               <div className="shrink-0 w-20 h-20 rounded-md overflow-hidden bg-bg-sunken relative">
@@ -21,7 +21,7 @@ export function LatestNewsPreview({ articles }: LatestNewsPreviewProps) {
                   src={article.thumbnailUrl}
                   alt=""
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-normal group-hover:scale-105"
                   sizes="80px"
                 />
               </div>
@@ -43,6 +43,6 @@ export function LatestNewsPreview({ articles }: LatestNewsPreviewProps) {
         </Link>
       ))}
 
-    </div>
+    </StaggerChildren>
   );
 }

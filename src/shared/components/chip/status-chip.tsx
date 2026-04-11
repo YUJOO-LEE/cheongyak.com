@@ -80,6 +80,7 @@ export function StatusChip({ status, className = '' }: StatusChipProps) {
         'inline-flex items-center gap-1',
         'px-2 py-1 rounded-full',
         'text-label-md',
+        'transition-transform duration-fast ease-default',
         config.bg,
         config.text,
         className,

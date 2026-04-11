@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { CategoryTabs } from './category-tabs';
 import { NewsCard } from './news-card';
-import { Pagination } from '@/shared/components';
+import { Pagination, StaggerChildren } from '@/shared/components';
 import { NEWS_CATEGORY_LABELS } from '@/shared/lib/constants';
 import type { NewsArticle } from '@/shared/types/api';
 
@@ -50,17 +50,23 @@ export function NewsListClient({ articles }: NewsListClientProps) {
       </div>
 
       {paged.length === 0 ? (
-        <div className="text-center py-16">
+        <div className="text-center py-16 animate-scale-in">
           <p className="text-body-lg text-text-secondary">
             해당 카테고리에 기사가 없습니다.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <StaggerChildren
+          key={`${selectedCategory}-${currentPage}`}
+          animation="fade-in-up"
+          interval={50}
+          maxItems={6}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+        >
           {paged.map((article) => (
             <NewsCard key={article.id} article={article} />
           ))}
-        </div>
+        </StaggerChildren>
       )}
 
       <Pagination

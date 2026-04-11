@@ -83,7 +83,7 @@ function PaginationLink({
   const baseClass = [
     'inline-flex items-center justify-center',
     'min-w-10 h-10 rounded-md',
-    'text-body-md transition-colors duration-fast ease-default',
+    'text-body-md transition-all duration-fast ease-default',
   ].join(' ');
 
   if (disabled || !href) {
@@ -101,8 +101,8 @@ function PaginationLink({
       className={[
         baseClass,
         active
-          ? 'bg-brand-primary-500 text-text-inverse font-semibold'
-          : 'text-text-secondary hover:bg-bg-hover',
+          ? 'bg-brand-primary-500 text-text-inverse font-semibold scale-[1.05]'
+          : 'text-text-secondary hover:bg-bg-hover hover:scale-105 active:scale-95',
       ].join(' ')}
       {...props}
     >

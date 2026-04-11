@@ -74,7 +74,7 @@ export function Navigation() {
 
           <button
             onClick={openSearch}
-            className="p-2 rounded-md text-text-secondary hover:text-text-primary transition-colors duration-fast ease-default cursor-pointer"
+            className="p-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-hover active:scale-95 transition-all duration-fast ease-default cursor-pointer"
             aria-label="검색 (⌘K)"
           >
             <Search size={24} />
@@ -96,7 +96,7 @@ export function Navigation() {
             aria-label="홈"
           >
             <span className={[
-              'flex items-center justify-center size-8 rounded-lg transition-colors duration-fast ease-default',
+              'flex items-center justify-center size-8 rounded-lg transition-all duration-fast ease-default active:scale-90',
               isActive('/') ? 'bg-brand-primary-500/10' : 'bg-transparent',
             ].join(' ')}>
               <Image
@@ -127,7 +127,7 @@ export function Navigation() {
                 aria-current={active ? 'page' : undefined}
               >
                 <span className={[
-                  'flex items-center justify-center size-8 rounded-lg transition-colors duration-fast ease-default',
+                  'flex items-center justify-center size-8 rounded-lg transition-all duration-fast ease-default active:scale-90',
                   active ? 'bg-brand-primary-500/10' : 'bg-transparent',
                 ].join(' ')}>
                   <Icon
