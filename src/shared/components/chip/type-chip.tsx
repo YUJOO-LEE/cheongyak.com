@@ -1,8 +1,11 @@
 import type { SubscriptionType } from '@/shared/types/api';
 import { TYPE_LABELS } from '@/shared/lib/constants';
 
+type ChipSize = 'sm' | 'md';
+
 interface TypeChipProps {
   type: SubscriptionType;
+  size?: ChipSize;
   className?: string;
 }
 
@@ -19,15 +22,19 @@ const typeConfigs: Record<SubscriptionType, { label: string; bg: string; text: s
   },
 };
 
-export function TypeChip({ type, className = '' }: TypeChipProps) {
+const sizeStyles: Record<ChipSize, string> = {
+  sm: 'px-1.5 py-0.5 text-caption',
+  md: 'px-2 py-1 text-label-md',
+};
+
+export function TypeChip({ type, size = 'md', className = '' }: TypeChipProps) {
   const config = typeConfigs[type];
 
   return (
     <span
       className={[
-        'inline-flex items-center',
-        'px-2 py-1 rounded-full',
-        'text-label-md',
+        'inline-flex items-center rounded-full',
+        sizeStyles[size],
         config.bg,
         config.text,
         className,

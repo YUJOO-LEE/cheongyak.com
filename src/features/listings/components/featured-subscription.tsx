@@ -1,52 +1,53 @@
 import Link from 'next/link';
-import { ArrowRight, TrendingUp } from 'lucide-react';
+import { ArrowRight, TrendingUp, Building2, Ruler, Banknote, Calendar } from 'lucide-react';
+import { StatusChip, TypeChip } from '@/shared/components';
 import { formatDateRange } from '@/shared/lib/format';
 import type { Subscription, MarketInsight } from '@/shared/types/api';
 
 interface HomeHeroProps {
-  activeSubs: Subscription[];
+  featured: Subscription;
   insights: MarketInsight[];
 }
 
-export function HomeHero({ activeSubs, insights }: HomeHeroProps) {
-  const accepting = activeSubs.filter((s) => s.status === 'accepting');
-  const upcoming = activeSubs.filter((s) => s.status === 'upcoming');
-
+export function HomeHero({ featured, insights }: HomeHeroProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      {/* Main stat card */}
+      {/* Featured subscription card */}
       <div className="lg:col-span-2 bg-brand-primary-500 text-text-on-dark rounded-xl p-6 lg:p-8">
-        <p className="text-label-lg text-text-on-dark-muted mb-2 animate-fade-in-up">접수중인 청약</p>
-        <p className="text-display-lg mb-1 animate-count-up-fade" style={{ animationDelay: '100ms' }}>{accepting.length}건</p>
-        <p className="text-body-md text-text-on-dark-muted mb-6 animate-fade-in-up" style={{ animationDelay: '160ms' }}>
-          {upcoming.length}건 접수 예정
+        <p className="text-label-md text-text-on-dark-muted mb-2 animate-fade-in-up">
+          지금 뜨는 청약
         </p>
-
-        {accepting.length > 0 && (
-          <div className="flex flex-col gap-2">
-            {accepting.slice(0, 2).map((sub) => (
-              <Link
-                key={sub.id}
-                href={`/listings/${sub.id}`}
-                className="group flex items-center justify-between bg-bg-inverse-subtle hover:bg-bg-inverse-hover rounded-xl px-4 py-3.5 transition-all duration-fast active:scale-[0.98]"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-label-lg text-text-on-dark truncate">{sub.name}</p>
-                  <p className="text-body-sm text-text-on-dark-subtle">
-                    {sub.location.sido} {sub.location.gugun} · {formatDateRange(sub.applicationStart, sub.applicationEnd)}
-                  </p>
-                </div>
-                <ArrowRight size={18} className="shrink-0 ml-3 text-icon-inverse transition-transform duration-fast group-hover:translate-x-0.5" />
-              </Link>
-            ))}
+        <h3 className="text-headline-lg text-text-on-dark mb-2 animate-fade-in-up" style={{ animationDelay: '60ms' }}>
+          {featured.name}
+        </h3>
+        <div className="flex flex-col lg:flex-row lg:items-center gap-2 mb-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+          <div className="flex items-center gap-1.5">
+            <StatusChip status={featured.status} size="sm" />
+            <TypeChip type={featured.type} size="sm" />
           </div>
-        )}
+          <p className="text-caption text-text-on-dark-subtle">
+            {featured.location.sido} {featured.location.gugun}
+            {featured.location.dong && ` ${featured.location.dong}`}
+            {' · '}
+            {featured.builder}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 animate-fade-in-up" style={{ animationDelay: '160ms' }}>
+          <SpecBox icon={Building2} label="세대수" value={`${featured.totalUnits.toLocaleString()}세대`} />
+          <SpecBox icon={Ruler} label="평형" value={featured.sizeRange} />
+          {featured.priceRange && (
+            <SpecBox icon={Banknote} label="분양가" value={featured.priceRange} />
+          )}
+          <SpecBox icon={Calendar} label="접수기간" value={formatDateRange(featured.applicationStart, featured.applicationEnd)} />
+        </div>
 
         <Link
-          href="/listings"
-          className="inline-flex items-center gap-1 mt-4 text-label-lg text-text-on-dark-muted hover:text-text-on-dark transition-colors"
+          href={`/listings/${featured.id}`}
+          className="group inline-flex items-center gap-1 mt-5 text-label-lg text-text-on-dark-muted hover:text-text-on-dark transition-colors animate-fade-in-up"
+          style={{ animationDelay: '220ms' }}
         >
-          전체 청약 보기 <ArrowRight size={16} />
+          자세히 보기 <ArrowRight size={16} className="transition-transform duration-fast group-hover:translate-x-0.5" />
         </Link>
       </div>
 
@@ -65,6 +66,18 @@ export function HomeHero({ activeSubs, insights }: HomeHeroProps) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function SpecBox({ icon: Icon, label, value }: { icon: typeof Building2; label: string; value: string }) {
+  return (
+    <div className="bg-bg-inverse-subtle rounded-xl px-4 py-3">
+      <div className="flex items-center gap-1.5 mb-1">
+        <Icon size={14} className="text-icon-inverse" aria-hidden="true" />
+        <span className="text-caption text-text-on-dark-subtle">{label}</span>
+      </div>
+      <p className="text-label-lg text-text-on-dark">{value}</p>
     </div>
   );
 }

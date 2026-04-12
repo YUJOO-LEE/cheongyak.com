@@ -13,8 +13,11 @@ import type { SubscriptionStatus } from '@/shared/types/api';
 
 type ChipStatus = SubscriptionStatus | 'special' | 'trending';
 
+type ChipSize = 'sm' | 'md';
+
 interface StatusChipProps {
   status: ChipStatus;
+  size?: ChipSize;
   className?: string;
 }
 
@@ -70,26 +73,31 @@ const chipConfigs: Record<ChipStatus, ChipConfig> = {
   },
 };
 
-export function StatusChip({ status, className = '' }: StatusChipProps) {
+const sizeStyles: Record<ChipSize, { class: string; icon: number }> = {
+  sm: { class: 'px-1.5 py-0.5 text-caption gap-1', icon: 12 },
+  md: { class: 'px-2 py-1 text-label-md gap-1', icon: 14 },
+};
+
+export function StatusChip({ status, size = 'md', className = '' }: StatusChipProps) {
   const config = chipConfigs[status];
   const Icon = config.icon;
+  const s = sizeStyles[size];
 
   return (
     <span
       className={[
-        'inline-flex items-center gap-1',
-        'px-2 py-1 rounded-full',
-        'text-label-md',
+        'inline-flex items-center rounded-full',
         'transition-transform duration-fast ease-default',
+        s.class,
         config.bg,
         config.text,
         className,
       ].join(' ')}
     >
-      <Icon size={14} aria-hidden="true" />
+      <Icon size={s.icon} aria-hidden="true" />
       {config.label}
     </span>
   );
 }
 
-export type { StatusChipProps, ChipStatus };
+export type { StatusChipProps, ChipStatus, ChipSize };

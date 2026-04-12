@@ -45,9 +45,15 @@ function getWeekdays(): DayInfo[] {
   });
 }
 
+const ACTIVE_STATUSES = new Set(['accepting', 'contracting']);
+
 function getSubsForDate(subs: Subscription[], date: Date): Subscription[] {
   const dateStr = date.toISOString().slice(0, 10);
-  return subs.filter((s) => dateStr >= s.applicationStart && dateStr <= s.applicationEnd);
+  return subs.filter((s) =>
+    ACTIVE_STATUSES.has(s.status) &&
+    dateStr >= s.applicationStart &&
+    dateStr <= s.applicationEnd,
+  );
 }
 
 export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {

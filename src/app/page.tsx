@@ -8,6 +8,7 @@ import { marketInsights } from '@/mocks/fixtures/insights';
 
 export default function HomePage() {
   const activeSubs = subscriptions.filter((s) => s.status !== 'closed');
+  const featured = [...subscriptions].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0))[0];
   const latestNews = newsArticles.slice(0, 4);
   const isWeekend = [0, 6].includes(new Date().getDay());
 
@@ -15,9 +16,9 @@ export default function HomePage() {
     <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-12">
       <WebsiteJsonLd />
 
-      {/* Hero: Stats + Active listings */}
+      {/* Hero: Featured subscription */}
       <section className="mb-12 lg:mb-16">
-        <HomeHero activeSubs={activeSubs} insights={marketInsights} />
+        <HomeHero featured={featured} insights={marketInsights} />
       </section>
 
       {/* Weekly Calendar */}
