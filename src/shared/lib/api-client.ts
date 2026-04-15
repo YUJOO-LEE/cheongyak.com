@@ -3,6 +3,22 @@ import type { ApiError } from '@/shared/types/api';
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
+// 프로덕션에서 NEXT_PUBLIC_API_URL 이 잘못 주입돼 임의 호스트로 요청이 가는 것을 방지.
+// 로컬 기본값(localhost)은 dev 편의를 위해 허용.
+if (
+  API_BASE_URL &&
+  !API_BASE_URL.startsWith('https://') &&
+  !API_BASE_URL.startsWith('http://localhost')
+) {
+  throw new Error(
+    'NEXT_PUBLIC_API_URL must start with "https://" (or http://localhost for dev).',
+  );
+}
+
+const GENERIC_SERVER_ERROR =
+  '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+const GENERIC_CLIENT_ERROR = '요청을 처리할 수 없습니다.';
+
 class ApiClientError extends Error {
   status: number;
   code: string;
@@ -31,12 +47,26 @@ async function request<T>(
   });
 
   if (!res.ok) {
-    const error: ApiError = await res.json().catch(() => ({
+    const body: unknown = await res.json().catch(() => null);
+    const isServerError = res.status >= 500;
+    const serverMessage =
+      body && typeof body === 'object' && 'message' in body
+        ? String((body as { message?: unknown }).message ?? '')
+        : '';
+    const serverCode =
+      body && typeof body === 'object' && 'code' in body
+        ? String((body as { code?: unknown }).code ?? '')
+        : '';
+
+    throw new ApiClientError({
       status: res.status,
-      code: 'UNKNOWN_ERROR',
-      message: '알 수 없는 오류가 발생했습니다.',
-    }));
-    throw new ApiClientError(error);
+      code: serverCode || 'UNKNOWN_ERROR',
+      // 5xx 는 서버 메시지를 UI 로 그대로 흘리지 않는다(내부 정보 노출 방지).
+      // 4xx 는 서버가 주는 사용자용 메시지를 허용하되, 없으면 제네릭 문구.
+      message: isServerError
+        ? GENERIC_SERVER_ERROR
+        : serverMessage || GENERIC_CLIENT_ERROR,
+    });
   }
 
   return res.json();
