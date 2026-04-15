@@ -113,7 +113,7 @@ src/
 
 | Route | Page | Purpose |
 |---|---|---|
-| `/` | Home Dashboard | Weekly schedule, featured listing, market insights, recent views, latest news |
+| `/` | Home Dashboard | Weekly schedule, featured listing, market insights, top trades, recent views, latest news |
 | `/listings` | Listings | Filterable/searchable list with 6 filter types, pagination |
 | `/listings/[id]` | Listing Detail | Full info: overview, 7-phase timeline, supply breakdown, related news, official links |
 | `/news` | News Feed | Category-tabbed article feed (정책/시장동향/분석/공지) |

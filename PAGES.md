@@ -66,7 +66,16 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 - Metrics: Average competition rate, total units this month, trending regions
 - Background: `white` cards on `surface` page background
 
-#### 1.4 Latest News Preview
+#### 1.4 National Top Trades (실거래가 TOP 5)
+
+- Ranked row list of the top 5 recent apartment trades by deal amount (last 2 days)
+- Each row: Rank (1–5, 1–3 brand accent / 4–5 muted), apartment name, region (시군구 + 동), supply area with pyeong (`85㎡ (34평)`), floor, deal date, deal amount (우측 강조)
+- Header subline: "최근 2일 거래 · 거래금액 상위 · 출처: 국토교통부"
+- Hidden entirely when the array is empty or the upstream request fails
+- No link target yet (follow-up ticket once a detail/search page exists for real-estate trades)
+- Size unit clarification: 청약 리스팅은 공급면적(`minSupplyArea`/`maxSupplyArea`)을 노출, 실거래는 전용면적(`exclusiveArea`) — 서로 다른 축이므로 라벨 혼동 주의
+
+#### 1.5 Latest News Preview
 
 - 3 most recent news articles as compact cards
 - Each card: Category chip, title (2-line clamp), date
@@ -76,14 +85,15 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 | Endpoint | Data |
 |---|---|
-| `GET /api/subscriptions/featured` | Single featured subscription object |
-| `GET /api/subscriptions/weekly` | Array of subscriptions for current week |
-| `GET /api/insights/summary` | Market metrics with trend data |
+| `GET /main/featured` | Single featured subscription object (공급면적 기준) |
+| `GET /main/weekly-schedule` | Mon–Fri schedule with announcements per day |
+| `GET /main/stats` | Monthly competition/supply stats + popular region |
+| `GET /main/top-trades` | Top 5 recent apartment trades by deal amount (전용면적 기준) |
 | `GET /api/news/latest?limit=3` | Latest 3 news articles |
 
 ### Mobile Layout
 
-- Vertical stack: Hero → Schedule carousel → Insights grid (2-col) → News preview
+- Vertical stack: Hero → Schedule carousel → Top Trades list → News preview
 - Schedule section uses horizontal scroll with snap points
 - Pull-to-refresh triggers data reload
 
@@ -100,6 +110,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 - [ ] Weekly schedule displays correct subscriptions for the current week
 - [ ] Status chips use correct color tokens per subscription state
 - [ ] Market insight cards show trend direction with percentage
+- [ ] Top trades list renders ranks 1–5 with deal amount, region, area (with pyeong), floor, and date; section hides when empty
 - [ ] Page loads in under 2 seconds on 4G mobile connection (LCP < 2s)
 
 ---
