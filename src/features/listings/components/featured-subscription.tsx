@@ -1,15 +1,66 @@
 import Link from 'next/link';
-import { ArrowRight, TrendingUp, Building2, Ruler, Banknote, Calendar } from 'lucide-react';
+import {
+  ArrowRight,
+  TrendingUp,
+  TrendingDown,
+  Flame,
+  Building2,
+  Ruler,
+  Banknote,
+  Calendar,
+} from 'lucide-react';
 import { StatusChip, TypeChip } from '@/shared/components';
 import { formatDateRange } from '@/shared/lib/format';
 import type { Subscription, MarketInsight } from '@/shared/types/api';
 
 interface HomeHeroProps {
-  featured: Subscription;
+  featured: Subscription | null;
   insights: MarketInsight[];
 }
 
+// 시각적 노이즈 줄이고 지표 하나하나 눈에 띄게 모두 danger(빨강) 톤으로 통일.
+const INSIGHT_ACCENT = 'text-danger-500';
+
+// flat = "인기 지역" 처럼 방향성 없는 하이라이트 지표 — 불꽃 아이콘으로 강조.
+function TrendIcon({ trend, className }: { trend: MarketInsight['trend']; className: string }) {
+  if (trend === 'up') return <TrendingUp size={14} className={className} aria-hidden="true" />;
+  if (trend === 'down') return <TrendingDown size={14} className={className} aria-hidden="true" />;
+  return <Flame size={14} className={className} aria-hidden="true" />;
+}
+
+function InsightCard({ insight, index }: { insight: MarketInsight; index: number }) {
+  return (
+    <div
+      className="bg-bg-card rounded-xl p-5 flex-1 animate-fade-in-up"
+      style={{ animationDelay: `${index * 80}ms` }}
+    >
+      <p className="text-label-md text-text-tertiary mb-1">{insight.label}</p>
+      <p className="text-headline-sm text-text-primary">{insight.value}</p>
+      <div className="flex items-center gap-1 mt-1">
+        <TrendIcon
+          trend={insight.trend}
+          className={[INSIGHT_ACCENT, 'transition-transform duration-fast'].join(' ')}
+        />
+        <span className={['text-body-sm', INSIGHT_ACCENT].join(' ')}>
+          {insight.trendValue}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function HomeHero({ featured, insights }: HomeHeroProps) {
+  // featured 가 없을 때(서버 장애 등)는 insights 만 가로 3-column 으로 노출.
+  if (!featured) {
+    return insights.length > 0 ? (
+      <div className="grid grid-cols-1 min-[600px]:grid-cols-3 gap-4">
+        {insights.map((insight, i) => (
+          <InsightCard key={insight.label} insight={insight} index={i} />
+        ))}
+      </div>
+    ) : null;
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       {/* Featured subscription card */}
@@ -35,7 +86,7 @@ export function HomeHero({ featured, insights }: HomeHeroProps) {
 
         <div className="grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 animate-fade-in-up" style={{ animationDelay: '160ms' }}>
           <SpecBox icon={Building2} label="세대수" value={`${featured.totalUnits.toLocaleString()}세대`} />
-          <SpecBox icon={Ruler} label="평형" value={featured.sizeRange} />
+          <SpecBox icon={Ruler} label="공급면적" value={featured.sizeRange} />
           {featured.priceRange && (
             <SpecBox icon={Banknote} label="분양가" value={featured.priceRange} />
           )}
@@ -54,16 +105,7 @@ export function HomeHero({ featured, insights }: HomeHeroProps) {
       {/* Quick stats sidebar */}
       <div className="flex flex-col gap-4">
         {insights.map((insight, i) => (
-          <div key={insight.label} className="bg-bg-card rounded-xl p-5 flex-1 animate-fade-in-up" style={{ animationDelay: `${i * 80}ms` }}>
-            <p className="text-label-md text-text-tertiary mb-1">{insight.label}</p>
-            <p className="text-headline-sm text-text-primary">{insight.value}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <TrendingUp size={14} className={[insight.trend === 'up' ? 'text-danger-500' : 'text-success-500', 'transition-transform duration-fast'].join(' ')} />
-              <span className={['text-body-sm', insight.trend === 'up' ? 'text-danger-500' : 'text-success-500'].join(' ')}>
-                {insight.trendValue}
-              </span>
-            </div>
-          </div>
+          <InsightCard key={insight.label} insight={insight} index={i} />
         ))}
       </div>
     </div>

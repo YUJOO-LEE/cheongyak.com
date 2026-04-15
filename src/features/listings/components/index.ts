@@ -1,4 +1,5 @@
 export { HomeHero } from './featured-subscription';
+export { TopTrades } from './top-trades';
 export { WeeklySchedule } from './weekly-schedule';
 export { SubscriptionCard } from './subscription-card';
 export { FilterBar } from './filter-bar';

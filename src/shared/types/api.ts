@@ -104,10 +104,30 @@ export type NewsArticle = z.infer<typeof NewsArticleSchema>;
 export const MarketInsightSchema = z.object({
   label: z.string(),
   value: z.string(),
+  /** 데이터가 실제로 올라갔는지/내려갔는지 — 아이콘 방향에만 사용 */
   trend: z.enum(['up', 'down', 'flat']),
   trendValue: z.string(),
 });
 export type MarketInsight = z.infer<typeof MarketInsightSchema>;
+
+// ============================================================
+// Top Trades (실거래가)
+// ============================================================
+
+export const TopTradeSchema = z.object({
+  id: z.string(),
+  aptName: z.string(),
+  /** "서초구 반포동" 형태로 합쳐진 지역 — API 가 sidoName 을 내리지 않아 시도는 생략 */
+  region: z.string(),
+  /** "85㎡ (34평)" 형태. 면적이 없으면 undefined */
+  area: z.string().optional(),
+  floor: z.number().optional(),
+  /** "42억 3,000만" 형태 */
+  dealAmount: z.string(),
+  /** yyyy-MM-dd */
+  dealDate: z.string(),
+});
+export type TopTrade = z.infer<typeof TopTradeSchema>;
 
 // ============================================================
 // Filter Options

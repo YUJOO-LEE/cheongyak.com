@@ -45,14 +45,17 @@ function getWeekdays(): DayInfo[] {
   });
 }
 
-const ACTIVE_STATUSES = new Set(['accepting', 'contracting']);
+// 서버 /main/weekly-schedule 은 주간에 속한 모든 상태(마감 포함) 를 내려주므로
+// 이번 주 "진행 중" 일정만 보여주기 위해 accepting/contracting 만 통과시킨다.
+const ACTIVE_STATUSES = new Set<Subscription['status']>(['accepting', 'contracting']);
 
 function getSubsForDate(subs: Subscription[], date: Date): Subscription[] {
-  const dateStr = date.toISOString().slice(0, 10);
-  return subs.filter((s) =>
-    ACTIVE_STATUSES.has(s.status) &&
-    dateStr >= s.applicationStart &&
-    dateStr <= s.applicationEnd,
+  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  return subs.filter(
+    (s) =>
+      ACTIVE_STATUSES.has(s.status) &&
+      dateStr >= s.applicationStart &&
+      dateStr <= s.applicationEnd,
   );
 }
 
