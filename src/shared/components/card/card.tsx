@@ -1,5 +1,3 @@
-'use client';
-
 import { forwardRef } from 'react';
 
 type CardVariant = 'subscription' | 'news' | 'stat' | 'compact';

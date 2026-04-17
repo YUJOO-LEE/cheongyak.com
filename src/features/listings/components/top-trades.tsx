@@ -1,7 +1,4 @@
-'use client';
-
 import { MapPin, Ruler, Layers, CalendarDays } from 'lucide-react';
-import { AnimateOnScroll, StaggerChildren } from '@/shared/components';
 import type { TopTrade } from '@/shared/types/api';
 
 interface TopTradesProps {
@@ -34,28 +31,23 @@ export function TopTrades({ trades }: TopTradesProps) {
 
   return (
     <div>
-      <AnimateOnScroll animation="fade-in-up" className="mb-4">
+      <div className="mb-4">
         <h2 className="text-headline-lg text-text-primary">
           전국 실거래가 TOP {trades.length}
         </h2>
         <p className="mt-1 text-body-md text-text-tertiary">
           최근 2일 거래 · 거래금액 상위 · 출처: 국토교통부
         </p>
-      </AnimateOnScroll>
+      </div>
 
-      <StaggerChildren
-        as="div"
-        animation="fade-in-up"
-        interval={60}
-        maxItems={trades.length}
-        className="flex flex-col gap-3"
-      >
+      <div className="flex flex-col gap-3">
         {trades.map((trade, i) => {
           const rank = i + 1;
           return (
             <article
               key={trade.id}
-              className="bg-bg-card rounded-xl px-4 py-3 lg:px-6 lg:py-4"
+              className="bg-bg-card rounded-xl px-4 py-3 lg:px-6 lg:py-4 animate-fade-in-up"
+              style={{ animationDelay: `${i * 60}ms` }}
             >
               {/* 순위 + 본문 정렬: 모바일은 items-start (본문이 2줄 이상일 때 순위가 위로 고정), 데스크톱은 한 줄 이므로 items-center. */}
               {/* gap 은 카드 좌우 패딩(px-4 / lg:px-6)과 동일하게 맞춰 순위 숫자의 좌/우 여백을 대칭으로. */}
@@ -133,7 +125,7 @@ export function TopTrades({ trades }: TopTradesProps) {
             </article>
           );
         })}
-      </StaggerChildren>
+      </div>
     </div>
   );
 }

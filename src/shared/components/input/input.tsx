@@ -1,5 +1,3 @@
-'use client';
-
 import { forwardRef } from 'react';
 
 type InputSize = 'sm' | 'md' | 'lg';

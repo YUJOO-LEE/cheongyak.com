@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { HomeHero, TopTrades, WeeklySchedule } from '@/features/listings/components';
 import { LatestNewsPreview } from '@/features/news/components';
 import { WebsiteJsonLd } from '@/shared/components/json-ld';
+import { AnimateOnScroll } from '@/shared/components';
 import { newsArticles } from '@/mocks/fixtures/news';
 import { apiClient } from '@/shared/lib/api-client';
 import {
@@ -124,7 +125,9 @@ export default async function HomePage() {
           trades 가 비었을 때(서버 장애·신규 배포 전 등)는 섹션 자체를 숨긴다. */}
       {topTrades.length > 0 && (
         <section className="mb-12">
-          <TopTrades trades={topTrades} />
+          <AnimateOnScroll animation="fade-in-up">
+            <TopTrades trades={topTrades} />
+          </AnimateOnScroll>
         </section>
       )}
 
