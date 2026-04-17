@@ -4,13 +4,25 @@ interface JsonLdProps {
   data: Record<string, unknown>;
 }
 
+// Escape `</script>` sequences that could prematurely close the tag when
+// user-supplied strings end up in structured data.
+function serialize(data: Record<string, unknown>): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
 export function JsonLd({ data }: JsonLdProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: serialize(data) }}
     />
   );
+}
+
+function normalizeBreadcrumbUrl(url: string): string {
+  if (url.startsWith('http')) return url;
+  if (url === '/' || url === '') return SITE_URL;
+  return `${SITE_URL}${url.startsWith('/') ? url : `/${url}`}`;
 }
 
 export function OrganizationJsonLd() {
@@ -129,7 +141,7 @@ export function BreadcrumbListJsonLd({
           '@type': 'ListItem',
           position: index + 1,
           name: item.name,
-          item: item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url}`,
+          item: normalizeBreadcrumbUrl(item.url),
         })),
       }}
     />

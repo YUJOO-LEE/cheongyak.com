@@ -3,10 +3,19 @@ import type { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
+// satori (next/og) cannot resolve Tailwind utilities or CSS variables — the
+// hex values below MUST stay in sync with DESIGN.md brand tokens. Chanel
+// owns the source of truth; Dewey owns this file's consistency with it.
 const BRAND_PRIMARY = '#0356FF';
 const BRAND_SECONDARY = '#00FFC2';
 const NEUTRAL_900 = '#0D1117';
 const NEUTRAL_100 = '#F4F6FA';
+
+// OG URLs are scraped repeatedly by social platforms — cache aggressively
+// to avoid paying edge CPU on every message preview.
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, immutable, no-transform, max-age=31536000, s-maxage=31536000',
+} as const;
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -99,6 +108,6 @@ export async function GET(request: NextRequest) {
         </div>
       </div>
     ),
-    { width: 1200, height: 630 },
+    { width: 1200, height: 630, headers: CACHE_HEADERS },
   );
 }
