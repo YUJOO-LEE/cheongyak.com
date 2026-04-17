@@ -282,14 +282,25 @@ interface ApiError {
 
 ---
 
-## 11. SEO
+## 11. SEO & GEO
 
-- 각 라우트에서 동적 title, description, OG 태그를 위해 `generateMetadata()` export
-- 청약, 아파트 분양, 청약 일정을 타겟팅하는 한국어 meta description
-- JSON-LD 구조화 데이터: 청약에 `RealEstateListing`, 뉴스에 `NewsArticle`
-- 모든 공개 URL을 포함하는 동적 `sitemap.ts`
+**오너:** Dewey (`.claude/agents/dewey.md`). Bolt는 랭킹 시그널 관점의 Core Web Vitals만 담당.
+
+### SEO (전통 검색)
+- 모든 라우트는 `src/shared/lib/seo.ts`의 `buildPageMetadata()`를 사용 — canonical, OG, Twitter, 한국어 meta description을 일관되게 적용
+- Root layout에서 `metadataBase`·기본 OG 설정, `OrganizationJsonLd`를 전역 주입
+- JSON-LD: 전역 `Organization` + `WebSite+SearchAction`, 상세 페이지는 `RealEstateListing` + `BreadcrumbList`
+- `/og` edge 라우트(`next/og` `ImageResponse`)로 OG 이미지 동적 생성 — `?title=`·`?subtitle=` 쿼리로 커스터마이즈
+- 동적 `sitemap.ts`에서 모든 공개 URL 포함 (static + 청약 상세). `/trades`는 coming-soon 단계에서도 포함
 - `robots.ts`에서 모든 경로 허용 (완전 공개 사이트)
-- 모든 페이지에 canonical URL 명시적 설정
+
+### GEO (AI 엔진 최적화)
+- `public/llms.txt`: 사이트 정의, 핵심 라우트, 데이터 소스, 인용 가이드를 LLM 크롤러에 제공
+- 콘텐츠 패턴: 주장 → 근거 → 출처 3단 구조. AI Overviews·Perplexity 등에서 인용 가능하도록 명확한 헤딩·간결한 정의 우선
+
+### 포인터
+- 키워드 전략: `docs/seo-keyword-map.md`
+- hreflang/i18n 로드맵: `docs/seo-i18n-plan.md`
 
 ---
 

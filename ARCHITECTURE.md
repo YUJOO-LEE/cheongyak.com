@@ -163,26 +163,36 @@ interface ApiError {
 
 ---
 
-## 7. SEO Strategy
+## 7. SEO & GEO Strategy
 
 ### Metadata API
-- Each route exports `generateMetadata()` for dynamic title, description, and Open Graph tags.
-- Korean-language meta descriptions with target keywords (청약, 아파트 분양, 청약 일정).
-- Canonical URLs set explicitly to prevent duplicate content.
+- All routes use `buildPageMetadata()` in `src/shared/lib/seo.ts` — centralizes canonical, OG, Twitter, and Korean-language meta descriptions.
+- Root layout sets `metadataBase` and default OG/Twitter; per-page helpers override per route.
+- Canonical URLs set explicitly on every route to prevent duplicate content via query strings.
 
 ### Structured Data (JSON-LD)
 | Page | Schema Type | Key Properties |
 |---|---|---|
-| Home | `WebSite` + `SearchAction` | Site name, search URL template |
-| Listing | `RealEstateListing` | Name, location, price range, datePosted |
-| Detail | `RealEstateListing` + `BreadcrumbList` | Full property details, navigation path |
-| News | `NewsArticle` | Headline, datePublished |
+| Site-wide | `Organization` | Name, URL, logo, description (injected in root layout) |
+| Home | `WebSite` + `SearchAction` | Site name, search URL template (`/listings?q=…`) |
+| Listings | `RealEstateListing` (per item, future) | Name, location, price range, datePosted |
+| Listing detail | `RealEstateListing` + `BreadcrumbList` | Full property details, navigation path |
+| Trades | `Dataset` + `Place` (planned when data lands) | Aggregate trade statistics by region |
 
 ### Technical SEO
-- `sitemap.ts` generates dynamic XML sitemap with all listing and news URLs.
+- `sitemap.ts` generates a dynamic XML sitemap for all public URLs (static routes + subscription details + `/trades`).
 - `robots.ts` allows all paths (all pages are public).
+- Dynamic OG images served from `/og` (edge runtime, `next/og` `ImageResponse`) — 1200×630 with brand tokens.
 - `next/image` with descriptive `alt` text for all images.
-- Internal linking structure: breadcrumbs on detail pages, related listings.
+- Internal linking structure: breadcrumbs on detail pages, related listings, home→detail prefetch on hover.
+
+### GEO (Generative Engine Optimization)
+- `public/llms.txt` exposes a canonical site summary to LLM crawlers — glossary, key routes, data sources, citation guidance.
+- Content structure targets LLM extractability: short definitions, bulleted facts, explicit source attribution.
+
+### Reference docs
+- Keyword strategy: `docs/seo-keyword-map.md`
+- i18n/hreflang plan: `docs/seo-i18n-plan.md`
 
 ---
 

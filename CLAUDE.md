@@ -287,14 +287,25 @@ interface ApiError {
 
 ---
 
-## 11. SEO
+## 11. SEO & GEO
 
-- Each route exports `generateMetadata()` for dynamic title, description, OG tags
-- Korean-language meta descriptions targeting 청약, 아파트 분양, 청약 일정
-- JSON-LD structured data: `RealEstateListing` for subscriptions, `NewsArticle` for news
-- Dynamic `sitemap.ts` with all public URLs
+**Owner:** Dewey (`.claude/agents/dewey.md`). Bolt owns Core Web Vitals as a ranking signal.
+
+### SEO (classical search)
+- Every route uses `buildPageMetadata()` from `src/shared/lib/seo.ts` — enforces canonical, OG, Twitter, and Korean-language meta descriptions consistently
+- Root layout sets `metadataBase`, default OG, and injects `OrganizationJsonLd` site-wide
+- JSON-LD: `Organization` + `WebSite+SearchAction` site-wide, `RealEstateListing` + `BreadcrumbList` on listing detail
+- Dynamic OG images via `/og` edge route (`next/og` `ImageResponse`) — pass `?title=` and `?subtitle=` to customize
+- Dynamic `sitemap.ts` with all public URLs (static + subscription detail); `/trades` included even during coming-soon phase
 - `robots.ts` allows all paths (fully public site)
-- Canonical URLs set explicitly on all pages
+
+### GEO (AI-engine optimization)
+- `public/llms.txt` summarizes site purpose, key routes, data sources, and citation guidance for LLM crawlers
+- Content pattern: claim → evidence → source; prefer structured headings and concise definitions to be citation-worthy in AI Overviews/Perplexity
+
+### Pointers
+- Keyword strategy: `docs/seo-keyword-map.md`
+- hreflang/i18n roadmap: `docs/seo-i18n-plan.md`
 
 ---
 

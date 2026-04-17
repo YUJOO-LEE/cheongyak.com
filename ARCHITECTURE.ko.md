@@ -165,26 +165,36 @@ interface ApiError {
 
 ---
 
-## 7. SEO 전략
+## 7. SEO & GEO 전략
 
 ### Metadata API
-- 각 라우트에서 `generateMetadata()`를 내보내 동적 title, description, Open Graph 태그 설정.
-- 타겟 키워드를 포함한 한국어 메타 설명 (청약, 아파트 분양, 청약 일정).
-- 중복 콘텐츠 방지를 위해 canonical URL 명시적 설정.
+- 모든 라우트는 `src/shared/lib/seo.ts`의 `buildPageMetadata()`를 사용 — canonical, OG, Twitter, 한국어 meta description을 중앙 집중 관리.
+- Root layout에서 `metadataBase`와 기본 OG/Twitter 설정. 페이지별 헬퍼가 라우트마다 override.
+- 쿼리 스트링으로 인한 중복 콘텐츠를 막기 위해 모든 라우트에 canonical URL 명시.
 
 ### 구조화 데이터 (JSON-LD)
 | 페이지 | Schema 유형 | 주요 속성 |
 |---|---|---|
-| 홈 | `WebSite` + `SearchAction` | 사이트 이름, 검색 URL 템플릿 |
-| 목록 | `RealEstateListing` | 이름, 위치, 가격 범위, datePosted |
-| 상세 | `RealEstateListing` + `BreadcrumbList` | 전체 매물 정보, 탐색 경로 |
-| 뉴스 | `NewsArticle` | 헤드라인, datePublished |
+| 전역 | `Organization` | 이름, URL, 로고, 설명 (root layout에 주입) |
+| 홈 | `WebSite` + `SearchAction` | 사이트 이름, 검색 URL 템플릿(`/listings?q=…`) |
+| 목록 | `RealEstateListing` (항목별, 추후) | 이름, 위치, 가격 범위, datePosted |
+| 청약 상세 | `RealEstateListing` + `BreadcrumbList` | 전체 매물 정보, 탐색 경로 |
+| 실거래가 | `Dataset` + `Place` (데이터 연동 시 계획) | 지역별 거래 통계 |
 
 ### 기술적 SEO
-- `sitemap.ts`로 모든 청약 및 뉴스 URL을 포함한 동적 XML 사이트맵 생성.
-- `robots.ts`는 모든 경로 허용 (모든 페이지가 공개).
+- `sitemap.ts`로 모든 공개 URL을 포함한 동적 XML 사이트맵 생성 (static + 청약 상세 + `/trades`).
+- `robots.ts`는 모든 경로 허용 (완전 공개 사이트).
+- `/og` edge 라우트(`next/og` `ImageResponse`)로 1200×630 브랜드 토큰 기반 OG 이미지 동적 생성.
 - `next/image`에 모든 이미지에 대한 서술적 `alt` 텍스트 사용.
-- 내부 링크 구조: 상세 페이지 breadcrumbs, 관련 목록.
+- 내부 링크 구조: 상세 페이지 breadcrumbs, 관련 목록, 홈→상세 hover prefetch.
+
+### GEO (생성형 엔진 최적화)
+- `public/llms.txt`가 사이트 정의·핵심 라우트·데이터 소스·인용 가이드를 LLM 크롤러에 노출.
+- 콘텐츠 구조는 LLM이 추출하기 쉽도록 짧은 정의·불릿 사실·명시적 출처 인용을 우선.
+
+### 참고 문서
+- 키워드 전략: `docs/seo-keyword-map.md`
+- i18n/hreflang 계획: `docs/seo-i18n-plan.md`
 
 ---
 

@@ -468,8 +468,9 @@
 
 ### SEO 요구사항
 
-- 각 페이지별 고유한 `<title>`과 `<meta description>` 설정
+- 모든 페이지는 `buildPageMetadata()`를 통해 고유한 `<title>`과 `<meta description>`을 갖는다
 - 청약 상세: `{아파트명} 청약 일정 및 정보 | 청약닷컴`
-- 뉴스 기사: `{기사 제목} | 청약닷컴`
-- 모든 페이지에 Open Graph 및 Twitter Card 메타 태그 적용
-- 청약 목록에 구조화 데이터 (JSON-LD) 적용
+- Coming-soon 상태의 `/trades`: `실거래가 | 청약닷컴` (브랜드 쿼리 포착을 위해 색인 유지)
+- 모든 페이지에 Open Graph 및 Twitter Card 메타 태그 적용. 기본 OG 이미지는 `/og` edge 라우트가 렌더링하고, 페이지별로 `?title=`/`?subtitle=` 쿼리로 override
+- 구조화 데이터 (JSON-LD): 전역 `Organization` + `WebSite+SearchAction`, 상세 페이지에 `RealEstateListing` + `BreadcrumbList`
+- GEO: `public/llms.txt`가 AI 검색 엔진을 위한 인용 친화 요약을 제공
