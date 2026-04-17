@@ -3,11 +3,9 @@ import { notFound } from 'next/navigation';
 import { SubscriptionHeader } from '@/features/listings/components/subscription-header';
 import { ScheduleTimeline } from '@/features/listings/components/schedule-timeline';
 import { SupplyBreakdown } from '@/features/listings/components/supply-breakdown';
-import { RelatedNews } from '@/features/listings/components/related-news';
 import { OfficialLinks } from '@/features/listings/components/official-links';
 import { SubscriptionJsonLd } from '@/shared/components/json-ld';
 import { subscriptionDetail, subscriptions } from '@/mocks/fixtures/subscriptions';
-import { newsArticles } from '@/mocks/fixtures/news';
 import type { SubscriptionDetail } from '@/shared/types/api';
 
 interface PageProps {
@@ -41,10 +39,6 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
   const subscription = getSubscription(id);
 
   if (!subscription) notFound();
-
-  const relatedNews = newsArticles
-    .filter((n) => n.relatedSubscriptionIds?.includes(id))
-    .slice(0, 5);
 
   return (
     <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-10">
@@ -94,14 +88,6 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
               />
             </section>
 
-            {relatedNews.length > 0 && (
-              <section>
-                <h2 className="text-headline-sm text-text-primary mb-4">
-                  관련 뉴스
-                </h2>
-                <RelatedNews articles={relatedNews} />
-              </section>
-            )}
           </div>
         </div>
       </div>

@@ -8,4 +8,3 @@ export { SubscriptionHeader } from './subscription-header';
 export { ScheduleTimeline } from './schedule-timeline';
 export { SupplyBreakdown } from './supply-breakdown';
 export { OfficialLinks } from './official-links';
-export { RelatedNews } from './related-news';

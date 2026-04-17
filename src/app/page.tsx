@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import { HomeHero, TopTrades, WeeklySchedule } from '@/features/listings/components';
-import { LatestNewsPreview } from '@/features/news/components';
 import { WebsiteJsonLd } from '@/shared/components/json-ld';
 import { AnimateOnScroll } from '@/shared/components';
-import { newsArticles } from '@/mocks/fixtures/news';
 import { apiClient } from '@/shared/lib/api-client';
 import {
   mapFeaturedToSubscription,
@@ -89,8 +87,6 @@ export default async function HomePage() {
         ) ?? []
       : [];
 
-  // 뉴스 API 는 아직 없음 — 기존 mock 유지 (후속 티켓)
-  const latestNews = newsArticles.slice(0, 4);
   const isWeekend = [0, 6].includes(new Date().getDay());
 
   return (
@@ -131,19 +127,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Latest News */}
-      <section className="pb-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-headline-lg text-text-primary">최신 뉴스</h2>
-          <Link
-            href="/news"
-            className="text-body-md text-brand-primary-500 hover:text-brand-primary-600 transition-colors"
-          >
-            전체 보기
-          </Link>
-        </div>
-        <LatestNewsPreview articles={latestNews} />
-      </section>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Home, Building2, Newspaper, Search } from 'lucide-react';
+import { Home, Building2, Search } from 'lucide-react';
 import { SearchOverlay } from '@/features/search/components/search-overlay';
 import type { LucideIcon } from 'lucide-react';
 
@@ -17,7 +17,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { href: '/', label: '홈', icon: Home },
   { href: '/listings', label: '청약', icon: Building2 },
-  { href: '/news', label: '뉴스', icon: Newspaper },
 ];
 
 export function Navigation() {

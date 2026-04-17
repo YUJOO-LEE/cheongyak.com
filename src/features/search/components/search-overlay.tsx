@@ -7,8 +7,7 @@ import { useDebounce } from '@/shared/hooks/use-debounce';
 import { Card, StatusChip } from '@/shared/components';
 
 import { subscriptions } from '@/mocks/fixtures/subscriptions';
-import { newsArticles } from '@/mocks/fixtures/news';
-import type { Subscription, NewsArticle } from '@/shared/types/api';
+import type { Subscription } from '@/shared/types/api';
 
 const MAX_RECENT = 10;
 const STORAGE_KEY = 'cheongyak-recent-searches';
@@ -103,7 +102,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   if (!open) return null;
 
   const showResults = debouncedQuery.trim().length > 0;
-  const hasResults = results.subscriptions.length > 0 || results.news.length > 0;
+  const hasResults = results.subscriptions.length > 0;
 
   return (
     <div className="fixed inset-0 z-modal" role="dialog" aria-modal="true" aria-label="검색">
@@ -131,7 +130,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             onKeyDown={(e) => {
               if (e.key === 'Enter' && query.trim()) handleSearch(query);
             }}
-            placeholder="청약명, 지역, 건설사, 뉴스 검색..."
+            placeholder="청약명, 지역, 건설사 검색..."
             className="w-full h-14 pl-12 pr-10 bg-transparent text-body-lg placeholder:text-text-tertiary focus:outline-none"
           />
           <button
@@ -172,32 +171,6 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                               </div>
                               <StatusChip status={sub.status} />
                             </div>
-                          </Card>
-                        </button>
-                      ))}
-                    </div>
-                  </section>
-                )}
-
-                {results.news.length > 0 && (
-                  <section>
-                    <h2 className="text-label-lg text-text-secondary mb-2">
-                      뉴스 ({results.news.length})
-                    </h2>
-                    <div className="flex flex-col gap-2">
-                      {results.news.map((article) => (
-                        <button
-                          key={article.id}
-                          onClick={() => handleNavigate(`/news/${article.id}`)}
-                          className="w-full text-left cursor-pointer"
-                        >
-                          <Card variant="compact">
-                            <p className="text-body-md font-semibold text-text-primary line-clamp-1">
-                              {article.title}
-                            </p>
-                            <p className="text-body-sm text-text-secondary line-clamp-1">
-                              {article.excerpt}
-                            </p>
                           </Card>
                         </button>
                       ))}
@@ -255,11 +228,8 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   );
 }
 
-function useSearchResults(query: string): {
-  subscriptions: Subscription[];
-  news: NewsArticle[];
-} {
-  if (!query.trim()) return { subscriptions: [], news: [] };
+function useSearchResults(query: string): { subscriptions: Subscription[] } {
+  if (!query.trim()) return { subscriptions: [] };
 
   const q = query.toLowerCase();
 
@@ -273,13 +243,5 @@ function useSearchResults(query: string): {
     )
     .slice(0, 5);
 
-  const matchedNews = newsArticles
-    .filter(
-      (n) =>
-        n.title.toLowerCase().includes(q) ||
-        n.excerpt.toLowerCase().includes(q),
-    )
-    .slice(0, 5);
-
-  return { subscriptions: matchedSubscriptions, news: matchedNews };
+  return { subscriptions: matchedSubscriptions };
 }
