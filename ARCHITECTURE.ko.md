@@ -176,7 +176,7 @@ interface ApiError {
 | 페이지 | Schema 유형 | 주요 속성 |
 |---|---|---|
 | 전역 | `Organization` | 이름, URL, 로고, 설명 (root layout에 주입) |
-| 홈 | `WebSite` + `SearchAction` | 사이트 이름, 검색 URL 템플릿(`/listings?q=…`) |
+| 홈 | `WebSite` | 사이트 이름 + inLanguage. SearchAction은 `/listings`가 `?q=` 바인딩 후 재도입 |
 | 목록 | `RealEstateListing` (항목별, 추후) | 이름, 위치, 가격 범위, datePosted |
 | 청약 상세 | `RealEstateListing` + `BreadcrumbList` | 전체 매물 정보, 탐색 경로 |
 | 실거래가 | `Dataset` + `Place` (데이터 연동 시 계획) | 지역별 거래 통계 |

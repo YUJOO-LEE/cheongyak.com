@@ -471,5 +471,5 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 - Subscription detail: `{아파트명} 청약 일정 및 정보 | 청약닷컴`
 - Coming-soon `/trades`: `실거래가 | 청약닷컴` (remains indexable to capture brand queries)
 - Open Graph and Twitter Card meta tags on all pages; default OG image rendered by `/og` edge route and overridable per page via `?title=`/`?subtitle=`
-- Structured data (JSON-LD): site-wide `Organization` + `WebSite+SearchAction`; per-listing `RealEstateListing` + `BreadcrumbList` on detail pages
+- Structured data (JSON-LD): site-wide `Organization` + `WebSite`; per-listing `RealEstateListing` + `BreadcrumbList` on detail pages. (SearchAction is held back until listings binds `?q=`.)
 - GEO: `public/llms.txt` provides a citation-friendly summary for AI search engines

@@ -42,6 +42,12 @@ export function OrganizationJsonLd() {
 }
 
 export function WebsiteJsonLd() {
+  // SearchAction was removed intentionally: Google only enables the
+  // Sitelinks Search Box when the advertised urlTemplate actually runs
+  // a search. /listings currently ignores ?q, so declaring SearchAction
+  // would be a false capability signal. Re-enable `potentialAction` once
+  // the listings client binds a q parameter (see docs/seo-keyword-map.md
+  // — /tools/gajeom-calculator and filter persistence roadmap).
   return (
     <JsonLd
       data={{
@@ -50,14 +56,6 @@ export function WebsiteJsonLd() {
         name: SITE_NAME,
         url: SITE_URL,
         description: SITE_DESCRIPTION,
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: `${SITE_URL}/listings?q={search_term_string}`,
-          },
-          'query-input': 'required name=search_term_string',
-        },
         inLanguage: 'ko-KR',
       }}
     />

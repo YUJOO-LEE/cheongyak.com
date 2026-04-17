@@ -174,7 +174,7 @@ interface ApiError {
 | Page | Schema Type | Key Properties |
 |---|---|---|
 | Site-wide | `Organization` | Name, URL, logo, description (injected in root layout) |
-| Home | `WebSite` + `SearchAction` | Site name, search URL template (`/listings?q=…`) |
+| Home | `WebSite` | Site name + inLanguage. SearchAction is deferred until `/listings` binds `?q=` |
 | Listings | `RealEstateListing` (per item, future) | Name, location, price range, datePosted |
 | Listing detail | `RealEstateListing` + `BreadcrumbList` | Full property details, navigation path |
 | Trades | `Dataset` + `Place` (planned when data lands) | Aggregate trade statistics by region |
