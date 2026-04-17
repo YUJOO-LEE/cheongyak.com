@@ -8,7 +8,15 @@ export const metadata = buildPageMetadata({
   description:
     '전국 아파트 실거래가를 지역·단지별로 검색하고 시세 흐름과 최근 거래 내역을 한눈에 확인하세요. 곧 서비스를 시작합니다.',
   path: '/trades',
-  keywords: ['아파트 실거래가', '실거래가 조회', '단지별 시세', '아파트 시세', '국토부 실거래가'],
+  keywords: [
+    '아파트 실거래가',
+    '실거래가 조회',
+    '국토교통부 실거래가',
+    '실거래가 공개시스템',
+    '단지별 시세',
+    '아파트 매매가',
+    '아파트 시세',
+  ],
 });
 
 const upcomingFeatures = [

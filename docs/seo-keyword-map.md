@@ -20,9 +20,11 @@ This document maps target search queries to the routes that should rank for them
 | Route | Primary queries | Secondary queries | Notes |
 |---|---|---|---|
 | `/` (Home) | 청약닷컴, 이번주 청약, 이번주 분양 일정 | 청약 일정, 청약 정보 사이트 | Brand + transactional hub. Title should stay short — most queries are brand/short-tail |
-| `/listings` | 아파트 청약 목록, 분양 일정, 청약 검색, 전국 청약 | 지역별 청약, 공공분양 목록, 민간분양 목록 | Filterable list — expose filter state to bots via URL (nuqs) |
-| `/listings/[id]` | `{아파트명} 청약`, `{지역} 분양`, `{건설사} 청약` | 가점, 특공 조건, 입주자모집공고 | Long-tail capture. Title pattern locked: `{아파트명} 청약 일정 및 정보` |
-| `/trades` | 아파트 실거래가, 실거래가 조회, 국토부 실거래가 | 지역별 시세, 단지 시세 | Pre-launch: indexable with coming-soon copy to capture brand + generic queries |
+| `/listings` | 아파트 청약 목록, 분양 일정, 청약 검색, 전국 청약, 공공분양 목록, 민간분양 목록, 1순위 청약, 특별공급 목록 | 지역별 청약, 사전청약, 무순위청약, 줍줍 아파트 | Filterable list — expose filter state to bots via URL (nuqs). 사전청약/무순위/줍줍은 별도 필터로 IA 검토 필요 |
+| `/listings/[id]` | `{아파트명} 청약`, `{아파트명} 입주자모집공고`, `{아파트명} 당첨가점`, `{지역} 분양`, `{건설사} 청약` | `{아파트명} 입주`, 가점, 특공 조건, 분양가 | Long-tail capture. Title pattern locked: `{아파트명} 청약 일정 및 정보`. 입주자모집공고 PDF 쿼리는 season 최상위 트래픽 |
+| `/trades` | 아파트 실거래가, 실거래가 조회, 국토교통부 실거래가, 실거래가 공개시스템, 아파트 매매가 | 지역별 시세, 단지 시세 | Pre-launch: indexable with coming-soon copy to capture brand + generic queries |
+| `/tools/gajeom-calculator` (future) | 청약 가점 계산기, 가점제 계산, 청약 가점 조회 | 무주택기간 계산, 부양가족수 가점 | Proposed new route — captures peak informational traffic currently falling to external blogs |
+| `/listings/region/[sido]` (future) | 서울 청약, 경기 청약, 인천 청약 | 강남 분양, 송파 분양 (구·군 레벨 별도 조사) | Proposed ISR-faceted region landing. MUST coexist with `/listings?sido=…` via `rel=canonical` + differentiated content |
 
 ## Korean term normalization
 
@@ -30,12 +32,20 @@ Kim Jeong-ho's ruling — these are the forms that drive search volume. Use the 
 
 | Preferred | Also search as | Why |
 |---|---|---|
-| 청약통장 | 주택청약종합저축 | "청약통장" is everyday usage and dominant in search |
-| 특별공급 | 특공 | "특별공급" for headers; "특공" acceptable in body |
-| 일반공급 가점제 | 가점제 | Always pair "일반공급" on first mention for clarity |
-| 무주택기간 | 무주택 기간 | Stick to no-space form |
+| 청약통장 | 주택청약종합저축, 입주자저축 | "청약통장" is everyday usage and dominant in search; cite official name once per page for E-E-A-T |
+| 특별공급 | 특공 | "특별공급" for headers; "특공" acceptable in body. Enumerate 7종: 다자녀·신혼부부·생애최초·노부모부양·기관추천·이전기관·청년 |
+| 일반공급 가점제 | 가점제 | Always pair "일반공급" on first mention for clarity. Components: 청약통장 가입기간(17)+무주택기간(32)+부양가족수(35)=84 |
+| 무주택기간 | 무주택 기간 | No-space form matches 청약홈 official spelling — diverging from the standard spacing rule for SEO alignment |
+| 무주택세대구성원 | 무주택 세대 | Core eligibility term; always use full form — partial matches confuse readers |
 | 입주자모집공고 | 모집공고 | Full form on first mention for legal accuracy |
 | 분양가상한제 | 상한제 | Full form for SEO; abbreviation only in context |
+| 전매제한 | — | Use as-is; frequently paired with "기간" |
+| 재당첨제한 | 재당첨 제한 | No-space preferred |
+| 당해지역 | 해당지역 | Both forms search-visible; "당해지역" legally correct per 주택공급에 관한 규칙 |
+| 1순위 / 2순위 | 1순위 조건, 1순위 자격 | Always pair with "조건"/"자격" for transactional intent |
+| 규제지역 | 조정대상지역, 투기과열지구 | Regulation-level specifics matter — avoid conflating |
+| 사전청약 | 본청약 | Contrast-only term; always disambiguate |
+| 무순위청약 | 줍줍, 줍줍 아파트 | Informal "줍줍" drives volume but headers should use 무순위청약 |
 | 청약홈 | 한국부동산원 청약홈 | Brand name; do not translate |
 
 ## Seasonal patterns

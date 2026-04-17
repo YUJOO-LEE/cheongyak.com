@@ -59,6 +59,8 @@ Rejected alternatives:
 - Do not add `<link rel="alternate" hreflang="…">` tags today — there is no English surface, and pointing at untranslated pages actively hurts SEO.
 - Do not introduce `[locale]` segment prematurely — it bloats every per-route edit until an actual English copy exists.
 - Do not register `x-default` without a real default — Google treats dangling `x-default` as a signal of neglect.
+- Do not set a `Content-Language` HTTP header opportunistically. Search engines prefer inline `<html lang>` and hreflang tags; sending a divergent header creates conflicting signals.
+- Do not switch `<html lang>` based on `Accept-Language` until the `[locale]` segment actually exists. Serving `<html lang="en">` on otherwise-Korean pages tells crawlers the content is English, which demotes Korean rankings.
 
 ## Pre-flight checklist (when English launch is scheduled)
 

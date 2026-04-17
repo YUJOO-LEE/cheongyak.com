@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = `${sub.name} 청약 일정 및 정보`;
-  const description = `${sub.name} — ${sub.location.sido} ${sub.location.gugun} ${sub.builder} 아파트 청약 일정, 공급 내역, 분양 안내를 한눈에 확인하세요.`;
+  const description = `${sub.name} — ${sub.location.sido} ${sub.location.gugun} ${sub.builder} 아파트 청약 일정, 공급 내역, 분양 안내를 한눈에 정리했습니다. 최종 청약 조건은 공식 입주자모집공고를 기준으로 확인하세요.`;
 
   return buildPageMetadata({
     title,
@@ -43,7 +43,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     path: `/listings/${sub.id}`,
     ogType: 'article',
     ogImage: `${SITE_URL}/og?title=${encodeURIComponent(sub.name)}&subtitle=${encodeURIComponent(`${sub.location.sido} ${sub.location.gugun}`)}`,
-    keywords: [sub.name, `${sub.location.sido} 청약`, `${sub.builder} 분양`, '청약 일정', '아파트 분양'],
+    keywords: [
+      sub.name,
+      `${sub.name} 입주자모집공고`,
+      `${sub.name} 당첨가점`,
+      `${sub.location.sido} 청약`,
+      `${sub.location.sido} ${sub.location.gugun} 분양`,
+      `${sub.builder} 분양`,
+      '1순위 청약',
+    ],
   });
 }
 
