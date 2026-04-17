@@ -1,3 +1,5 @@
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/shared/lib/seo';
+
 interface JsonLdProps {
   data: Record<string, unknown>;
 }
@@ -11,20 +13,36 @@ export function JsonLd({ data }: JsonLdProps) {
   );
 }
 
+export function OrganizationJsonLd() {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: `${SITE_URL}/logo.svg`,
+        description: SITE_DESCRIPTION,
+        sameAs: [] as string[],
+      }}
+    />
+  );
+}
+
 export function WebsiteJsonLd() {
   return (
     <JsonLd
       data={{
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: '청약닷컴',
-        url: 'https://cheongyak.com',
-        description: '아파트 청약 일정, 분양 정보, 청약 뉴스를 한눈에.',
+        name: SITE_NAME,
+        url: SITE_URL,
+        description: SITE_DESCRIPTION,
         potentialAction: {
           '@type': 'SearchAction',
           target: {
             '@type': 'EntryPoint',
-            urlTemplate: 'https://cheongyak.com/search?q={search_term_string}',
+            urlTemplate: `${SITE_URL}/listings?q={search_term_string}`,
           },
           'query-input': 'required name=search_term_string',
         },
@@ -88,10 +106,31 @@ export function NewsArticleJsonLd({
         datePublished: publishedAt,
         publisher: {
           '@type': 'Organization',
-          name: '청약닷컴',
-          url: 'https://cheongyak.com',
+          name: SITE_NAME,
+          url: SITE_URL,
         },
         inLanguage: 'ko-KR',
+      }}
+    />
+  );
+}
+
+export function BreadcrumbListJsonLd({
+  items,
+}: {
+  items: Array<{ name: string; url: string }>;
+}) {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: items.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          item: item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url}`,
+        })),
       }}
     />
   );

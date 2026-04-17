@@ -1,17 +1,39 @@
 import type { Metadata, Viewport } from 'next';
 import { Navigation } from '@/shared/components/navigation';
 import { Footer } from '@/shared/components/footer';
+import { OrganizationJsonLd } from '@/shared/components/json-ld';
 import { QueryProvider } from '@/shared/components/providers';
+import { DEFAULT_OG_IMAGE, SITE_DESCRIPTION, SITE_LOCALE, SITE_NAME, SITE_URL } from '@/shared/lib/seo';
 import '@/styles/globals.css';
 
+const ROOT_TITLE = '청약닷컴 — 청약 일정 및 정보';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: '청약닷컴 — 청약 일정 및 정보',
-    template: '%s | 청약닷컴',
+    default: ROOT_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    '아파트 청약 일정, 분양 정보, 청약 뉴스를 한눈에. 청약닷컴에서 확인하세요.',
-  keywords: ['청약', '아파트 분양', '청약 일정', '분양 정보', '청약홈'],
+  description: SITE_DESCRIPTION,
+  keywords: ['청약', '아파트 분양', '청약 일정', '분양 정보', '청약홈', '실거래가'],
+  applicationName: SITE_NAME,
+  alternates: { canonical: SITE_URL },
+  openGraph: {
+    type: 'website',
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: SITE_LOCALE,
+    title: ROOT_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: ROOT_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE.url],
+  },
+  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
@@ -36,6 +58,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-dvh flex flex-col bg-bg-page text-text-primary font-sans">
+        <OrganizationJsonLd />
         <QueryProvider>
           {/* Desktop top padding for fixed header */}
           <div className="hidden lg:block h-16" />

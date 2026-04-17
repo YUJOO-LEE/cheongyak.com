@@ -1,12 +1,15 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Search, TrendingUp, BarChart3, Lock } from 'lucide-react';
 import { Button } from '@/shared/components';
+import { buildPageMetadata } from '@/shared/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: '실거래가',
-  description: '전국 아파트 실거래가를 지역·단지별로 검색하고 시세 흐름과 최근 거래 내역을 한눈에 확인하세요. 곧 서비스를 시작합니다.',
-};
+  description:
+    '전국 아파트 실거래가를 지역·단지별로 검색하고 시세 흐름과 최근 거래 내역을 한눈에 확인하세요. 곧 서비스를 시작합니다.',
+  path: '/trades',
+  keywords: ['아파트 실거래가', '실거래가 조회', '단지별 시세', '아파트 시세', '국토부 실거래가'],
+});
 
 const upcomingFeatures = [
   {

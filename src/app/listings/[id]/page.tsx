@@ -4,9 +4,10 @@ import { SubscriptionHeader } from '@/features/listings/components/subscription-
 import { ScheduleTimeline } from '@/features/listings/components/schedule-timeline';
 import { SupplyBreakdown } from '@/features/listings/components/supply-breakdown';
 import { OfficialLinks } from '@/features/listings/components/official-links';
-import { SubscriptionJsonLd } from '@/shared/components/json-ld';
+import { BreadcrumbListJsonLd, SubscriptionJsonLd } from '@/shared/components/json-ld';
 import { subscriptionDetail, subscriptions } from '@/mocks/fixtures/subscriptions';
 import type { SubscriptionDetail } from '@/shared/types/api';
+import { SITE_URL, buildPageMetadata } from '@/shared/lib/seo';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -26,12 +27,24 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const sub = getSubscription(id);
-  if (!sub) return { title: '청약 정보를 찾을 수 없습니다' };
+  if (!sub) {
+    return buildPageMetadata({
+      title: '청약 정보를 찾을 수 없습니다',
+      path: `/listings/${id}`,
+    });
+  }
 
-  return {
-    title: `${sub.name} 청약 일정 및 정보`,
-    description: `${sub.name} - ${sub.location.sido} ${sub.location.gugun} ${sub.builder} 아파트 청약 일정, 공급 정보, 분양 안내`,
-  };
+  const title = `${sub.name} 청약 일정 및 정보`;
+  const description = `${sub.name} — ${sub.location.sido} ${sub.location.gugun} ${sub.builder} 아파트 청약 일정, 공급 내역, 분양 안내를 한눈에 확인하세요.`;
+
+  return buildPageMetadata({
+    title,
+    description,
+    path: `/listings/${sub.id}`,
+    ogType: 'article',
+    ogImage: `${SITE_URL}/og?title=${encodeURIComponent(sub.name)}&subtitle=${encodeURIComponent(`${sub.location.sido} ${sub.location.gugun}`)}`,
+    keywords: [sub.name, `${sub.location.sido} 청약`, `${sub.builder} 분양`, '청약 일정', '아파트 분양'],
+  });
 }
 
 export default async function SubscriptionDetailPage({ params }: PageProps) {
@@ -46,7 +59,14 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
         name={subscription.name}
         location={`${subscription.location.sido} ${subscription.location.gugun}`}
         builder={subscription.builder}
-        url={`https://cheongyak.com/subscriptions/${id}`}
+        url={`${SITE_URL}/listings/${id}`}
+      />
+      <BreadcrumbListJsonLd
+        items={[
+          { name: '홈', url: '/' },
+          { name: '청약 목록', url: '/listings' },
+          { name: subscription.name, url: `/listings/${id}` },
+        ]}
       />
       <div className="lg:grid lg:grid-cols-3 lg:gap-10">
         {/* Main content */}
