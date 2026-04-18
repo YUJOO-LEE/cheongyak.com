@@ -6,10 +6,12 @@ export const runtime = 'edge';
 // satori (next/og) cannot resolve Tailwind utilities or CSS variables — the
 // hex values below MUST stay in sync with DESIGN.md brand tokens. Chanel
 // owns the source of truth; Dewey owns this file's consistency with it.
-const BRAND_PRIMARY = '#0356FF';
-const BRAND_SECONDARY = '#00FFC2';
-const NEUTRAL_900 = '#0D1117';
-const NEUTRAL_100 = '#F4F6FA';
+const BRAND_PRIMARY = '#0356FF'; // brand-primary-500
+const BRAND_SECONDARY = '#00FFC2'; // brand-secondary-500
+const BRAND_PRIMARY_50 = '#EEF4FF'; // brand-primary-50
+const NEUTRAL_50 = '#F8F9FA'; // neutral-50 (page canvas)
+const NEUTRAL_600 = '#475569'; // neutral-600 (text-secondary)
+const NEUTRAL_900 = '#0F172A'; // neutral-900 (text-primary)
 
 // OG URLs are scraped repeatedly by social platforms — cache aggressively
 // to avoid paying edge CPU on every message preview.
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '72px',
-          background: `linear-gradient(135deg, ${NEUTRAL_100} 0%, #FFFFFF 55%, #E6EFFF 100%)`,
+          background: `linear-gradient(135deg, ${NEUTRAL_50} 0%, #FFFFFF 55%, ${BRAND_PRIMARY_50} 100%)`,
           fontFamily: 'Pretendard, system-ui, sans-serif',
         }}
       >
@@ -98,7 +100,7 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            color: '#475467',
+            color: NEUTRAL_600,
             fontSize: 22,
             fontWeight: 500,
           }}

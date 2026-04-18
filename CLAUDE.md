@@ -341,18 +341,30 @@ Use environment variables exclusively. Before every commit, verify no secrets ar
 
 Every task that modifies code or documentation must include a cross-validation step before completion. This rule is permanent and applies to all future work.
 
-### Document Sync
-- When modifying any `.md` file, verify its `.ko.md` counterpart is updated with the same changes
-- When modifying `CLAUDE.md`, verify referenced specs in `DESIGN.md`, `ARCHITECTURE.md`, `PAGES.md` are consistent
+**Mandate:** if a PR touches code that any trigger below covers, the same PR must update the listed docs. A commit that changes code AND the matching docs together is correct; a commit that only updates code with no doc touch is a defect.
+
+### Doc-sync triggers (code → docs to update in the SAME PR)
+
+| Trigger (code change) | Docs that must be updated |
+|---|---|
+| Add / remove / rename a route under `src/app/` | `PAGES.md`·`PAGES.ko.md` (route table, SEO requirements), `ARCHITECTURE.md`·`ko` §3 rendering table, `CLAUDE.md`·`ko` §4, `src/app/sitemap.ts` |
+| Edit `src/shared/lib/seo.ts` (metadata helper) | `CLAUDE.md`·`ko` §11, `ARCHITECTURE.md`·`ko` §7 |
+| Edit `src/shared/components/json-ld.tsx` (schema helpers) | `CLAUDE.md`·`ko` §11, `ARCHITECTURE.md`·`ko` §7 (schema table) |
+| Edit `src/app/og/route.tsx` or any OG design constant | `DESIGN.md`·`ko` (token drift check), `ARCHITECTURE.md`·`ko` §7 |
+| Edit `public/llms.txt` | `docs/seo-keyword-map.md`, trigger Kim Jeong-ho domain review |
+| Edit `docs/seo-keyword-map.md` or per-page `keywords` arrays | `docs/seo-keyword-map.md` route table + `CLAUDE.md`·`ko` §11 if ownership shifts |
+| Add / remove Tailwind token or tailwind.config change | `DESIGN.md`·`ko` (token tables), `PAGES.md`·`ko` (usage snippets) |
+| Change API endpoint contracts or `src/shared/types/api.ts` | `PAGES.md`·`ko` data requirements, `ARCHITECTURE.md`·`ko` §6 API table |
+| Add / change an agent under `.claude/agents/*.md` | `CLAUDE.md`·`ko` §2 (if role boundary shifts), cross-referenced agents' "Behavior in Discussions" |
+| Change Next.js / React / Tailwind / Vitest major version in `package.json` | `CLAUDE.md`·`ko` §2 tech-stack table, `ARCHITECTURE.md`·`ko` §1 |
+| Add a test strategy or CI gate (e.g. `scripts/audit-seo.mjs`) | `CLAUDE.md`·`ko` §8, `ARCHITECTURE.md`·`ko` §9 |
+
+### Document Sync (pairwise consistency)
+- When modifying any `.md` file, its `.ko.md` counterpart must be updated in the same commit
 - Tech stack versions must match exactly across `CLAUDE.md` and `ARCHITECTURE.md`
 - Route paths must match exactly across `CLAUDE.md`, `ARCHITECTURE.md`, and `PAGES.md`
 - Color token names and values must match exactly across `DESIGN.md` and `PAGES.md`
-
-### Code-Document Sync
-- When modifying component code, verify `DESIGN.md` component specs are still accurate
-- When adding/removing routes, update `PAGES.md`, `ARCHITECTURE.md`, and `CLAUDE.md`
-- When changing API endpoints, update `PAGES.md` data requirements tables
-- When modifying design tokens in code (Tailwind config), verify `DESIGN.md` matches
+- Schema.org types in use must match across `src/shared/components/json-ld.tsx`, `CLAUDE.md` §11, `ARCHITECTURE.md` §7, `PAGES.md` SEO Requirements
 
 ### Translation Sync
 - All `.ko.md` files must have identical section structure to their English counterparts
@@ -360,11 +372,17 @@ Every task that modifies code or documentation must include a cross-validation s
 - Design token names remain in English in Korean docs
 - Hex codes and numeric values must be identical between language versions
 
+### How to enforce (operational)
+- **Before staging** code changes: run `git status` and identify which rows of the trigger table fire, then edit those docs and restage together
+- **Before committing**: run `npm run audit:seo` when SEO-adjacent files changed; run `npm run type-check && npm test` always
+- **If no doc change is needed** because the trigger is a pure refactor (behavior unchanged, no contract drift), call it out explicitly in the commit body: `Docs: no change required — refactor only`
+
 ### Verification Checklist (per task)
-- [ ] No contradictions between modified documents
-- [ ] EN/KO translations in sync
-- [ ] Code and documentation aligned
+- [ ] Every applicable row of the trigger table fired and its docs are updated
+- [ ] EN/KO translations in sync (identical section structure and numbers)
+- [ ] Code and documentation aligned (no stale references)
 - [ ] No hardcoded secrets or sensitive info
+- [ ] `npm run audit:seo` passes when SEO/Metadata/JSON-LD files changed
 - [ ] Status chip colors match DESIGN.md chip spec
 
 ---

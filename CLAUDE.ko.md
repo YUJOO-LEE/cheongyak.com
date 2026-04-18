@@ -336,30 +336,48 @@ interface ApiError {
 
 코드나 문서를 수정하는 모든 작업은 완료 전에 교차 검증 단계를 포함해야 합니다. 이 규칙은 영구적이며 모든 향후 작업에 적용됩니다.
 
-### 문서 동기화
-- `.md` 파일 수정 시 `.ko.md` 대응 파일도 동일한 변경사항으로 업데이트되었는지 확인
-- `CLAUDE.md` 수정 시 `DESIGN.md`, `ARCHITECTURE.md`, `PAGES.md`에서 참조하는 스펙이 일관되는지 확인
-- 기술 스택 버전은 `CLAUDE.md`와 `ARCHITECTURE.md` 간에 정확히 일치해야 함
-- 라우트 경로는 `CLAUDE.md`, `ARCHITECTURE.md`, `PAGES.md` 간에 정확히 일치해야 함
-- 색상 토큰 이름과 값은 `DESIGN.md`와 `PAGES.md` 간에 정확히 일치해야 함
+**원칙:** PR이 아래 트리거 표의 어떤 행이라도 만족하면, **같은 PR에서** 해당 문서를 반드시 업데이트해야 합니다. 코드와 해당 문서가 함께 변경된 커밋은 정상이며, 코드만 바뀌고 문서가 누락된 커밋은 결함으로 간주합니다.
 
-### 코드-문서 동기화
-- 컴포넌트 코드 수정 시 `DESIGN.md` 컴포넌트 스펙이 여전히 정확한지 확인
-- 라우트 추가/제거 시 `PAGES.md`, `ARCHITECTURE.md`, `CLAUDE.md` 업데이트
-- API 엔드포인트 변경 시 `PAGES.md` 데이터 요구사항 표 업데이트
-- 코드에서 디자인 토큰 수정 시 (Tailwind 설정) `DESIGN.md`와 일치하는지 확인
+### 문서 동기화 트리거 (코드 변경 → 같은 PR에서 수정해야 할 문서)
+
+| 트리거 (코드 변경) | 같은 PR에서 반드시 갱신 |
+|---|---|
+| `src/app/` 하위 라우트 추가·제거·이름변경 | `PAGES.md`·`PAGES.ko.md` (라우트 표, SEO 요구사항), `ARCHITECTURE.md`·`ko` §3 렌더링 표, `CLAUDE.md`·`ko` §4, `src/app/sitemap.ts` |
+| `src/shared/lib/seo.ts` 수정 (메타데이터 헬퍼) | `CLAUDE.md`·`ko` §11, `ARCHITECTURE.md`·`ko` §7 |
+| `src/shared/components/json-ld.tsx` 수정 (스키마 헬퍼) | `CLAUDE.md`·`ko` §11, `ARCHITECTURE.md`·`ko` §7 (스키마 표) |
+| `src/app/og/route.tsx` 혹은 OG 디자인 상수 변경 | `DESIGN.md`·`ko` (토큰 drift 확인), `ARCHITECTURE.md`·`ko` §7 |
+| `public/llms.txt` 수정 | `docs/seo-keyword-map.md`, 김정호(도메인) 리뷰 트리거 |
+| `docs/seo-keyword-map.md` 또는 페이지별 `keywords` 배열 수정 | `docs/seo-keyword-map.md` 라우트 표 + `CLAUDE.md`·`ko` §11 (오너십 변동 시) |
+| Tailwind 토큰 추가·변경 또는 tailwind.config 수정 | `DESIGN.md`·`ko` (토큰 표), `PAGES.md`·`ko` (사용 예시) |
+| API 계약 또는 `src/shared/types/api.ts` 변경 | `PAGES.md`·`ko` 데이터 요구사항, `ARCHITECTURE.md`·`ko` §6 API 표 |
+| `.claude/agents/*.md` 에이전트 추가·변경 | `CLAUDE.md`·`ko` §2 (역할 경계 변동 시), 상호 참조된 에이전트의 "Behavior in Discussions" 섹션 |
+| Next.js / React / Tailwind / Vitest 메이저 버전 변경 | `CLAUDE.md`·`ko` §2 기술 스택 표, `ARCHITECTURE.md`·`ko` §1 |
+| 테스트 전략·CI 게이트 추가 (예: `scripts/audit-seo.mjs`) | `CLAUDE.md`·`ko` §8, `ARCHITECTURE.md`·`ko` §9 |
+
+### 문서 동기화 (쌍 대응)
+- `.md` 파일 수정 시 `.ko.md` 대응 파일도 **같은 커밋에서** 업데이트
+- 기술 스택 버전은 `CLAUDE.md`와 `ARCHITECTURE.md` 간에 정확히 일치
+- 라우트 경로는 `CLAUDE.md`, `ARCHITECTURE.md`, `PAGES.md` 간에 정확히 일치
+- 색상 토큰 이름과 값은 `DESIGN.md`와 `PAGES.md` 간에 정확히 일치
+- 사용 중인 schema.org 타입은 `src/shared/components/json-ld.tsx`, `CLAUDE.md` §11, `ARCHITECTURE.md` §7, `PAGES.md` SEO Requirements 간에 일치
 
 ### 번역 동기화
-- 모든 `.ko.md` 파일은 영어 대응 파일과 동일한 섹션 구조를 유지해야 함
+- 모든 `.ko.md` 파일은 영어 대응 파일과 동일한 섹션 구조를 유지
 - 기술 용어 (Next.js, TypeScript, SSR, ISR 등)는 한국어 문서에서도 영어 유지
 - 디자인 토큰 이름은 한국어 문서에서도 영어 유지
-- Hex 코드와 숫자 값은 언어 버전 간 동일해야 함
+- Hex 코드와 숫자 값은 언어 버전 간 동일
+
+### 운영 가이드 (실제로 따르는 방법)
+- **스테이징 전:** `git status`로 변경 파일을 보고 트리거 표의 어떤 행이 발동되는지 식별 → 해당 문서를 먼저 수정한 뒤 함께 스테이징
+- **커밋 전:** SEO 관련 파일이 변경된 경우 `npm run audit:seo` 실행. 항상 `npm run type-check && npm test` 실행
+- **문서 변경이 불필요한 경우:** 순수 리팩터(동작/계약 변화 없음)라 트리거가 부적용이면 커밋 본문에 명시: `Docs: no change required — refactor only`
 
 ### 검증 체크리스트 (작업별)
-- [ ] 수정된 문서 간 모순 없음
-- [ ] EN/KO 번역 동기화됨
-- [ ] 코드와 문서 정렬됨
-- [ ] 하드코딩된 시크릿이나 민감 정보 없음
+- [ ] 트리거 표에서 발동된 모든 행의 문서가 업데이트됨
+- [ ] EN/KO 번역 동기화 (섹션 구조·숫자 동일)
+- [ ] 코드와 문서 정렬 (오래된 참조 없음)
+- [ ] 하드코딩된 시크릿·민감 정보 없음
+- [ ] SEO/메타데이터/JSON-LD 관련 파일 변경 시 `npm run audit:seo` 통과
 - [ ] 상태 칩 색상이 DESIGN.md 칩 스펙과 일치
 
 ---

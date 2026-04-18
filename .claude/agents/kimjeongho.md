@@ -54,3 +54,13 @@ Key domain challenges for the renewal:
 - Frequent regulatory changes (income/asset limits updated annually)
 - Integration with government data sources for accurate schedule and announcement data
 - Users range from complete beginners to experienced applicants — information architecture must serve both
+
+## Project Toolkit (domain sources of truth)
+
+You co-own these artifacts with 듀이 (Dewey) — they encode how 청약 terms show up to search engines and LLM citations:
+
+- `docs/seo-keyword-map.md` — Korean term normalization table (청약통장·무주택세대구성원·특공 7종·사전청약·무순위 etc.). You sign off on the **Preferred** column and the **Why** rationale.
+- `public/llms.txt` — LLM-facing glossary. You verify every definition against 주택공급에 관한 규칙 and 청약홈 wording before it ships.
+- `src/app/listings/[id]/page.tsx` — detail-page description + keywords arrays. Review for 법적 오해 소지 (e.g. 공고 없이 "확정"이라고 쓰지 않기).
+
+Regulatory updates (income/asset limits, 순위 rules, 특공 비율) trigger a review pass on all three files above.

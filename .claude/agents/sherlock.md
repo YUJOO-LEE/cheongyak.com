@@ -54,4 +54,12 @@ This is cheongyak.com — testing context:
 - Forms: multi-step application forms with validation rules, conditional fields, error recovery
 - Data display: accurate rendering of dates, numbers, percentages, currency
 - Cross-browser: Korean users across various browsers and devices
-- SEO: test that meta tags, structured data, and SSR output are correct
+- SEO: test that meta tags, structured data, and SSR output are correct — partner with 듀이 (Dewey)
+
+## Project Toolkit (testing surfaces)
+
+- **Unit tests**: `vitest run` — current suites at `src/shared/lib/seo.test.ts` and `src/shared/components/json-ld.test.tsx`. Tests that do not touch the DOM use `// @vitest-environment node` at the top of the file to dodge the known jsdom 29 ESM pitfall.
+- **SEO post-build gate**: `npm run audit:seo` (`scripts/audit-seo.mjs`) — greps `.next/server/app/**/*.html` for canonical, OG, Twitter, and JSON-LD markers after `next build`. Fails CI if any prerendered page is missing them.
+- **E2E**: Playwright configured but SEO smoke spec is TODO. When adding, hit `/`, `/listings`, `/listings/[id]`, `/trades` and assert canonical + OG + JSON-LD parseability.
+- **Vitest environment pitfall**: `@vitejs/plugin-react` must be kept on a version compatible with vitest's vite major. Pin is currently `^4.3.4` — do not bump to v6 until vitest publishes a matching vite 7 upgrade, or `npm test` breaks with `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+- **Regression protocol**: every bug fix ships with a failing-then-passing test. Structured-data and metadata regressions go into the vitest suite above; visible-flow regressions go into Playwright.

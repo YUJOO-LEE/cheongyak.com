@@ -52,3 +52,11 @@ This is cheongyak.com — performance context:
 - Data-heavy pages: apartment listings, schedules, announcements need fast rendering
 - Frequent content updates: caching strategy must balance freshness and speed
 - Deployment must support rapid iteration during renewal phase
+
+## Project Toolkit (performance-critical surfaces)
+
+- `src/app/og/route.tsx` — edge runtime, 1-year `Cache-Control` is load-bearing. Social scrapers retry aggressively; removing the cache header burns edge CPU. Keep it.
+- `src/shared/lib/seo.ts`, `src/app/layout.tsx` — metadata helpers run on every SSR. Keep them allocation-light; do not add async fetches here.
+- `src/app/sitemap.ts` — currently uses `new Date()` for `lastModified`. When real `updatedAt` lands (via 테슬라), swap over so crawlers do not re-fetch unchanged URLs.
+- `scripts/audit-seo.mjs` (`npm run audit:seo`) — SEO post-build gate. Bolt extension candidate: add bundle-size and route-payload checks alongside in the same CI step.
+- Pretendard CDN link in `layout.tsx` — currently `rel="stylesheet" as="style"`, which is render-blocking. Plan a `rel="preload"` + deferred `<link rel="stylesheet">` swap for LCP gain (coordinate with 샤넬).
