@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { SubscriptionCard } from './subscription-card';
 import { FilterBar } from './filter-bar';
-import { Pagination, StaggerChildren } from '@/shared/components';
+import { Pagination } from '@/shared/components';
 import type { Subscription } from '@/shared/types/api';
 
 interface SubscriptionListClientProps {
@@ -74,21 +74,27 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
         </div>
       ) : (
         <>
-          <p className="text-body-sm text-text-tertiary mb-4 px-4 lg:px-0 animate-count-up-fade">
+          <p
+            className="text-body-sm text-text-tertiary mb-4 px-4 lg:px-0 animate-count-up-fade"
+            style={{ animationDelay: '60ms' }}
+          >
             총 {filtered.length}건
           </p>
 
-          <StaggerChildren
+          <div
             key={`${selectedStatus}-${selectedType}-${currentPage}`}
-            animation="fade-in-up"
-            interval={50}
-            maxItems={6}
             className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 lg:px-0"
           >
-            {paged.map((sub) => (
-              <SubscriptionCard key={sub.id} subscription={sub} />
+            {paged.map((sub, index) => (
+              <div
+                key={sub.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${120 + index * 30}ms` }}
+              >
+                <SubscriptionCard subscription={sub} />
+              </div>
             ))}
-          </StaggerChildren>
+          </div>
 
           <Pagination
             currentPage={currentPage}

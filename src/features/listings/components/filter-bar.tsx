@@ -57,7 +57,7 @@ export function FilterBar({
   return (
     <>
       {/* Desktop filter bar */}
-      <div className="hidden lg:flex items-center gap-3 sticky top-16 z-dropdown bg-bg-card/80 backdrop-blur-glass px-6 py-3 rounded-lg shadow-sm mb-6">
+      <div className="hidden lg:flex items-center gap-3 sticky top-16 z-dropdown bg-bg-card/80 backdrop-blur-glass px-6 py-3 rounded-lg shadow-sm mb-6 animate-fade-in-up">
         <span className="text-label-lg text-text-secondary shrink-0">상태</span>
         <div className="flex gap-2">
           {statusOptions.map((opt) => (
@@ -112,7 +112,7 @@ export function FilterBar({
       </div>
 
       {/* Mobile filter button */}
-      <div className="lg:hidden px-4 py-3 mb-4">
+      <div className="lg:hidden px-4 py-3 mb-4 animate-fade-in-up">
         <button
           onClick={() => setMobileOpen(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-md bg-bg-card text-text-secondary text-label-lg shadow-sm cursor-pointer"
