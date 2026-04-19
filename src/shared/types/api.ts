@@ -180,13 +180,3 @@ export interface PaginatedResponse<T> {
   page: number;
   totalPages: number;
 }
-
-// ============================================================
-// API Error
-// ============================================================
-
-export interface ApiError {
-  status: number;
-  code: string;
-  message: string;
-}

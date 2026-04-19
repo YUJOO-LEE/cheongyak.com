@@ -1,4 +1,42 @@
-import type { ApiError } from '@/shared/types/api';
+/**
+ * Thin fetch wrapper for the REST API.
+ *
+ * ## Base URL policy
+ *
+ * - Reads `NEXT_PUBLIC_API_URL`; falls back to `http://localhost:3000/api`
+ *   so dev works without env setup.
+ * - Production values must start with `https://` (or `http://localhost`
+ *   in dev). A misconfigured env that points at an arbitrary host aborts
+ *   module load via a thrown Error — early + loud is safer than silently
+ *   leaking requests.
+ *
+ * ## Envelope & parsing
+ *
+ * This client does NOT validate response shape. Every `/main/*` endpoint
+ * the backend exposes wraps its payload as `{ data: T }`; callers pair
+ * the raw JSON from here with `createEnvelopeParser(Schema, label)` in
+ * `shared/types/main-api.ts` so DTO drift is caught at the trust
+ * boundary rather than deep inside a mapper.
+ *
+ * ## Caching (revalidate)
+ *
+ * The optional `revalidate` option maps straight through to Next's
+ * `fetch({ next: { revalidate } })` for server components — treat the
+ * unit as seconds. Values are declared as named constants in
+ * `shared/lib/revalidate.ts`. Do not pass raw numbers at call sites.
+ *
+ * ## Error surface
+ *
+ * Non-2xx responses throw `ApiClientError`:
+ *  - 5xx → UI-safe generic Korean message (server details swallowed so
+ *          internal errors don't leak).
+ *  - 4xx → server-provided `message` is surfaced when present; otherwise
+ *          a generic client-side fallback.
+ *  - Network errors propagate the underlying `fetch` TypeError untouched.
+ *
+ * `ApiClientError.code` carries the server's stable machine code (e.g.
+ * `LISTING_NOT_FOUND`) for branching in error boundaries.
+ */
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
@@ -18,6 +56,18 @@ if (
 const GENERIC_SERVER_ERROR =
   '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
 const GENERIC_CLIENT_ERROR = '요청을 처리할 수 없습니다.';
+
+/**
+ * Wire shape of a backend error payload. Lives here (not in
+ * `shared/types/api.ts`) because the only consumer is this module's
+ * `ApiClientError`; the public domain types should not leak an
+ * HTTP-layer concern.
+ */
+export interface ApiError {
+  status: number;
+  code: string;
+  message: string;
+}
 
 class ApiClientError extends Error {
   status: number;
