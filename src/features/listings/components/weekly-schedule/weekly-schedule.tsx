@@ -2,61 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { MapPin, Building2, CalendarOff } from 'lucide-react';
-import { EmptyState, StatusChip } from '@/shared/components';
-import { formatDateRange } from '@/shared/lib/format';
+import { CalendarOff } from 'lucide-react';
+import { EmptyState } from '@/shared/components';
 import type { Subscription } from '@/shared/types/api';
+import { getWeekdays, getSubsForDate } from './weekly-schedule.utils';
+import { DesktopCard } from './desktop-card';
+import { MobileDayListings } from './mobile-day-listings';
 
 interface WeeklyScheduleProps {
   subscriptions: Subscription[];
-}
-
-interface DayInfo {
-  shortLabel: string;
-  date: Date;
-  dateStr: string;
-  isToday: boolean;
-  isPast: boolean;
-}
-
-function getWeekdays(): DayInfo[] {
-  const now = new Date();
-  const dayOfWeek = now.getDay();
-  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-  const monday = new Date(now);
-  if (isWeekend) {
-    const daysUntilMonday = dayOfWeek === 0 ? 1 : 2;
-    monday.setDate(now.getDate() + daysUntilMonday);
-  } else {
-    monday.setDate(now.getDate() - (dayOfWeek - 1));
-  }
-  const shortNames = ['월', '화', '수', '목', '금'];
-
-  return Array.from({ length: 5 }, (_, i) => {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + i);
-    return {
-      shortLabel: shortNames[i],
-      date,
-      dateStr: `${date.getMonth() + 1}.${date.getDate()}`,
-      isToday: date.toDateString() === now.toDateString(),
-      isPast: date < new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-    };
-  });
-}
-
-// 서버 /main/weekly-schedule 은 주간에 속한 모든 상태(마감 포함) 를 내려주므로
-// 이번 주 "진행 중" 일정만 보여주기 위해 accepting/contracting 만 통과시킨다.
-const ACTIVE_STATUSES = new Set<Subscription['status']>(['accepting', 'contracting']);
-
-function getSubsForDate(subs: Subscription[], date: Date): Subscription[] {
-  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  return subs.filter(
-    (s) =>
-      ACTIVE_STATUSES.has(s.status) &&
-      dateStr >= s.applicationStart &&
-      dateStr <= s.applicationEnd,
-  );
 }
 
 export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
@@ -127,7 +81,7 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
 
         {/* Selected day's listings */}
         <MobileDayListings
-          subscriptions={getSubsForDate(subscriptions, weekdays[selectedDay].date)}
+          subscriptions={getSubsForDate(subscriptions, weekdays[selectedDay]!.date)}
         />
       </div>
 
@@ -192,102 +146,5 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
         })}
       </div>
     </>
-  );
-}
-
-/* ─── Shared card content (used by both mobile & desktop) ─── */
-
-function SubscriptionInfo({ sub, compact = false }: { sub: Subscription; compact?: boolean }) {
-  const iconSize = compact ? 12 : 14;
-  const textClass = compact ? 'text-caption' : 'text-body-sm';
-
-  return (
-    <>
-      <div className={['flex items-center gap-1.5 text-text-secondary', textClass].join(' ')}>
-        <MapPin size={iconSize} aria-hidden="true" className="text-text-tertiary shrink-0" />
-        <span className="truncate">
-          {sub.location.sido} {sub.location.gugun}
-          {sub.location.dong ? ` ${sub.location.dong}` : ''}
-        </span>
-      </div>
-      <div className={['flex items-center gap-1.5 text-text-secondary', textClass].join(' ')}>
-        <Building2 size={iconSize} aria-hidden="true" className="text-text-tertiary shrink-0" />
-        <span className="truncate">{sub.builder}</span>
-      </div>
-    </>
-  );
-}
-
-/* ─── Desktop mini card ─── */
-
-function DesktopCard({ subscription: sub, isPast, isToday }: { subscription: Subscription; isPast: boolean; isToday: boolean }) {
-  return (
-    <Link
-      href={`/listings/${sub.id}`}
-      className={[
-        'block rounded-lg p-3 bg-bg-card',
-        isToday ? 'shadow-md' : '',
-        'transition-all duration-fast ease-default',
-        'hover:-translate-y-0.5 hover:shadow-md',
-        'active:translate-y-0 active:shadow-sm',
-        isPast ? 'opacity-80 hover:opacity-100' : '',
-      ].join(' ')}
-    >
-      <StatusChip status={sub.status} className="mb-2" />
-      <p className="text-body-md font-medium text-text-primary line-clamp-2 mb-2">
-        {sub.name}
-      </p>
-      <div className="flex flex-col gap-1 mb-2">
-        <SubscriptionInfo sub={sub} compact />
-      </div>
-      <p className="text-caption text-text-tertiary">
-        {sub.totalUnits.toLocaleString()}세대 · {sub.sizeRange}
-      </p>
-    </Link>
-  );
-}
-
-/* ─── Mobile card list ─── */
-
-function MobileDayListings({ subscriptions }: { subscriptions: Subscription[] }) {
-  if (subscriptions.length === 0) {
-    return (
-      <div className="bg-bg-sunken rounded-xl p-8 text-center">
-        <CalendarOff size={24} className="mx-auto text-text-tertiary mb-2" aria-hidden="true" />
-        <p className="text-body-md text-text-tertiary">예정된 청약이 없어요</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-3">
-      {subscriptions.map((sub, i) => (
-        <Link
-          key={sub.id}
-          href={`/listings/${sub.id}`}
-          className="block bg-bg-card rounded-xl p-4 active:bg-bg-active transition-all duration-normal ease-default animate-fade-in-up"
-          style={{ animationDelay: `${i * 50}ms` }}
-        >
-          <div className="flex items-center justify-between mb-2.5">
-            <StatusChip status={sub.status} />
-            <span className="text-caption text-text-tertiary">
-              {formatDateRange(sub.applicationStart, sub.applicationEnd)}
-            </span>
-          </div>
-
-          <h3 className="text-headline-sm text-text-primary mb-2.5">
-            {sub.name}
-          </h3>
-
-          <div className="flex flex-col gap-1 mb-3">
-            <SubscriptionInfo sub={sub} />
-          </div>
-
-          <p className="text-caption text-text-tertiary">
-            {sub.totalUnits.toLocaleString()}세대 · {sub.sizeRange}
-          </p>
-        </Link>
-      ))}
-    </div>
   );
 }
