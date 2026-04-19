@@ -4,6 +4,7 @@ import { WebsiteJsonLd } from '@/shared/components/json-ld';
 import { AnimateOnScroll } from '@/shared/components';
 import { apiClient } from '@/shared/lib/api-client';
 import { REVALIDATE } from '@/shared/lib/revalidate';
+import { reasonMessage, tryRun } from '@/shared/lib/try-run';
 import {
   mapFeaturedToSubscription,
   mapStatsToInsights,
@@ -17,21 +18,6 @@ import {
 import type { MarketInsight, Subscription, TopTrade } from '@/shared/types/api';
 
 export const revalidate = 60;
-
-function reasonMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  return String(err);
-}
-
-function tryRun<T>(fn: () => T, label: string): T | null {
-  try {
-    return fn();
-  } catch (err) {
-    // Error 객체를 그대로 넘기면 Next dev overlay 가 뜨므로 문자열만 기록.
-    console.warn(`[home] ${label} failed: ${reasonMessage(err)}`);
-    return null;
-  }
-}
 
 export default async function HomePage() {
   const [featuredR, statsR, weeklyR, topTradesR] = await Promise.allSettled([
@@ -59,7 +45,7 @@ export default async function HomePage() {
     featuredR.status === 'fulfilled'
       ? tryRun(
           () => mapFeaturedToSubscription(parseFeaturedEnvelope(featuredR.value)),
-          'featured mapping',
+          'home/featured mapping',
         )
       : null;
 
@@ -67,7 +53,7 @@ export default async function HomePage() {
     statsR.status === 'fulfilled'
       ? tryRun(
           () => mapStatsToInsights(parseStatsEnvelope(statsR.value)),
-          'stats mapping',
+          'home/stats mapping',
         ) ?? []
       : [];
 
@@ -75,7 +61,7 @@ export default async function HomePage() {
     weeklyR.status === 'fulfilled'
       ? tryRun(
           () => mapWeeklyScheduleToSubscriptions(parseWeeklyScheduleEnvelope(weeklyR.value)),
-          'weekly-schedule mapping',
+          'home/weekly-schedule mapping',
         ) ?? []
       : [];
 
@@ -84,7 +70,7 @@ export default async function HomePage() {
       ? tryRun(
           () =>
             parseTopTradesEnvelope(topTradesR.value).map(mapTopTradeResponseToTopTrade),
-          'top-trades mapping',
+          'home/top-trades mapping',
         ) ?? []
       : [];
 
