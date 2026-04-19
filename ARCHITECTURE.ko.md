@@ -17,7 +17,7 @@
 | **Zod** | 3.x | 경계 지점에서 API 응답의 런타임 검증; TypeScript와 결합하여 엔드투엔드 타입 안전성 확보 |
 | **orval** | 7.x | OpenAPI → 타입이 지정된 TypeScript 클라이언트 + TanStack Query hooks 자동 생성 |
 | **MSW** | 2.x | 백엔드 의존 없이 개발 및 테스트를 위한 API 모킹 |
-| **Vitest** | 3.x | 네이티브 ESM 및 TypeScript를 지원하는 빠른 단위/통합 테스트 |
+| **Vitest** | 3.x | 네이티브 ESM 및 TypeScript를 지원하는 빠른 단위/통합 테스트. DOM 환경: `happy-dom` 20.x |
 | **Playwright** | 1.x | 모바일 뷰포트를 포함한 크로스 브라우저 E2E 테스트 |
 
 **의도적으로 미포함:**

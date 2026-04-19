@@ -234,6 +234,11 @@ shared/components/
 | E2E | Playwright | 핵심 사용자 흐름, 크로스 브라우저, 모바일 뷰포트 |
 | 시각 | Chromatic | 컴포넌트 변경에 대한 시각적 회귀 테스트 |
 
+**Vitest 환경:** `happy-dom` (`vitest.config.ts` 에서 지정). SSR 출력 검증 등
+순수 Node 컨텍스트가 필요한 테스트는 파일 상단에 `// @vitest-environment node`
+로 옵트아웃. vitest 3 의 `ERR_REQUIRE_ASYNC_MODULE` ESM 호환 문제를
+피하기 위해 `jsdom` 을 제거하고 `happy-dom` 으로 통일.
+
 ### 규칙
 - 구현이 아닌 동작을 테스트 — 사용자가 보고 수행하는 것을 테스트
 - 모든 버그 수정에 회귀 테스트 추가

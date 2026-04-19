@@ -239,6 +239,12 @@ shared/components/
 | E2E | Playwright | Critical user flows, cross-browser, mobile viewports |
 | Visual | Chromatic | Visual regression on component changes |
 
+**Vitest environment:** `happy-dom` (set in `vitest.config.ts`). Tests that
+must render in a pure Node context (e.g. SSR output assertions) opt out per
+file with `// @vitest-environment node`. `jsdom` was dropped in favor of
+`happy-dom` to avoid an `ERR_REQUIRE_ASYNC_MODULE` ESM interop failure on
+vitest 3.
+
 ### Rules
 - Test behavior, not implementation — test what users see and do
 - Every bug fix gets a regression test

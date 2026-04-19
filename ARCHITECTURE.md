@@ -15,7 +15,7 @@
 | **Zod** | 3.x | Runtime validation of API responses at the boundary; pairs with TypeScript for end-to-end type safety |
 | **orval** | 7.x | OpenAPI → typed TypeScript client + TanStack Query hooks auto-generation |
 | **MSW** | 2.x | API mocking for development and testing without backend dependency |
-| **Vitest** | 3.x | Fast unit/integration tests with native ESM and TypeScript support |
+| **Vitest** | 3.x | Fast unit/integration tests with native ESM and TypeScript support. DOM environment: `happy-dom` 20.x |
 | **Playwright** | 1.x | Cross-browser E2E tests including mobile viewports |
 
 **Not included (by design):**

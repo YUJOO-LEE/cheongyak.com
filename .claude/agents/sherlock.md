@@ -58,7 +58,7 @@ This is cheongyak.com — testing context:
 
 ## Project Toolkit (testing surfaces)
 
-- **Unit tests**: `vitest run` — current suites at `src/shared/lib/seo.test.ts` and `src/shared/components/json-ld.test.tsx`. Tests that do not touch the DOM use `// @vitest-environment node` at the top of the file to dodge the known jsdom 29 ESM pitfall.
+- **Unit tests**: `vitest run` — 88/88 passing across 9 files. The default environment is `happy-dom` (`vitest.config.ts`); pure Node assertions (e.g. SSR `renderToStaticMarkup` output) opt out per file with `// @vitest-environment node`. `jsdom` was removed in `2e43f69` after hitting `ERR_REQUIRE_ASYNC_MODULE` on vitest 3 — do not reintroduce it.
 - **SEO post-build gate**: `npm run audit:seo` (`scripts/audit-seo.mjs`) — greps `.next/server/app/**/*.html` for canonical, OG, Twitter, and JSON-LD markers after `next build`. Fails CI if any prerendered page is missing them.
 - **E2E**: Playwright configured but SEO smoke spec is TODO. When adding, hit `/`, `/listings`, `/listings/[id]`, `/trades` and assert canonical + OG + JSON-LD parseability.
 - **Vitest environment pitfall**: `@vitejs/plugin-react` must be kept on a version compatible with vitest's vite major. Pin is currently `^4.3.4` — do not bump to v6 until vitest publishes a matching vite 7 upgrade, or `npm test` breaks with `ERR_PACKAGE_PATH_NOT_EXPORTED`.
