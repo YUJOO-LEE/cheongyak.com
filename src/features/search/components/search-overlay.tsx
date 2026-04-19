@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { Search as SearchIcon, X, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useDebounce } from '@/shared/hooks/use-debounce';
+import { useKeyboardShortcut } from '@/shared/hooks/use-keyboard-shortcut';
 import { useLockBodyScroll } from '@/shared/hooks/use-lock-body-scroll';
 import { useRecentSearches } from '@/features/search/hooks/use-recent-searches';
 import { Card, EmptyState, StatusChip } from '@/shared/components';
@@ -39,17 +40,11 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     onClose();
   }, [onClose]);
 
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape' && open) handleClose();
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        if (open) handleClose();
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [open, handleClose]);
+  useKeyboardShortcut('Escape', handleClose, { enabled: open });
+  useKeyboardShortcut('k', handleClose, {
+    modifier: 'meta-or-ctrl',
+    enabled: open,
+  });
 
   const handleSearch = useCallback(
     (q: string) => {

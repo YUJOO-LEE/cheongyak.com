@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Home, Building2, TrendingUp, Search } from 'lucide-react';
 import { SearchOverlay } from '@/features/search/components/search-overlay';
+import { useKeyboardShortcut } from '@/shared/hooks/use-keyboard-shortcut';
 import type { LucideIcon } from 'lucide-react';
 
 interface NavItem {
@@ -27,16 +28,9 @@ export function Navigation() {
   const openSearch = useCallback(() => setSearchOpen(true), []);
   const closeSearch = useCallback(() => setSearchOpen(false), []);
 
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setSearchOpen((prev) => !prev);
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  useKeyboardShortcut('k', () => setSearchOpen((prev) => !prev), {
+    modifier: 'meta-or-ctrl',
+  });
 
   function isActive(href: string) {
     if (href === '/') return pathname === '/';
