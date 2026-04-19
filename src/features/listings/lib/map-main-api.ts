@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import {
-  apiEnvelope,
+  createEnvelopeParser,
   MainFeaturedResponseSchema,
   MainStatsResponseSchema,
   MainWeeklyScheduleResponseSchema,
@@ -25,37 +25,17 @@ import type {
 // Envelope parsers (safeParse at trust boundary)
 // ============================================================
 
-export function parseFeaturedEnvelope(raw: unknown): MainFeaturedResponse {
-  const result = apiEnvelope(MainFeaturedResponseSchema).safeParse(raw);
-  if (!result.success) {
-    throw new Error(`Invalid /main/featured response: ${result.error.message}`);
-  }
-  return result.data.data;
-}
+export const parseFeaturedEnvelope: (raw: unknown) => MainFeaturedResponse =
+  createEnvelopeParser(MainFeaturedResponseSchema, '/main/featured');
 
-export function parseStatsEnvelope(raw: unknown): MainStatsResponse {
-  const result = apiEnvelope(MainStatsResponseSchema).safeParse(raw);
-  if (!result.success) {
-    throw new Error(`Invalid /main/stats response: ${result.error.message}`);
-  }
-  return result.data.data;
-}
+export const parseStatsEnvelope: (raw: unknown) => MainStatsResponse =
+  createEnvelopeParser(MainStatsResponseSchema, '/main/stats');
 
-export function parseWeeklyScheduleEnvelope(raw: unknown): MainWeeklyScheduleResponse {
-  const result = apiEnvelope(MainWeeklyScheduleResponseSchema).safeParse(raw);
-  if (!result.success) {
-    throw new Error(`Invalid /main/weekly-schedule response: ${result.error.message}`);
-  }
-  return result.data.data;
-}
+export const parseWeeklyScheduleEnvelope: (raw: unknown) => MainWeeklyScheduleResponse =
+  createEnvelopeParser(MainWeeklyScheduleResponseSchema, '/main/weekly-schedule');
 
-export function parseTopTradesEnvelope(raw: unknown): TopTradeResponse[] {
-  const result = apiEnvelope(z.array(TopTradeResponseSchema)).safeParse(raw);
-  if (!result.success) {
-    throw new Error(`Invalid /main/top-trades response: ${result.error.message}`);
-  }
-  return result.data.data;
-}
+export const parseTopTradesEnvelope: (raw: unknown) => TopTradeResponse[] =
+  createEnvelopeParser(z.array(TopTradeResponseSchema), '/main/top-trades');
 
 // ============================================================
 // Enum mappers

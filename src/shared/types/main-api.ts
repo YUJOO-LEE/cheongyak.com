@@ -127,3 +127,20 @@ export const apiEnvelope = <T extends z.ZodTypeAny>(inner: T) =>
   z.object({ data: inner });
 
 export type ApiEnvelope<T> = { data: T };
+
+// Returns a parser that validates `{ data: T }` via zod `safeParse` and
+// throws `Error("Invalid <label> response: ...")` on schema mismatch.
+// The thrown-message format is load-bearing — call sites log it via
+// substring matching, so pass an endpoint-like label (e.g. "/main/stats").
+export function createEnvelopeParser<S extends z.ZodTypeAny>(
+  schema: S,
+  label: string,
+): (raw: unknown) => z.infer<S> {
+  return (raw) => {
+    const result = apiEnvelope(schema).safeParse(raw);
+    if (!result.success) {
+      throw new Error(`Invalid ${label} response: ${result.error.message}`);
+    }
+    return result.data.data;
+  };
+}
