@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import { Button } from '@/shared/components';
+import { useLockBodyScroll } from '@/shared/hooks/use-lock-body-scroll';
 import { STATUS_LABELS, TYPE_LABELS } from '@/shared/lib/constants';
 import type { SubscriptionStatus, SubscriptionType } from '@/shared/types/api';
 
@@ -34,14 +35,7 @@ export function FilterBar({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [closing, setClosing] = useState(false);
 
-  useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [mobileOpen]);
+  useLockBodyScroll(mobileOpen);
 
   useEffect(() => {
     if (!closing) return;

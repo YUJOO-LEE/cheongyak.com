@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { Search as SearchIcon, X, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useDebounce } from '@/shared/hooks/use-debounce';
+import { useLockBodyScroll } from '@/shared/hooks/use-lock-body-scroll';
 import { Card, StatusChip } from '@/shared/components';
 
 import { subscriptions } from '@/mocks/fixtures/subscriptions';
@@ -45,20 +46,12 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
 
   const results = useSearchResults(debouncedQuery);
 
+  useLockBodyScroll(open, { preserveScrollbarGutter: true });
+
   useEffect(() => {
     if (open) {
       inputRef.current?.focus();
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
     }
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-    };
   }, [open]);
 
   const handleClose = useCallback(() => {
