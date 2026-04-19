@@ -1,6 +1,5 @@
 import { http, HttpResponse } from 'msw';
 import { subscriptions, subscriptionDetail } from './fixtures/subscriptions';
-import { marketInsights } from './fixtures/insights';
 import { filterOptions } from './fixtures/filters';
 import {
   mainFeatured,
@@ -29,18 +28,6 @@ export const handlers = [
   http.get(`${API_BASE}/main/top-trades`, () =>
     HttpResponse.json({ data: mainTopTrades }),
   ),
-
-  // ─── Legacy /subscriptions/* endpoints — kept for /listings consumers.
-  // Featured subscription
-  http.get(`${API_BASE}/subscriptions/featured`, () => {
-    return HttpResponse.json(subscriptions[0]);
-  }),
-
-  // Weekly schedule
-  http.get(`${API_BASE}/subscriptions/weekly`, () => {
-    const weekly = subscriptions.filter((s) => s.status !== 'closed');
-    return HttpResponse.json(weekly);
-  }),
 
   // Subscription list (paginated)
   http.get(`${API_BASE}/subscriptions`, ({ request }) => {
@@ -79,11 +66,6 @@ export const handlers = [
       );
     }
     return HttpResponse.json({ ...subscriptionDetail, ...sub });
-  }),
-
-  // Market insights
-  http.get(`${API_BASE}/insights/summary`, () => {
-    return HttpResponse.json(marketInsights);
   }),
 
   // Filter options
