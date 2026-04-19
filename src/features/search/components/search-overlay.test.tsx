@@ -1,25 +1,19 @@
-// @vitest-environment node
 /**
- * Baseline regression tests for SearchOverlay.
+ * Regression tests for SearchOverlay.
  *
- * jsdom is unavailable, so open/close state, debounce, body scroll-lock, and
- * keyboard handlers cannot run here (those belong in Playwright E2E once the
- * runner is configured). What we pin today:
- *   1. Recent-searches storage model — the SSR guard and the de-dupe / MRU /
- *      MAX_RECENT slicing that backs the in-file helpers. Any future
- *      extraction to a shared `useLocalStorage` hook must keep identical
- *      observable state.
- *   2. Fixture-backed search filter — the `useSearchResults` body filters
- *      subscriptions by name / sido / gugun / builder (case-insensitive on
- *      name and builder, substring match on sido/gugun).
- *   3. Server markup — when `open={false}` the component returns null so no
- *      dialog markup is emitted.
+ * Coverage:
+ *   1. Recent-searches storage model — SSR guard + MRU / de-dupe /
+ *      MAX_RECENT slicing (reference implementation mirrors the helpers in
+ *      the component body).
+ *   2. Fixture-backed search filter — `useSearchResults` matches by name,
+ *      sido, gugun, builder; caps at 5.
+ *   3. Null render when `open={false}`.
+ *   4. Interactive — body scroll lock, debounce 300ms, Escape close.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
-// next/navigation is a client-only module; SearchOverlay calls useRouter()
-// at render time, so node-mode rendering needs a stub.
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: () => undefined,
@@ -187,5 +181,83 @@ describe('SearchOverlay · server markup', () => {
       <SearchOverlay open={false} onClose={() => undefined} />,
     );
     expect(html).toBe('');
+  });
+});
+
+/* ─────────────────────────────────────────────────────────── */
+/* Interactive — body scroll lock, debounce, Escape close.     */
+/* These pin the useEffect-driven behavior that any future     */
+/* hook extraction must preserve 1:1.                          */
+/* ─────────────────────────────────────────────────────────── */
+
+describe('SearchOverlay · body scroll lock', () => {
+  afterEach(() => {
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    cleanup();
+  });
+
+  it('locks body overflow when open transitions to true', () => {
+    render(<SearchOverlay open onClose={() => undefined} />);
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  it('restores body overflow when the component rerenders closed', () => {
+    const { rerender } = render(
+      <SearchOverlay open onClose={() => undefined} />,
+    );
+    expect(document.body.style.overflow).toBe('hidden');
+
+    rerender(<SearchOverlay open={false} onClose={() => undefined} />);
+    expect(document.body.style.overflow).toBe('');
+  });
+});
+
+describe('SearchOverlay · debounce 300ms', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    cleanup();
+  });
+
+  it('does not surface results until exactly 300ms after the last keystroke', () => {
+    render(<SearchOverlay open onClose={() => undefined} />);
+    const input = screen.getByPlaceholderText('청약명, 지역, 건설사 검색...');
+
+    fireEvent.change(input, { target: { value: '래미안' } });
+
+    // Before the full debounce delay, the results section must not yet exist.
+    act(() => {
+      vi.advanceTimersByTime(299);
+    });
+    expect(screen.queryByText(/청약 \(/)).toBeNull();
+
+    // One more ms crosses the 300ms boundary and the results section appears.
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(screen.getByText(/청약 \(/)).toBeTruthy();
+  });
+});
+
+describe('SearchOverlay · Escape key close', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('invokes onClose when Escape is pressed while open', () => {
+    const onClose = vi.fn();
+    render(<SearchOverlay open onClose={onClose} />);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not invoke onClose for unrelated keys', () => {
+    const onClose = vi.fn();
+    render(<SearchOverlay open onClose={onClose} />);
+    fireEvent.keyDown(document, { key: 'a' });
+    expect(onClose).not.toHaveBeenCalled();
   });
 });

@@ -1,28 +1,33 @@
-// @vitest-environment node
 /**
- * Baseline regression tests for SubscriptionListClient.
+ * Regression tests for SubscriptionListClient.
  *
- * jsdom is unavailable (see weekly-schedule.test.tsx header), so these tests
- * target the pure filter/pagination math that backs the component. The in-file
- * helpers currently live inline inside the component body; this file mirrors
- * the logic so any extraction ("split into a hook", "move ITEMS_PER_PAGE to
- * constants") keeps identical observable output.
+ * Layers:
+ *   1. Pure filter / pagination math (reference implementation mirrors the
+ *      component body).
+ *   2. Server-rendered output — populated and empty branches.
+ *   3. Interactive filter — status chip works today; type chip is a P0.5
+ *      regression gate (intentionally FAILING until Linus lands the fix).
  */
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { SubscriptionListClient } from './subscription-list-client';
 import type { Subscription } from '@/shared/types/api';
 
 const ITEMS_PER_PAGE = 20;
 
-function makeSub(id: string, status: Subscription['status']): Subscription {
+function makeSub(
+  id: string,
+  status: Subscription['status'],
+  type: Subscription['type'] = 'private',
+): Subscription {
   return {
     id,
     name: `청약 ${id}`,
     location: { sido: '서울특별시', gugun: '강남구' },
     builder: '테스트 건설',
     status,
-    type: 'private',
+    type,
     applicationStart: '2026-04-10',
     applicationEnd: '2026-04-12',
     totalUnits: 100,
@@ -124,5 +129,87 @@ describe('SubscriptionListClient · server markup', () => {
     const html = renderToStaticMarkup(<SubscriptionListClient subscriptions={[]} />);
     expect(html).toContain('조건에 맞는 청약 정보가 없습니다.');
     expect(html).toContain('필터 초기화');
+  });
+});
+
+/* ─────────────────────────────────────────────────────────── */
+/* Interactive filter — status works today; type is the P0.5   */
+/* regression gate. Two tests marked "(will FAIL until P0.5    */
+/* fix)" are intentionally red so Linus's patch flips them     */
+/* green.                                                       */
+/* ─────────────────────────────────────────────────────────── */
+
+describe('SubscriptionListClient · interactive status filter', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('reduces the rendered cards to those matching the clicked status chip', () => {
+    render(
+      <SubscriptionListClient
+        subscriptions={[
+          makeSub('a', 'accepting'),
+          makeSub('b', 'accepting'),
+          makeSub('c', 'closed'),
+        ]}
+      />,
+    );
+
+    // Sanity: all three render initially.
+    expect(screen.getAllByRole('article')).toHaveLength(3);
+
+    // Click the "접수중" (accepting) chip in the desktop bar. The mobile
+    // sheet renders a duplicate chip; we pick the first occurrence.
+    const chip = screen.getAllByRole('button', { name: '접수중' })[0]!;
+    fireEvent.click(chip);
+
+    expect(screen.getAllByRole('article')).toHaveLength(2);
+  });
+});
+
+describe('SubscriptionListClient · interactive type filter (P0.5 regression gate)', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('filters rendered cards to selectedType (will FAIL until P0.5 fix)', () => {
+    render(
+      <SubscriptionListClient
+        subscriptions={[
+          makeSub('a', 'accepting', 'public'),
+          makeSub('b', 'accepting', 'private'),
+          makeSub('c', 'closed', 'private'),
+        ]}
+      />,
+    );
+    expect(screen.getAllByRole('article')).toHaveLength(3);
+
+    // Click the "민간" (private) type chip in the desktop bar.
+    const chip = screen.getAllByRole('button', { name: '민간' })[0]!;
+    fireEvent.click(chip);
+
+    // After the fix this is 2; today the buggy `filtered` useMemo ignores
+    // selectedType, so the DOM still has 3 articles → test fails.
+    expect(screen.getAllByRole('article')).toHaveLength(2);
+  });
+
+  it('combines selectedStatus and selectedType (will FAIL until P0.5 fix)', () => {
+    render(
+      <SubscriptionListClient
+        subscriptions={[
+          makeSub('a', 'accepting', 'public'),
+          makeSub('b', 'accepting', 'private'),
+          makeSub('c', 'closed', 'private'),
+          makeSub('d', 'upcoming', 'private'),
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getAllByRole('button', { name: '접수중' })[0]!);
+    fireEvent.click(screen.getAllByRole('button', { name: '민간' })[0]!);
+
+    // After the fix this is 1 (only `b` matches both); today the buggy
+    // implementation applies only selectedStatus → 2 articles.
+    expect(screen.getAllByRole('article')).toHaveLength(1);
   });
 });

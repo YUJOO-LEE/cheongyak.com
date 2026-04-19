@@ -1,24 +1,17 @@
-// @vitest-environment node
 /**
- * Baseline regression tests for Navigation.
+ * Regression tests for Navigation.
  *
- * Interactive behaviors (⌘K keydown toggle, open/close state) require a DOM,
- * which we cannot run today (see weekly-schedule.test.tsx header). What we
- * CAN pin without a DOM:
- *   1. The `isActive(href)` routing predicate — exact match for `/`, prefix
- *      match for other routes. A refactor that collapses this to a single
- *      `startsWith` would be a regression for the Home item.
- *   2. Server-rendered markup — each nav item is present with the right
- *      href, and the mobile/desktop container markers both appear.
- *
- * The ⌘K keydown handler is explicitly out of scope here and must be covered
- * by Playwright E2E once available.
+ * Now that the vitest environment is happy-dom, interactive tests can observe
+ * `useEffect`-registered document listeners directly. The three layers covered:
+ *   1. `isActive(href)` routing predicate — exact match for `/`, prefix match
+ *      elsewhere. Collapsing to a single `startsWith` would be a regression.
+ *   2. Server-rendered markup — anchors, ⌘K aria label, aria-current.
+ *   3. ⌘K keydown interaction + dual-listener coexistence with SearchOverlay.
  */
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
-// next/navigation is a client-only module; the bits Navigation uses
-// (`usePathname`, `useRouter`) must be stubbed for node-mode rendering.
 vi.mock('next/navigation', () => ({
   usePathname: () => '/listings',
   useRouter: () => ({
@@ -34,9 +27,8 @@ vi.mock('next/navigation', () => ({
 import { Navigation } from './navigation';
 
 /* ─────────────────────────────────────────────────────────── */
-/* isActive reference mirror. MUST stay a two-branch predicate */
-/* so the Home item ('/') does not also match other routes     */
-/* (which startsWith('/') would accidentally do).              */
+/* isActive reference mirror. Two-branch predicate: Home item  */
+/* must not match via startsWith('/').                         */
 /* ─────────────────────────────────────────────────────────── */
 
 function isActive(href: string, pathname: string): boolean {
@@ -66,15 +58,12 @@ describe('Navigation · isActive routing predicate', () => {
   });
 
   it('does not falsely activate Home when another route is selected', () => {
-    // Regression guard: collapsing to startsWith('/') alone would break this.
-    const homeActive = isActive('/', '/listings');
-    expect(homeActive).toBe(false);
+    expect(isActive('/', '/listings')).toBe(false);
   });
 });
 
 /* ─────────────────────────────────────────────────────────── */
-/* Server-rendered output: every nav href, the ⌘K hint label,  */
-/* and the logo alt exist in a snapshot with pathname=/listings */
+/* Server-rendered output.                                     */
 /* ─────────────────────────────────────────────────────────── */
 
 describe('Navigation · server markup', () => {
@@ -92,7 +81,89 @@ describe('Navigation · server markup', () => {
 
   it('marks the active route (listings) as aria-current on mobile', () => {
     const html = renderToStaticMarkup(<Navigation />);
-    // At least one anchor in the mobile bar should carry aria-current="page".
     expect(html).toContain('aria-current="page"');
+  });
+});
+
+/* ─────────────────────────────────────────────────────────── */
+/* ⌘K keydown interaction — exercise the document-level        */
+/* listener that Navigation registers in useEffect.            */
+/* ─────────────────────────────────────────────────────────── */
+
+describe('Navigation · ⌘K keydown interactive', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('opens the search overlay on first ⌘K press (metaKey)', () => {
+    render(<Navigation />);
+    expect(screen.queryByRole('dialog', { name: '검색' })).toBeNull();
+    fireEvent.keyDown(document, { key: 'k', metaKey: true });
+    expect(screen.getByRole('dialog', { name: '검색' })).toBeTruthy();
+  });
+
+  it('opens the search overlay on first Ctrl+K press', () => {
+    render(<Navigation />);
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
+    expect(screen.getByRole('dialog', { name: '검색' })).toBeTruthy();
+  });
+
+  it('calls preventDefault on ⌘K so the browser does not steal focus', () => {
+    render(<Navigation />);
+    // createEvent + dispatchEvent so we can inspect defaultPrevented afterwards.
+    const event = new KeyboardEvent('keydown', {
+      key: 'k',
+      metaKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    act(() => {
+      document.dispatchEvent(event);
+    });
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('ignores a plain "k" press without a modifier', () => {
+    render(<Navigation />);
+    fireEvent.keyDown(document, { key: 'k' });
+    expect(screen.queryByRole('dialog', { name: '검색' })).toBeNull();
+  });
+
+  it('ignores ⌘ + non-k keys', () => {
+    render(<Navigation />);
+    fireEvent.keyDown(document, { key: 'p', metaKey: true });
+    expect(screen.queryByRole('dialog', { name: '검색' })).toBeNull();
+  });
+});
+
+/* ─────────────────────────────────────────────────────────── */
+/* Dual-listener coexistence with SearchOverlay. Both          */
+/* Navigation and SearchOverlay register ⌘K handlers on        */
+/* document; this test captures the observable end-state so    */
+/* a future `useKeyboardShortcut` unification cannot break the */
+/* open / close / reopen toggle cycle.                         */
+/* ─────────────────────────────────────────────────────────── */
+
+describe('Navigation + SearchOverlay · dual ⌘K listener coexistence (baseline)', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('round-trips open → close → open across three ⌘K presses', () => {
+    render(<Navigation />);
+    expect(screen.queryByRole('dialog', { name: '검색' })).toBeNull();
+
+    // Press 1: open
+    fireEvent.keyDown(document, { key: 'k', metaKey: true });
+    expect(screen.getByRole('dialog', { name: '검색' })).toBeTruthy();
+
+    // Press 2: close. Both Navigation's toggle and SearchOverlay's close
+    // handler fire; we assert on the end state, not the call count.
+    fireEvent.keyDown(document, { key: 'k', metaKey: true });
+    expect(screen.queryByRole('dialog', { name: '검색' })).toBeNull();
+
+    // Press 3: re-open.
+    fireEvent.keyDown(document, { key: 'k', metaKey: true });
+    expect(screen.getByRole('dialog', { name: '검색' })).toBeTruthy();
   });
 });

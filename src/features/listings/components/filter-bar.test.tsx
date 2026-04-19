@@ -1,26 +1,16 @@
-// @vitest-environment node
 /**
- * Baseline regression tests for FilterBar.
+ * Regression tests for FilterBar.
  *
- * jsdom is unavailable, so the 250ms close timeout, body scroll-lock, and
- * overlay-closing / sheet-closing class transitions cannot run here. Those
- * belong in Playwright E2E once the runner is configured (see team plan).
- *
- * What we pin today:
- *   1. Server-rendered option sets — every status label from STATUS_LABELS
- *      and every type label from TYPE_LABELS appears as a filter chip, both
- *      in the desktop bar and inside the mobile sheet.
- *   2. "초기화" (reset) chip only appears when activeCount > 0.
- *   3. Mobile trigger badge count — activeCount rendered as a pill.
- *
- * NOTE on P0.5 (Task #2 — onTypeChange not applied in the list client):
- * these tests intentionally capture CURRENT rendered behavior, not the
- * repaired behavior. When the bug is fixed, this file will need to update
- * together with subscription-list-client.tsx; that is the whole point of a
- * baseline snapshot.
+ * Three layers:
+ *   1. Server-rendered option sets — every status and type label appears as a
+ *      filter chip in both desktop and mobile trees.
+ *   2. Reset-button and mobile-trigger-badge visibility gates.
+ *   3. Mobile sheet open → handleClose → 250ms → mobileOpen false, plus body
+ *      scroll lock restore.
  */
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { FilterBar } from './filter-bar';
 import { STATUS_LABELS, TYPE_LABELS } from '@/shared/lib/constants';
 
@@ -95,5 +85,81 @@ describe('FilterBar · mobile trigger badge', () => {
     // The badge shows the numeric activeCount — regression guard for the
     // "filters-applied" affordance on mobile.
     expect(html).toContain('>2<');
+  });
+});
+
+/* ─────────────────────────────────────────────────────────── */
+/* Mobile sheet interactive behavior — open, close-with-delay, */
+/* and body scroll-lock restore. These are the highest-risk    */
+/* pieces for any future refactor extracting a `useMobileSheet` */
+/* hook: the 250ms setTimeout closing animation and the        */
+/* useEffect chain that depends on the `closing` flag.         */
+/* ─────────────────────────────────────────────────────────── */
+
+describe('FilterBar · mobile sheet interactive', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    document.body.style.overflow = '';
+    cleanup();
+  });
+
+  function renderBar() {
+    return render(<FilterBar {...baseProps} />);
+  }
+
+  it('opens the mobile sheet when the trigger button is clicked', () => {
+    renderBar();
+    expect(screen.queryByLabelText('필터 닫기')).toBeNull();
+
+    const trigger = screen.getAllByRole('button', { name: /필터/ }).find(
+      (el) => !el.getAttribute('aria-label'),
+    )!;
+    fireEvent.click(trigger);
+
+    expect(screen.getByLabelText('필터 닫기')).toBeTruthy();
+  });
+
+  it('locks body overflow while the sheet is open and restores it after close', () => {
+    renderBar();
+
+    const trigger = screen.getAllByRole('button', { name: /필터/ }).find(
+      (el) => !el.getAttribute('aria-label'),
+    )!;
+    fireEvent.click(trigger);
+    expect(document.body.style.overflow).toBe('hidden');
+
+    // Close via the X button. The 250ms timer then flips mobileOpen to false
+    // and the cleanup effect restores body overflow.
+    fireEvent.click(screen.getByLabelText('필터 닫기'));
+    act(() => {
+      vi.advanceTimersByTime(250);
+    });
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('keeps the sheet mounted with closing classes until 250ms elapses, then unmounts', () => {
+    const { container } = renderBar();
+    const trigger = screen.getAllByRole('button', { name: /필터/ }).find(
+      (el) => !el.getAttribute('aria-label'),
+    )!;
+    fireEvent.click(trigger);
+
+    // Trigger handleClose via the X button.
+    fireEvent.click(screen.getByLabelText('필터 닫기'));
+
+    // Within the same tick, the overlay and sheet gain their closing classes
+    // but the sheet is still in the DOM (transitions have to run).
+    expect(container.querySelector('.overlay-closing')).not.toBeNull();
+    expect(container.querySelector('.sheet-closing')).not.toBeNull();
+
+    // After 250ms the state flips mobileOpen → false and the whole sheet
+    // branch unmounts.
+    act(() => {
+      vi.advanceTimersByTime(250);
+    });
+    expect(screen.queryByLabelText('필터 닫기')).toBeNull();
   });
 });
