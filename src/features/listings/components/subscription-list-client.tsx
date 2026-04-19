@@ -24,8 +24,11 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
     if (selectedStatus) {
       result = result.filter((s) => s.status === selectedStatus);
     }
+    if (selectedType) {
+      result = result.filter((s) => s.type === selectedType);
+    }
     return result;
-  }, [subscriptions, selectedStatus]);
+  }, [subscriptions, selectedStatus, selectedType]);
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paged = filtered.slice(
