@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Navigation } from '@/shared/components/navigation';
+import { SearchRoot } from './search-root';
 import { Footer } from '@/shared/components/footer';
 import { OrganizationJsonLd } from '@/shared/components/json-ld';
 import { QueryProvider } from '@/shared/components/providers';
@@ -63,7 +63,7 @@ export default function RootLayout({
           {/* Desktop top padding for fixed header */}
           <div className="hidden lg:block h-16" />
 
-          <Navigation />
+          <SearchRoot />
 
           <main className="flex-1">
             {children}

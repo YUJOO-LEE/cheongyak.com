@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Home, Building2, TrendingUp, Search } from 'lucide-react';
-import { SearchOverlay } from '@/features/search/components/search-overlay';
-import { useKeyboardShortcut } from '@/shared/hooks/use-keyboard-shortcut';
 import type { LucideIcon } from 'lucide-react';
+
+interface NavigationProps {
+  onSearchOpen?: () => void;
+}
 
 interface NavItem {
   href: string;
@@ -21,16 +22,10 @@ const navItems: NavItem[] = [
   { href: '/trades', label: '실거래가', icon: TrendingUp },
 ];
 
-export function Navigation() {
+export function Navigation({ onSearchOpen }: NavigationProps = {}) {
   const pathname = usePathname();
-  const [searchOpen, setSearchOpen] = useState(false);
 
-  const openSearch = useCallback(() => setSearchOpen(true), []);
-  const closeSearch = useCallback(() => setSearchOpen(false), []);
-
-  useKeyboardShortcut('k', () => setSearchOpen((prev) => !prev), {
-    modifier: 'meta-or-ctrl',
-  });
+  const handleSearchClick = onSearchOpen ?? (() => undefined);
 
   function isActive(href: string) {
     if (href === '/') return pathname === '/';
@@ -67,7 +62,7 @@ export function Navigation() {
           </nav>
 
           <button
-            onClick={openSearch}
+            onClick={handleSearchClick}
             className="p-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-hover active:scale-95 transition-all duration-fast ease-default cursor-pointer"
             aria-label="검색 (⌘K)"
           >
@@ -143,7 +138,7 @@ export function Navigation() {
 
           {/* Search button — same capsule pattern */}
           <button
-            onClick={openSearch}
+            onClick={handleSearchClick}
             className="flex flex-col items-center justify-center gap-0.5 min-w-14 transition-colors duration-fast ease-default text-text-secondary cursor-pointer"
             aria-label="검색"
           >
@@ -154,9 +149,6 @@ export function Navigation() {
           </button>
         </div>
       </nav>
-
-      {/* Search Overlay */}
-      <SearchOverlay open={searchOpen} onClose={closeSearch} />
     </>
   );
 }
