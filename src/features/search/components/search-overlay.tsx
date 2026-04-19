@@ -5,32 +5,11 @@ import { Search as SearchIcon, X, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useDebounce } from '@/shared/hooks/use-debounce';
 import { useLockBodyScroll } from '@/shared/hooks/use-lock-body-scroll';
+import { useRecentSearches } from '@/features/search/hooks/use-recent-searches';
 import { Card, StatusChip } from '@/shared/components';
 
 import { subscriptions } from '@/mocks/fixtures/subscriptions';
 import type { Subscription } from '@/shared/types/api';
-
-const MAX_RECENT = 10;
-const STORAGE_KEY = 'cheongyak-recent-searches';
-
-function getRecentSearches(): string[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function saveRecentSearch(query: string) {
-  const recent = getRecentSearches().filter((q) => q !== query);
-  recent.unshift(query);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
-}
-
-function clearRecentSearches() {
-  localStorage.removeItem(STORAGE_KEY);
-}
 
 interface SearchOverlayProps {
   open: boolean;
@@ -39,7 +18,8 @@ interface SearchOverlayProps {
 
 export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const [query, setQuery] = useState('');
-  const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches());
+  const { items: recentSearches, add: addRecentSearch, clear: clearRecent } =
+    useRecentSearches();
   const debouncedQuery = useDebounce(query, 300);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -71,18 +51,19 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open, handleClose]);
 
-  const handleSearch = useCallback((q: string) => {
-    setQuery(q);
-    if (q.trim()) {
-      saveRecentSearch(q.trim());
-      setRecentSearches(getRecentSearches());
-    }
-  }, []);
+  const handleSearch = useCallback(
+    (q: string) => {
+      setQuery(q);
+      if (q.trim()) {
+        addRecentSearch(q.trim());
+      }
+    },
+    [addRecentSearch],
+  );
 
   const handleClearRecent = useCallback(() => {
-    clearRecentSearches();
-    setRecentSearches([]);
-  }, []);
+    clearRecent();
+  }, [clearRecent]);
 
   const handleNavigate = useCallback(
     (href: string) => {
