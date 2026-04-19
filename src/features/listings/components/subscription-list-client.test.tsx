@@ -5,13 +5,16 @@
  *   1. Pure filter / pagination math (reference implementation mirrors the
  *      component body).
  *   2. Server-rendered output — populated and empty branches.
- *   3. Interactive filter — status chip works today; type chip is a P0.5
- *      regression gate (intentionally FAILING until Linus lands the fix).
+ *   3. Interactive filter — status and type chips both reduce the rendered
+ *      card set; combined filters intersect.
  */
 import { afterEach, describe, expect, it } from 'vitest';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { SubscriptionListClient } from './subscription-list-client';
+import {
+  renderToStaticMarkupWithNuqs as renderToStaticMarkup,
+  renderWithNuqs as render,
+} from '@/test/render';
 import type { Subscription } from '@/shared/types/api';
 
 const ITEMS_PER_PAGE = 20;
@@ -133,10 +136,8 @@ describe('SubscriptionListClient · server markup', () => {
 });
 
 /* ─────────────────────────────────────────────────────────── */
-/* Interactive filter — status works today; type is the P0.5   */
-/* regression gate. Two tests marked "(will FAIL until P0.5    */
-/* fix)" are intentionally red so Linus's patch flips them     */
-/* green.                                                       */
+/* Interactive filter — status and type chips both reduce the  */
+/* rendered card set; combined filters intersect.              */
 /* ─────────────────────────────────────────────────────────── */
 
 describe('SubscriptionListClient · interactive status filter', () => {
@@ -167,12 +168,12 @@ describe('SubscriptionListClient · interactive status filter', () => {
   });
 });
 
-describe('SubscriptionListClient · interactive type filter (P0.5 regression gate)', () => {
+describe('SubscriptionListClient · interactive type filter (regression gate)', () => {
   afterEach(() => {
     cleanup();
   });
 
-  it('filters rendered cards to selectedType (will FAIL until P0.5 fix)', () => {
+  it('filters rendered cards to selectedType', () => {
     render(
       <SubscriptionListClient
         subscriptions={[
@@ -188,12 +189,10 @@ describe('SubscriptionListClient · interactive type filter (P0.5 regression gat
     const chip = screen.getAllByRole('button', { name: '민간' })[0]!;
     fireEvent.click(chip);
 
-    // After the fix this is 2; today the buggy `filtered` useMemo ignores
-    // selectedType, so the DOM still has 3 articles → test fails.
     expect(screen.getAllByRole('article')).toHaveLength(2);
   });
 
-  it('combines selectedStatus and selectedType (will FAIL until P0.5 fix)', () => {
+  it('combines selectedStatus and selectedType', () => {
     render(
       <SubscriptionListClient
         subscriptions={[
@@ -208,8 +207,6 @@ describe('SubscriptionListClient · interactive type filter (P0.5 regression gat
     fireEvent.click(screen.getAllByRole('button', { name: '접수중' })[0]!);
     fireEvent.click(screen.getAllByRole('button', { name: '민간' })[0]!);
 
-    // After the fix this is 1 (only `b` matches both); today the buggy
-    // implementation applies only selectedStatus → 2 articles.
     expect(screen.getAllByRole('article')).toHaveLength(1);
   });
 });

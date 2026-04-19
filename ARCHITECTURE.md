@@ -100,6 +100,8 @@ All pages use React Server Components by default. Client Components (`"use clien
 
 **Principle:** Prefer server-side data fetching in Server Components. Use TanStack Query only for client-interactive patterns (filter updates, polling). Keep Zustand stores small and feature-scoped. Three stores maximum.
 
+**nuqs integration:** `NuqsAdapter` is mounted in `src/app/layout.tsx` around `QueryProvider`. `/listings` filters (`status`, `type`, `page`) are bound to URL query params via `useQueryState`, so navigation, reload, and link-sharing preserve the filtered view. Changing any filter resets `page` to 1 via a single centralized effect — change handlers do not touch pagination directly.
+
 ### localStorage Features (No-Auth Personalization)
 
 | Feature | Store | Data | Limit |

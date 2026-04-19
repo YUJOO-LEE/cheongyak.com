@@ -102,6 +102,8 @@ src/
 
 **원칙:** Server Components에서의 서버 사이드 데이터 페칭을 우선. TanStack Query는 클라이언트 인터랙티브 패턴(필터 업데이트, 폴링)에서만 사용. Zustand store는 작고 기능 단위로 유지. 최대 3개.
 
+**nuqs 연동:** `src/app/layout.tsx`에서 `QueryProvider` 바깥을 `NuqsAdapter`로 감쌉니다. `/listings`의 필터(`status`, `type`, `page`)는 `useQueryState`로 URL 쿼리 파라미터에 바인딩되어, 이동·새로고침·링크 공유 시에도 필터 상태가 유지됩니다. 필터 값이 변경되면 중앙 집중화된 effect 하나가 `page`를 1로 리셋합니다 — 변경 핸들러는 페이지네이션을 직접 건드리지 않습니다.
+
 ### localStorage 기능 (비인증 개인화)
 
 | 기능 | Store | 데이터 | 제한 |

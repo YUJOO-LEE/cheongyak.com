@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { SubscriptionCard } from './subscription-card';
 import { FilterBar } from './filter-bar';
 import { EmptyState, Pagination } from '@/shared/components';
@@ -13,11 +14,26 @@ interface SubscriptionListClientProps {
 const ITEMS_PER_PAGE = 20;
 
 export function SubscriptionListClient({ subscriptions }: SubscriptionListClientProps) {
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedStatus, setSelectedStatus] = useQueryState('status', parseAsString);
+  const [selectedType, setSelectedType] = useQueryState('type', parseAsString);
+  const [currentPage, setCurrentPage] = useQueryState(
+    'page',
+    parseAsInteger.withDefault(1),
+  );
 
   const activeFilterCount = [selectedStatus, selectedType].filter(Boolean).length;
+
+  // Reset page to 1 whenever a filter value changes. Centralizing this keeps
+  // change handlers pure and prevents pagination drift as new filters get
+  // added in Phase 6.
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setCurrentPage(null);
+  }, [selectedStatus, selectedType, setCurrentPage]);
 
   const filtered = useMemo(() => {
     let result = [...subscriptions];
@@ -39,17 +55,14 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
   function handleReset() {
     setSelectedStatus(null);
     setSelectedType(null);
-    setCurrentPage(1);
   }
 
   function handleStatusChange(status: string | null) {
     setSelectedStatus(status);
-    setCurrentPage(1);
   }
 
   function handleTypeChange(type: string | null) {
     setSelectedType(type);
-    setCurrentPage(1);
   }
 
   return (

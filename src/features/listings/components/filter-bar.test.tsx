@@ -9,9 +9,12 @@
  *      scroll lock restore.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen } from '@testing-library/react';
 import { FilterBar } from './filter-bar';
+import {
+  renderToStaticMarkupWithNuqs as renderToStaticMarkup,
+  renderWithNuqs as render,
+} from '@/test/render';
 import { STATUS_LABELS, TYPE_LABELS } from '@/shared/lib/constants';
 
 function noop() {

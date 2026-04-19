@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { SearchRoot } from './search-root';
 import { Footer } from '@/shared/components/footer';
 import { OrganizationJsonLd } from '@/shared/components/json-ld';
-import { QueryProvider } from '@/shared/components/providers';
+import { NuqsProvider, QueryProvider } from '@/shared/components/providers';
 import { DEFAULT_OG_IMAGE, SITE_DESCRIPTION, SITE_LOCALE, SITE_NAME, SITE_URL } from '@/shared/lib/seo';
 import '@/styles/globals.css';
 
@@ -59,21 +59,23 @@ export default function RootLayout({
       </head>
       <body className="min-h-dvh flex flex-col bg-bg-page text-text-primary font-sans">
         <OrganizationJsonLd />
-        <QueryProvider>
-          {/* Desktop top padding for fixed header */}
-          <div className="hidden lg:block h-16" />
+        <NuqsProvider>
+          <QueryProvider>
+            {/* Desktop top padding for fixed header */}
+            <div className="hidden lg:block h-16" />
 
-          <SearchRoot />
+            <SearchRoot />
 
-          <main className="flex-1">
-            {children}
-          </main>
+            <main className="flex-1">
+              {children}
+            </main>
 
-          <Footer />
+            <Footer />
 
-          {/* Mobile bottom padding for fixed nav */}
-          <div className="lg:hidden h-16" />
-        </QueryProvider>
+            {/* Mobile bottom padding for fixed nav */}
+            <div className="lg:hidden h-16" />
+          </QueryProvider>
+        </NuqsProvider>
       </body>
     </html>
   );
