@@ -3,6 +3,7 @@ import { HomeHero, TopTrades, WeeklySchedule } from '@/features/listings/compone
 import { WebsiteJsonLd } from '@/shared/components/json-ld';
 import { AnimateOnScroll } from '@/shared/components';
 import { apiClient } from '@/shared/lib/api-client';
+import { REVALIDATE } from '@/shared/lib/revalidate';
 import {
   mapFeaturedToSubscription,
   mapStatsToInsights,
@@ -34,11 +35,11 @@ function tryRun<T>(fn: () => T, label: string): T | null {
 
 export default async function HomePage() {
   const [featuredR, statsR, weeklyR, topTradesR] = await Promise.allSettled([
-    apiClient.get<unknown>('/main/featured', { revalidate: 60 }),
-    apiClient.get<unknown>('/main/stats', { revalidate: 60 }),
-    apiClient.get<unknown>('/main/weekly-schedule', { revalidate: 60 }),
+    apiClient.get<unknown>('/main/featured', { revalidate: REVALIDATE.MAIN_FEATURED }),
+    apiClient.get<unknown>('/main/stats', { revalidate: REVALIDATE.MAIN_STATS }),
+    apiClient.get<unknown>('/main/weekly-schedule', { revalidate: REVALIDATE.MAIN_WEEKLY }),
     // 실거래 데이터는 국토부 공개 주기상 분 단위 갱신 불필요 → 120s.
-    apiClient.get<unknown>('/main/top-trades', { revalidate: 120 }),
+    apiClient.get<unknown>('/main/top-trades', { revalidate: REVALIDATE.MAIN_TOP_TRADES }),
   ]);
 
   if (featuredR.status === 'rejected') {
