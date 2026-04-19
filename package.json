@@ -38,6 +38,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
     "eslint-config-prettier": "^10.1.8",
+    "happy-dom": "^20.9.0",
     "jsdom": "^29.0.1",
     "msw": "^2.13.0",
     "prettier": "^3.8.1",
