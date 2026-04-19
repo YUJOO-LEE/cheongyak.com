@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { SubscriptionCard } from './subscription-card';
 import { FilterBar } from './filter-bar';
-import { Pagination } from '@/shared/components';
+import { EmptyState, Pagination } from '@/shared/components';
 import type { Subscription } from '@/shared/types/api';
 
 interface SubscriptionListClientProps {
@@ -64,16 +64,18 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
       />
 
       {paged.length === 0 ? (
-        <div className="text-center py-16 animate-scale-in">
-          <p className="text-body-lg text-text-secondary">
-            조건에 맞는 청약 정보가 없습니다.
-          </p>
-          <button
-            onClick={handleReset}
-            className="mt-2 text-label-lg text-interactive-default hover:text-interactive-hover transition-colors cursor-pointer"
-          >
-            필터 초기화
-          </button>
+        <div className="animate-scale-in">
+          <EmptyState size="lg">
+            <p className="text-body-lg text-text-secondary">
+              조건에 맞는 청약 정보가 없습니다.
+            </p>
+            <button
+              onClick={handleReset}
+              className="mt-2 text-label-lg text-interactive-default hover:text-interactive-hover transition-colors cursor-pointer"
+            >
+              필터 초기화
+            </button>
+          </EmptyState>
         </div>
       ) : (
         <>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Building2, CalendarOff } from 'lucide-react';
-import { StatusChip } from '@/shared/components';
+import { EmptyState, StatusChip } from '@/shared/components';
 import { formatDateRange } from '@/shared/lib/format';
 import type { Subscription } from '@/shared/types/api';
 
@@ -66,13 +66,13 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
 
   if (subscriptions.length === 0) {
     return (
-      <div className="text-center py-12">
+      <EmptyState>
         <CalendarOff size={32} className="mx-auto text-text-tertiary mb-3" aria-hidden="true" />
         <p className="text-body-md text-text-secondary mb-2">예정된 청약이 없어요</p>
         <Link href="/listings" className="text-body-md text-brand-primary-500 hover:text-brand-primary-600 transition-colors">
           전체 청약 보기
         </Link>
-      </div>
+      </EmptyState>
     );
   }
 

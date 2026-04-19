@@ -16,4 +16,7 @@ export type { InputProps, InputSize } from './input';
 export { Pagination } from './pagination';
 export type { PaginationProps } from './pagination';
 
+export { EmptyState } from './empty-state';
+export type { EmptyStateProps, EmptyStateSize, EmptyStateSurface } from './empty-state';
+
 export { AnimateOnScroll, StaggerChildren } from './animate-on-scroll';

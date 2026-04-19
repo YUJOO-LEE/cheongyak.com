@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useDebounce } from '@/shared/hooks/use-debounce';
 import { useLockBodyScroll } from '@/shared/hooks/use-lock-body-scroll';
 import { useRecentSearches } from '@/features/search/hooks/use-recent-searches';
-import { Card, StatusChip } from '@/shared/components';
+import { Card, EmptyState, StatusChip } from '@/shared/components';
 
 import { subscriptions } from '@/mocks/fixtures/subscriptions';
 import type { Subscription } from '@/shared/types/api';
@@ -153,14 +153,14 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                 )}
               </div>
             ) : (
-              <div className="text-center py-10">
+              <EmptyState size="sm">
                 <p className="text-body-lg text-text-secondary mb-2">
                   &ldquo;{debouncedQuery}&rdquo;에 대한 검색 결과가 없습니다.
                 </p>
                 <p className="text-body-md text-text-tertiary">
                   다른 키워드로 검색하거나, 청약명/지역명/건설사명을 입력해 보세요.
                 </p>
-              </div>
+              </EmptyState>
             )
           ) : recentSearches.length > 0 ? (
             <section>
@@ -187,14 +187,14 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               </div>
             </section>
           ) : (
-            <div className="text-center py-10">
+            <EmptyState size="sm">
               <p className="text-body-md text-text-tertiary">
                 검색어를 입력하세요
               </p>
               <p className="text-caption text-text-tertiary mt-1">
                 <kbd className="px-1.5 py-0.5 bg-bg-sunken rounded text-caption">⌘K</kbd> 로 언제든 열 수 있습니다
               </p>
-            </div>
+            </EmptyState>
           )}
         </div>
       </div>
