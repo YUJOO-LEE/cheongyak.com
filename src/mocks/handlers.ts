@@ -2,10 +2,35 @@ import { http, HttpResponse } from 'msw';
 import { subscriptions, subscriptionDetail } from './fixtures/subscriptions';
 import { marketInsights } from './fixtures/insights';
 import { filterOptions } from './fixtures/filters';
+import {
+  mainFeatured,
+  mainStats,
+  mainWeeklySchedule,
+  mainTopTrades,
+} from './fixtures/main';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 export const handlers = [
+  // ─── /main/* — DTO endpoints the home page actually calls today.
+  // Envelope shape `{ data: ... }` matches createEnvelopeParser (main-api.ts).
+  http.get(`${API_BASE}/main/featured`, () =>
+    HttpResponse.json({ data: mainFeatured }),
+  ),
+
+  http.get(`${API_BASE}/main/stats`, () =>
+    HttpResponse.json({ data: mainStats }),
+  ),
+
+  http.get(`${API_BASE}/main/weekly-schedule`, () =>
+    HttpResponse.json({ data: mainWeeklySchedule }),
+  ),
+
+  http.get(`${API_BASE}/main/top-trades`, () =>
+    HttpResponse.json({ data: mainTopTrades }),
+  ),
+
+  // ─── Legacy /subscriptions/* endpoints — kept for /listings consumers.
   // Featured subscription
   http.get(`${API_BASE}/subscriptions/featured`, () => {
     return HttpResponse.json(subscriptions[0]);
