@@ -38,7 +38,7 @@
 | nuqs | 2.x | URL state — type-safe search params for filters/pagination |
 | next-intl | 4.x | i18n — Korean-first, future-proofing for English expansion |
 | Zod | 3.x | Validation — runtime API response validation |
-| orval | 7.x | Codegen — OpenAPI → typed client + TanStack Query hooks |
+| orval | 8.x | Codegen — OpenAPI → typed client + TanStack Query hooks + Zod validators |
 | MSW | 2.x | Mocking — API mocks for development and testing |
 | Vitest | 3.x | Unit/integration testing |
 | Playwright | 1.x | E2E testing across browsers and mobile viewports |
@@ -275,9 +275,10 @@ vitest 3.
 ## 10. API Integration
 
 ### Pattern
-- Backend team publishes OpenAPI 3.1 spec
-- `orval` generates typed fetch client + TanStack Query hooks (`npm run codegen`)
-- CI enforces codegen freshness — fails if spec changed but codegen not re-run
+- Backend team publishes OpenAPI 3.1 spec. The URL lives in `.env.local` as `OPENAPI_URL` — never committed (see `.claude/api-docs.local.md`, gitignored).
+- `pnpm codegen` runs `orval` through `dotenv-cli`, emitting TanStack Query hooks, fetch functions, and Zod validators to `src/shared/api/generated/`.
+- Config: `orval.config.ts` at repo root. Mutator: generated fetch calls route through `apiClientMutator` in `src/shared/lib/api-client.ts` — single source for base URL, headers, and `ApiClientError` normalization.
+- `pnpm codegen:check` (CI gate) runs codegen and fails if the generated files drift from committed.
 
 ### Error Handling
 ```typescript

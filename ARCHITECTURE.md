@@ -13,7 +13,7 @@
 | **nuqs** | 2.x | Type-safe URL search params for filter/sort state that survives navigation and sharing |
 | **next-intl** | 4.x | Future-proofing for i18n; Korean-first with potential English expansion |
 | **Zod** | 3.x | Runtime validation of API responses at the boundary; pairs with TypeScript for end-to-end type safety |
-| **orval** | 7.x | OpenAPI → typed TypeScript client + TanStack Query hooks auto-generation |
+| **orval** | 8.x | OpenAPI → typed TypeScript client + TanStack Query hooks + Zod validators auto-generation |
 | **MSW** | 2.x | API mocking for development and testing without backend dependency |
 | **Vitest** | 3.x | Fast unit/integration tests with native ESM and TypeScript support. DOM environment: `happy-dom` 20.x |
 | **Playwright** | 1.x | Cross-browser E2E tests including mobile viewports |
@@ -141,9 +141,13 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 ## 6. API Contract
 
 ### Contract-Driven Development
-1. Backend publishes OpenAPI 3.1 spec (JSON) at a known URL or checked into repo.
-2. `orval` generates typed fetch client + TanStack Query hooks on `npm run codegen`.
-3. CI fails if generated code is stale (spec changed but codegen not re-run).
+1. Backend publishes OpenAPI 3.1 spec (JSON). The URL is kept in `.env.local` as `OPENAPI_URL` — never committed (see `.claude/api-docs.local.md`, gitignored).
+2. `pnpm codegen` runs `orval` through `dotenv-cli`, emitting to `src/shared/api/generated/`:
+   - `endpoints.ts` — TanStack Query hooks + fetch functions
+   - `endpoints.zod.ts` — runtime Zod validators
+   - `schemas/` — per-DTO TypeScript types
+3. Generated fetch functions route through `apiClientMutator` in `src/shared/lib/api-client.ts`, centralizing base URL, headers, and `ApiClientError` normalization.
+4. CI runs `pnpm codegen:check` — fails if the spec changed but the generated files weren't re-committed.
 
 ### Error Handling Pattern
 ```typescript

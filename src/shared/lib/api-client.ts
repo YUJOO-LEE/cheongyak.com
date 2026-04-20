@@ -83,7 +83,7 @@ class ApiClientError extends Error {
 
 async function request<T>(
   path: string,
-  options?: RequestInit & { revalidate?: number },
+  options?: RequestInit & { revalidate?: number; signal?: AbortSignal },
 ): Promise<T> {
   const { revalidate, ...fetchOptions } = options || {};
 
@@ -129,5 +129,63 @@ export const apiClient = {
   post: <T>(path: string, body: unknown) =>
     request<T>(path, { method: 'POST', body: JSON.stringify(body) }),
 };
+
+/**
+ * orval mutator — generated endpoint functions route every HTTP call
+ * through here. Keeping all wire-level concerns (base URL, headers,
+ * error envelope) in one place prevents generated code from forking
+ * the error surface.
+ *
+ * Signature matches orval's `httpClient: 'fetch'` contract:
+ *   `apiClientMutator<T>(url: string, options: RequestInit): Promise<T>`
+ *
+ * The response type `T` is orval's `{ data, status, headers }` wrapper
+ * (the suffix that generated code attaches via `(x) & { headers: Headers }`).
+ * This mutator reads + JSON-parses the body once, then returns the
+ * wrapper so the generated code's `Awaited<ReturnType<typeof ...>>`
+ * stays accurate. Non-2xx responses throw `ApiClientError` the same
+ * way the `apiClient.get`/`.post` callers already expect.
+ */
+export async function apiClientMutator<T>(
+  url: string,
+  options: RequestInit,
+): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+  if (!res.ok) {
+    const body: unknown = await res.json().catch(() => null);
+    const isServerError = res.status >= 500;
+    const serverMessage =
+      body && typeof body === 'object' && 'message' in body
+        ? String((body as { message?: unknown }).message ?? '')
+        : '';
+    const serverCode =
+      body && typeof body === 'object' && 'code' in body
+        ? String((body as { code?: unknown }).code ?? '')
+        : '';
+
+    throw new ApiClientError({
+      status: res.status,
+      code: serverCode || 'UNKNOWN_ERROR',
+      message: isServerError
+        ? GENERIC_SERVER_ERROR
+        : serverMessage || GENERIC_CLIENT_ERROR,
+    });
+  }
+
+  const data = (await res.json()) as unknown;
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as T;
+}
 
 export { ApiClientError };

@@ -15,7 +15,7 @@
 | **nuqs** | 2.x | 타입 안전한 URL 검색 파라미터로 필터/정렬 상태가 페이지 이동과 공유 시에도 유지 |
 | **next-intl** | 4.x | 다국어 지원 대비; 한국어 우선, 향후 영어 확장 가능 |
 | **Zod** | 3.x | 경계 지점에서 API 응답의 런타임 검증; TypeScript와 결합하여 엔드투엔드 타입 안전성 확보 |
-| **orval** | 7.x | OpenAPI → 타입이 지정된 TypeScript 클라이언트 + TanStack Query hooks 자동 생성 |
+| **orval** | 8.x | OpenAPI → 타입이 지정된 TypeScript 클라이언트 + TanStack Query hooks + Zod 검증기 자동 생성 |
 | **MSW** | 2.x | 백엔드 의존 없이 개발 및 테스트를 위한 API 모킹 |
 | **Vitest** | 3.x | 네이티브 ESM 및 TypeScript를 지원하는 빠른 단위/통합 테스트. DOM 환경: `happy-dom` 20.x |
 | **Playwright** | 1.x | 모바일 뷰포트를 포함한 크로스 브라우저 E2E 테스트 |
@@ -143,9 +143,13 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 ## 6. API 계약
 
 ### 계약 기반 개발
-1. 백엔드가 OpenAPI 3.1 스펙(JSON)을 알려진 URL에 게시하거나 레포에 체크인.
-2. `orval`이 `npm run codegen` 실행 시 타입이 지정된 fetch 클라이언트 + TanStack Query hooks 생성.
-3. 생성된 코드가 최신이 아니면 CI 실패 (스펙이 변경되었으나 codegen이 재실행되지 않은 경우).
+1. 백엔드가 OpenAPI 3.1 스펙(JSON)을 게시. URL은 `.env.local`의 `OPENAPI_URL`에 보관 — repo에 커밋 금지 (`.claude/api-docs.local.md`, gitignored 참고).
+2. `pnpm codegen`이 `dotenv-cli`를 통해 `orval`을 실행, `src/shared/api/generated/`에 산출:
+   - `endpoints.ts` — TanStack Query hooks + fetch 함수
+   - `endpoints.zod.ts` — 런타임 Zod 검증기
+   - `schemas/` — DTO별 TypeScript 타입
+3. 생성된 fetch 함수는 `src/shared/lib/api-client.ts`의 `apiClientMutator`를 통해 라우팅 — base URL, headers, `ApiClientError` 정규화의 단일 지점.
+4. CI는 `pnpm codegen:check`를 실행 — 스펙이 변경됐는데 생성 파일이 재커밋되지 않으면 실패.
 
 ### 에러 처리 패턴
 ```typescript
