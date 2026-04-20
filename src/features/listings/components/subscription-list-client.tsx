@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef } from 'react';
 import {
   parseAsArrayOf,
   parseAsInteger,
-  parseAsString,
   parseAsStringEnum,
   useQueryState,
 } from 'nuqs';
@@ -56,7 +55,7 @@ const regionGroups = REGION_GROUPS.map((group) => ({
   })),
 }));
 
-// 시/도 명(예: "서울특별시") 첫 두 글자를 region code 가리키는 sido 라벨과 매칭.
+// 시/도 명(예: "서울특별시") 을 region code 의 Korean label 과 매칭.
 // API 바인딩 전에는 fixture 의 sido 이름이 regionCode 의 label 과 동일하므로
 // 문자열 동등 비교만으로 충분하다.
 function subscriptionMatchesRegion(
@@ -71,17 +70,13 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
   const [selectedStatus, setSelectedStatus] = useQueryState('status', statusParser);
   const [selectedType, setSelectedType] = useQueryState('type', typeParser);
   const [selectedRegions, setSelectedRegions] = useQueryState('region', regionParser);
-  const [keyword, setKeyword] = useQueryState('q', parseAsString.withDefault(''));
   const [currentPage, setCurrentPage] = useQueryState(
     'page',
     parseAsInteger.withDefault(1),
   );
 
   const activeFilterCount =
-    selectedStatus.length +
-    selectedType.length +
-    selectedRegions.length +
-    (keyword.length > 0 ? 1 : 0);
+    selectedStatus.length + selectedType.length + selectedRegions.length;
 
   // Reset page to 1 whenever a filter value changes. Centralizing this keeps
   // change handlers pure and prevents pagination drift as filters grow.
@@ -92,10 +87,9 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
       return;
     }
     setCurrentPage(null);
-  }, [selectedStatus, selectedType, selectedRegions, keyword, setCurrentPage]);
+  }, [selectedStatus, selectedType, selectedRegions, setCurrentPage]);
 
   const filtered = useMemo(() => {
-    const normalizedKeyword = keyword.trim().toLowerCase();
     return subscriptions.filter((s) => {
       if (selectedStatus.length > 0 && !selectedStatus.includes(s.status)) {
         return false;
@@ -106,15 +100,9 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
       if (!subscriptionMatchesRegion(s, selectedRegions)) {
         return false;
       }
-      if (
-        normalizedKeyword.length > 0 &&
-        !s.name.toLowerCase().includes(normalizedKeyword)
-      ) {
-        return false;
-      }
       return true;
     });
-  }, [subscriptions, selectedStatus, selectedType, selectedRegions, keyword]);
+  }, [subscriptions, selectedStatus, selectedType, selectedRegions]);
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paged = filtered.slice(
@@ -126,14 +114,12 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
     setSelectedStatus(null);
     setSelectedType(null);
     setSelectedRegions(null);
-    setKeyword(null);
   }
 
   const listKey = [
     selectedStatus.join(','),
     selectedType.join(','),
     selectedRegions.join(','),
-    keyword,
     currentPage,
   ].join('|');
 
@@ -141,12 +127,6 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
     <>
       <FilterBar activeCount={activeFilterCount} onReset={handleReset}>
         <FilterBar.DesktopBar>
-          <FilterField.Text
-            label="단지명 검색"
-            value={keyword}
-            onChange={(next) => setKeyword(next.length > 0 ? next : null)}
-            placeholder="단지명 검색"
-          />
           <FilterField.Dropdown<RegionCode>
             label="지역"
             placeholder="지역 전체"
@@ -172,12 +152,6 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
           />
         </FilterBar.DesktopBar>
         <FilterBar.Sheet>
-          <FilterField.Text
-            label="단지명 검색"
-            value={keyword}
-            onChange={(next) => setKeyword(next.length > 0 ? next : null)}
-            placeholder="단지명 검색"
-          />
           <FilterField.Dropdown<RegionCode>
             label="지역"
             placeholder="지역 전체"
