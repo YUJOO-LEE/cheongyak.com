@@ -84,27 +84,36 @@ EN/KO line counts after landing:
 All four files are structurally mirrored; line-count drift comes from
 Korean line wrapping, not missing sections.
 
-## 5. Open items for Helen (accessibility)
+## 5. Accessibility judgments (Helen) — resolved
 
-These were flagged during Phase 6 reviews and deferred to this audit:
+Helen audited the four items surfaced during Phase 6 reviews. Outcomes:
 
-1. **`filter-field-dropdown.tsx:114`** group subheadings render with
-   `text-text-tertiary` (≈2.6:1 on white). Decorative headings are
-   allowed under WCAG, but since these label functional groupings
-   (수도권 / 광역시 / 도) Helen should judge whether to raise to
-   `text-text-secondary` (6:1).
-2. **Region trigger** lost its `aria-haspopup="listbox"` in `#14` when
-   the layout shifted from a listbox to a chip pool. The current
-   markup has no `aria-controls` linking the trigger to the popover
-   panel. Helen to propose either `aria-controls` + `id` on the
-   panel, or a different idiom (`role="dialog"` on the popover).
-3. **Grouped chip pool keyboard flow**: the chip pool uses standard
-   `<button>` elements per chip, so Tab order works out of the box.
-   Verify arrow-key navigation matches the pattern Korean screen
-   reader users expect for radio-group-like multi-selects.
-4. **Sheet focus trap** on open/close — confirmed with smoke test
-   once; Helen should re-test on iOS VoiceOver specifically (Korean
-   TTS has some quirks around `role="dialog"`).
+1. **Subheading contrast** — *fixed (`00a70d3`).* `text-text-tertiary`
+   (~2.85:1) failed WCAG 2.2 AA / KWCAG 5.3.1 for a functional
+   grouping label. Swapped to `text-text-secondary` (~7.5:1), which
+   also matches DESIGN.md §7 semantics and the neighboring "지역
+   전체" pseudo-row.
+2. **Region trigger ARIA** — *fixed (`00a70d3`).* Trigger now carries
+   `aria-haspopup="dialog"` + `aria-controls={panelId}`; the panel
+   carries `id={panelId}` + `role="dialog"` + `aria-label="{label}
+   선택"`. Desktop and Mobile variants each mint their own `useId`.
+3. **Grouped chip pool keyboard flow** — *OK, no change.* The toggle
+   buttons + `role="group"` + `aria-pressed` pattern is the correct
+   idiom; arrow-key navigation would violate convention here. Only
+   dependency was that the new `role="dialog"` Escape-to-close now
+   works for both Desktop and the mobile expand path (previously
+   Desktop-only).
+4. **Sheet focus trap** — *fixed (`00a70d3`).* Sheet gained
+   `role="dialog"` + `aria-modal="true"` + `aria-labelledby`, a Tab
+   cycle trap with Escape-to-close, initial focus on the close
+   button, and focus return to the trigger (via `triggerRef` on the
+   shell context) after the 250ms close animation. A lighter-weight
+   `inert`-based alternative is viable but was deferred — the
+   JS-only trap has no runtime dependency and matches existing
+   lifecycle timing.
+
+Helen still owes a PR diff review on `00a70d3`. Once that lands as a
+thumbs-up, §12 closes.
 
 ## 6. Manual smoke test suggestions
 
