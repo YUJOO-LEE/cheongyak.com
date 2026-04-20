@@ -394,6 +394,7 @@ Depth through background color shifts, not shadows. Place `color-bg-card` on `co
 | `shadow-sm` | `0 1px 3px rgba(15,23,42,0.04), 0 1px 2px rgba(15,23,42,0.06)` | Subtle lift (dropdown) |
 | `shadow-md` | `0 4px 12px rgba(15,23,42,0.06), 0 2px 4px rgba(15,23,42,0.04)` | Cards on hover |
 | `shadow-lg` | `0 12px 40px rgba(15,23,42,0.08)` | Modals, floating action button |
+| `shadow-sheet-top` | `0 -1px 2px rgba(15,23,42,0.06), 0 -12px 40px rgba(15,23,42,0.08)` | Bottom sheet top edge (inverted direction) |
 
 - **Color:** Tinted `neutral-900` (deep navy-grey), never pure black
 

@@ -35,13 +35,13 @@ export function FilterBarSheet({
         aria-hidden="true"
       />
       <div
-        className={`absolute bottom-0 left-0 right-0 bg-bg-page/55 backdrop-blur-glass rounded-t-xl shadow-[0_-0.5px_0_rgba(15,23,42,0.08),0_-12px_40px_rgba(15,23,42,0.12)] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up-sheet ${closing ? 'sheet-closing' : ''}`}
+        className={`absolute bottom-0 left-0 right-0 bg-bg-page/80 backdrop-blur-glass rounded-t-xl shadow-sheet-top p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up-sheet ${closing ? 'sheet-closing' : ''}`}
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-headline-sm">필터</h2>
           <button
             onClick={onClose}
-            className="p-2 cursor-pointer"
+            className="p-3 cursor-pointer"
             aria-label="필터 닫기"
           >
             <X size={24} />
