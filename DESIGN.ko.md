@@ -549,6 +549,25 @@ fontFamily: {
 
 칩 패딩: `space-1` (4px) 세로, `space-2` (8px) 가로. 폰트: `label-md`.
 
+#### 11.3.1 Chip — Hit-Slop Pattern
+
+시각적으로는 slim surface 를 유지하면서도 터치 타겟 44×44 를 만족해야 하는 밀집 chip row 에만 이 패턴을 사용합니다.
+
+| 속성 | 값 |
+|:---|:---|
+| 시각 높이 | `h-8` (32px) |
+| 시각 패딩 | `px-3` (12px) |
+| hit-slop 토큰 | `--chip-hit-slop: 6px` |
+| utility | `.chip-hit-slop::before { inset: calc(var(--chip-hit-slop) * -1) }` |
+| 최소 chip 간격 | `gap-3` (12px) |
+
+규칙:
+- 실제 버튼은 반드시 `position: relative` 를 유지해야 하며 pseudo-element 는 여기에 고정됩니다.
+- `aria-pressed` 는 pseudo-element 가 아니라 버튼 자체에 적용합니다.
+- `/listings` 의 상태, 유형, 지역 옵션처럼 grouped filter chip 에만 사용합니다.
+- 단독 CTA 나 형제 요소가 없는 버튼에는 사용하지 않습니다. 그런 버튼은 시각적으로도 직접 44px 높이로 렌더링해야 합니다.
+- 중립 필터 칩의 선택 상태는 `neutral-500` 배경 + inverse text 를 유지합니다. 필터 칩을 `brand-primary-*` 로 바꾸지 않습니다.
+
 ### 11.4 내비게이션 — 하단 바 (모바일)
 
 | 속성 | 값 |

@@ -82,7 +82,7 @@ function MobileTrigger() {
       <button
         type="button"
         onClick={openSheet}
-        className="flex items-center gap-2 px-4 py-2 rounded-md bg-bg-card text-text-secondary text-label-lg shadow-sm cursor-pointer min-h-11"
+        className="flex items-center gap-2 px-3 min-h-11 rounded-md bg-bg-card text-text-secondary text-label-lg shadow-sm cursor-pointer"
       >
         <SlidersHorizontal size={18} aria-hidden="true" />
         필터
@@ -162,8 +162,13 @@ function Sheet({ children }: SheetProps) {
               초기화
             </Button>
           )}
-          <Button variant="primary" size="lg" onClick={closeSheet} className="flex-1">
-            적용
+          <Button
+            variant={activeCount > 0 ? 'primary' : 'secondary'}
+            size="lg"
+            onClick={closeSheet}
+            className="flex-1"
+          >
+            닫기
           </Button>
         </div>
       </div>

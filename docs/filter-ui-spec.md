@@ -174,16 +174,19 @@ Popover is wider and shorter instead of tall and thin.
 
 **Layout tokens**
 - Popover: `bg-bg-elevated rounded-md shadow-md z-dropdown p-3
-  overflow-hidden max-w-[32rem]` (viewport-relative max OK per §0
-  exception).
+  overflow-hidden max-w-lg` (`max-w-lg = 32rem` — Tailwind built-in,
+  no new token needed per Chanel's audit).
 - Group block: `space-y-3` between groups.
 - Subheading: `text-label-md text-text-tertiary mb-1.5`.
-- Chip row inside group: `flex flex-wrap gap-1.5`.
+- Chip row inside each group: `flex flex-wrap gap-3` (**MUST ≥
+  `gap-3`** — same rule as §3.2 to avoid hit-slop overlap).
 - Pseudo-row "지역 전체": full-width button directly above the first
   group, `text-label-md text-text-secondary px-2 py-1.5 rounded-md
   hover:bg-bg-hover`, followed by `mt-3` spacing (no divider line).
-- Chip token = §3.2 slim chip (see below). Touch via hit-slop, not
-  visible padding.
+- Chips reuse the §3.2 canonical markup **verbatim** — `relative h-8
+  px-3 rounded-full ... chip-hit-slop`, selected state `bg-neutral-500
+  text-text-inverse` with prepended `<Check size={14} />` icon. Neutral
+  lock applies here identically to the status/type filter chips.
 
 **Trigger (desktop + mobile)** — unchanged from current implementation;
 it's already the cleanest part. `bg-bg-sunken h-9 px-3 rounded-md`
@@ -284,63 +287,94 @@ Lead decision goes into §10 Change log once Nolan picks.
 
 The current `min-h-11` padding inflates every chip to a 44px-tall
 rectangle, which dominates the filter bar. WCAG 2.5.5 still demands a
-44×44 touch target, so we keep the target size via a **hit-slop
-pseudo-element** — the visible chip slims down while the clickable
-area stays compliant.
+44×44 touch target, so we slim the visible surface and recover the
+target via a **hit-slop pseudo-element**.
+
+Chanel owns this pattern and publishes it as `DESIGN.md §11.3.1 Chip —
+hit-slop pattern`. This spec references the canonical token + utility;
+**both land in the same PR as the field refactor** (no temporary
+arbitrary `inset-[-6px]` allowed).
+
+**Canonical token** (`src/styles/globals.css :root`):
 
 ```css
-/* Visible surface */
-.chip {
-  height: 32px;            /* was 44 */
-  padding-inline: 12px;
-  border-radius: 9999px;   /* rounded-full */
-}
-/* Invisible hit-slop expands the target without affecting layout */
-.chip::before {
+--chip-hit-slop: 6px;    /* 44 target = visual 32 (h-8) + 2 × 6 */
+```
+
+**Canonical utility** (`src/styles/globals.css`):
+
+```css
+.chip-hit-slop::before {
   content: '';
   position: absolute;
-  inset: -6px;             /* expands 32px → 44px */
+  inset: calc(var(--chip-hit-slop) * -1);
 }
 ```
 
-Tailwind form:
+**Canonical markup** (status/type chips — identical across desktop
+inline and mobile sheet):
 
 ```tsx
-<button className="relative h-8 px-3 rounded-full text-label-md …
-                   before:absolute before:inset-[-6px] before:content-['']">
+<button
+  type="button"
+  aria-pressed={selected}
+  aria-label={`${label}, ${selected ? '선택됨' : '선택 안 됨'}`}
+  className="
+    relative                 /* MUST — ::before anchors to this */
+    h-8 px-3
+    rounded-full
+    text-label-md
+    bg-chip-bg text-text-secondary hover:bg-chip-bg-hover
+    inline-flex items-center gap-1
+    chip-hit-slop             /* invisible 44×44 target via ::before */
+  "
+>
+  {label}
+</button>
 ```
 
 **Chip styling (neutral-locked per TypeChip rule)**
 
-| State | Classes |
+| State | Classes (additive) |
 |---|---|
-| default | `relative h-8 px-3 rounded-full text-label-md bg-chip-bg text-text-secondary inline-flex items-center gap-1 before:absolute before:inset-[-6px] before:content-['']` |
+| default | `relative h-8 px-3 rounded-full text-label-md bg-chip-bg text-text-secondary inline-flex items-center gap-1 chip-hit-slop` |
 | hover | `bg-chip-bg-hover` |
 | selected | `bg-neutral-500 text-text-inverse shadow-sm` + prepended `<Check size={14} />` |
-| focus-visible | 2px `brand-primary-500` outline with 2px offset (visible on the chip surface, not the hit-slop) |
+| focus-visible | 2px `brand-primary-500` outline with 2px offset on the **button element itself** (not the `::before`); use the global `:focus-visible` rule |
 | disabled | `opacity-50 cursor-not-allowed` |
 
-> `inset-[-6px]` is an intentional arbitrary value — DESIGN.md has no
-> hit-slop token yet. Chanel to add `--hit-slop-chip: 6px` in Phase 8
-> backlog; until then this is the one sanctioned arbitrary value for
-> this spec.
+**Rules** (hard requirements — Chanel's §11.3.1)
 
-**Rules**
-- Selecting the same chip again toggles it off (multi toggle, not single-select).
-- Reset ("초기화") clears status + type + region together.
-- **Never** apply `bg-brand-primary-*` to selected chips — the neutral lock is a documented design-memory rule.
-- Padding/height unified at `h-8 px-3 gap-1` across desktop inline and
-  mobile sheet (previously diverged: `min-h-11 px-3` vs `min-h-11 px-4`).
-  Both surfaces now share the same visible chip + hit-slop pattern.
+1. **`relative` MUST** be on the button — `::before` anchors to it.
+2. **Visual height `h-8` (32px)**; hit area ≥44×44 via `chip-hit-slop` utility.
+3. **Inter-chip gap MUST ≥ `gap-3` (12px)** on the chip-row wrapper. Smaller gaps (`gap-2` / `gap-1.5`) produce hit-slop overlap and mis-taps. Enforce at the row level, never override per-chip.
+4. **iOS Safari** — `-webkit-tap-highlight-color: transparent` should be set globally; Chanel to confirm `src/styles/globals.css` already declares it (otherwise add under `button` reset in the same PR).
+5. **`aria-pressed` stays on the real button** — the `::before` pseudo is invisible to DOM/AT; zero accessibility impact.
+6. **Unify both field components** — `filter-field-inline.tsx` and `filter-field-stacked.tsx` emit the exact same class string. Stacked currently diverges at `min-h-11 px-4`; collapse to the canonical markup above. No sheet-specific padding overrides.
+7. **Selecting the same chip toggles it off** (multi mode, not single-select).
+8. **Reset ("초기화")** clears status + type + region together.
+9. **Never** apply `bg-brand-primary-*` to selected chips — the TypeChip neutral-lock is a documented design-memory rule.
+
+**When NOT to use `chip-hit-slop`**
+
+Standalone CTAs, primary action buttons, and controls without siblings
+should use full-size touch targets (e.g. `h-11 px-4`) instead. Hit-slop
+is a density optimization for chip rows where a slim visual is required
+*and* multiple targets sit side by side. A lone button doesn't need it.
 
 **Accessibility**
 - Each chip: `<button aria-pressed="{selected}" aria-label="{label}, {selected ? '선택됨' : '선택 안 됨'}">`
-- Chip row wrapper: `role="group" aria-label="청약 상태 필터"`
-- Keyboard: Tab between chips, Space/Enter toggles
-- Screen reader announces the new aria-pressed state after toggle
-- Hit-slop must **not** overlap siblings — gap between chips ≥ `gap-3`
-  (12px) to guarantee the expanded target of one chip doesn't swallow
-  taps on its neighbor.
+- Chip row wrapper: `role="group" aria-label="청약 상태 필터"` with `flex flex-wrap gap-3` (per rule 3).
+- Keyboard: Tab between chips, Space/Enter toggles.
+- Screen reader announces the new `aria-pressed` state after toggle.
+- `::before` pseudo has no `content` visible to AT.
+
+**Chip component promotion (deferred)**
+
+Chanel proposed promoting a shared `<Chip>` primitive once this pattern
+is reused in ≥3 places. This revision keeps the pattern inlined in the
+two field components and tracks extraction as a **Phase 8 / separate
+refactor Task** — don't bundle it into the current sizing fix.
 
 ---
 
@@ -529,8 +563,11 @@ Audit trail of locked-in UX calls.
    recommended. Options B (tabbed) and C (map) deferred; see §3.1 for
    per-option reasoning.
 7. **Chip slim + hit-slop** — chips shrink visibly to `h-8 px-3` and
-   keep 44×44 tap area via `::before { inset: -6px }`. DESIGN.md hit-
-   slop token (`--hit-slop-chip`) promoted to Phase 8 backlog.
+   keep 44×44 tap area via `.chip-hit-slop` utility backed by a new
+   `--chip-hit-slop: 6px` token. Token + utility + `DESIGN.md §11.3.1`
+   subsection land **in the same PR as the chip refactor** (Chanel's
+   call; no temporary arbitrary value). Inter-chip `gap-3` is a hard
+   requirement — smaller gaps cause hit-slop overlap.
 
 ---
 
@@ -556,8 +593,13 @@ User feedback triggered three revisions to the previously-shipped
    upgrades gated on backend (district) or polish bandwidth.
 3. **Chip slimmed** — `min-h-11` inflated status/type chips into
    44px-tall rectangles that dominated the bar. §3.2/§3.3 switch to a
-   visible `h-8` chip with a `::before { inset: -6px }` hit-slop to
-   keep 44×44 WCAG compliance without the visual bulk.
+   visible `h-8` chip with a `.chip-hit-slop` pseudo-element backed
+   by the new `--chip-hit-slop: 6px` token; 44×44 WCAG compliance is
+   preserved while the visual bulk disappears. Region pool (§3.1)
+   reuses the same chip markup verbatim. Chanel's audit tightened two
+   values: inter-chip `gap-3` is a hard minimum (not `gap-1.5`); the
+   Popover width uses the built-in `max-w-lg` (= 32rem) rather than
+   an arbitrary `max-w-[32rem]`.
 
 Earlier decisions (RESULT_TODAY rename, neutral-500 badges, sheet
 "닫기" label, nested-card avoidance) remain locked.

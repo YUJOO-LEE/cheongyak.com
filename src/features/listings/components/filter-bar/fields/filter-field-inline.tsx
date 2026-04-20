@@ -16,6 +16,10 @@ export function FilterFieldInline<TValue extends string>(
 ) {
   const { label, options, groupAriaLabel } = props;
   const multi = props.mode === 'multi';
+  const chipClassName = [
+    'relative h-8 px-3 rounded-full text-label-md transition-colors duration-fast cursor-pointer active:scale-95 inline-flex items-center gap-1 chip-hit-slop',
+    'focus-visible:outline-2 focus-visible:outline-offset-2',
+  ].join(' ');
 
   function isSelected(value: TValue): boolean {
     if (multi) {
@@ -42,7 +46,7 @@ export function FilterFieldInline<TValue extends string>(
       <div
         role="group"
         aria-label={groupAriaLabel ?? label}
-        className="flex flex-wrap gap-2"
+        className="flex flex-wrap gap-3"
       >
         {options.map((opt) => {
           const selected = isSelected(opt.value);
@@ -54,7 +58,7 @@ export function FilterFieldInline<TValue extends string>(
               aria-pressed={selected}
               aria-label={`${opt.label}, ${selected ? '선택됨' : '선택 안 됨'}`}
               className={[
-                'min-h-11 px-3 rounded-full text-label-md transition-colors duration-fast cursor-pointer active:scale-95 inline-flex items-center gap-1',
+                chipClassName,
                 selected
                   ? 'bg-neutral-500 text-text-inverse shadow-sm'
                   : 'bg-chip-bg text-text-secondary hover:bg-chip-bg-hover',

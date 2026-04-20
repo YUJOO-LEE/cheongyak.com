@@ -128,6 +128,14 @@ describe('SubscriptionListClient · server markup', () => {
     expect(html).toContain('href="/listings/c"');
   });
 
+  it('does not render a listings-scoped keyword input', () => {
+    const html = renderToStaticMarkup(
+      <SubscriptionListClient subscriptions={[makeSub('a', 'accepting')]} />,
+    );
+    expect(html).not.toContain('단지명 검색');
+    expect(html).not.toContain('filter-keyword');
+  });
+
   it('renders the empty-state CTA and reset button when the input list is empty', () => {
     const html = renderToStaticMarkup(<SubscriptionListClient subscriptions={[]} />);
     expect(html).toContain('조건에 맞는 청약 정보가 없습니다.');

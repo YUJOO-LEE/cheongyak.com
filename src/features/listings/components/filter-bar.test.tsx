@@ -153,6 +153,7 @@ describe('FilterBar · mobile sheet interactive', () => {
     fireEvent.click(trigger);
 
     expect(screen.getByLabelText('필터 닫기')).toBeTruthy();
+    expect(screen.getByRole('button', { name: '닫기' })).toBeTruthy();
   });
 
   it('locks body overflow while the sheet is open and restores it after close', () => {
@@ -187,5 +188,17 @@ describe('FilterBar · mobile sheet interactive', () => {
       vi.advanceTimersByTime(250);
     });
     expect(screen.queryByLabelText('필터 닫기')).toBeNull();
+  });
+
+  it('uses 닫기 instead of 적용 because filters apply immediately', () => {
+    renderBar();
+
+    const trigger = screen
+      .getAllByRole('button', { name: /필터/ })
+      .find((el) => !el.getAttribute('aria-label'))!;
+    fireEvent.click(trigger);
+
+    expect(screen.getByRole('button', { name: '닫기' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: '적용' })).toBeNull();
   });
 });

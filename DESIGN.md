@@ -547,6 +547,25 @@ Shape: `radius-full` (capsule). Always pair color with icon or text label for ac
 
 Chip padding: `space-1` (4px) vertical, `space-2` (8px) horizontal. Font: `label-md`.
 
+#### 11.3.1 Chip — Hit-Slop Pattern
+
+Use this pattern only for dense chip rows where a slim visual surface is required but touch targets must still meet 44×44.
+
+| Property | Value |
+|:---|:---|
+| Visible height | `h-8` (32px) |
+| Visible padding | `px-3` (12px) |
+| Hit-slop token | `--chip-hit-slop: 6px` |
+| Utility | `.chip-hit-slop::before { inset: calc(var(--chip-hit-slop) * -1) }` |
+| Minimum inter-chip gap | `gap-3` (12px) |
+
+Rules:
+- The real button must keep `position: relative`; the pseudo-element anchors to it.
+- Apply `aria-pressed` to the button itself, never to the pseudo-element.
+- Use this for grouped filter chips such as `/listings` status, type, and region options.
+- Do not use this for standalone CTAs or lone buttons; those should render at full 44px height directly.
+- Selected state for neutral filter chips stays `neutral-500` background with inverse text. Do not switch filter chips to `brand-primary-*`.
+
 ### 11.4 Navigation — Bottom Bar (Mobile)
 
 | Property | Value |

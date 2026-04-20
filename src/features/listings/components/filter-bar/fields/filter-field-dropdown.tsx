@@ -12,11 +12,11 @@ function defaultFormatSummary(labels: string[]): string {
 }
 
 /**
- * Dropdown field — region multi-select (filter-ui-spec §3.2).
+ * Dropdown field — region multi-select (filter-ui-spec §3.1).
  *
- * Desktop variant renders a Popover anchored below the trigger. Mobile
+ * Desktop variant renders a popover anchored below the trigger. Mobile
  * variant expands inline inside the sheet group (no nested sub-sheet).
- * Both render the same option list with grouped subheadings.
+ * Both render the same grouped chip pool with regional subheadings.
  */
 export function FilterFieldDropdown<TValue extends string>(
   props: DropdownFieldProps<TValue>,
@@ -54,7 +54,6 @@ function DropdownTrigger<TValue extends string>({
     <button
       type="button"
       onClick={onToggle}
-      aria-haspopup="listbox"
       aria-expanded={open}
       aria-label={
         triggerAriaLabel ?? `${label}, ${count > 0 ? `${count}개 선택됨` : '전체'}`
@@ -81,7 +80,7 @@ function DropdownTrigger<TValue extends string>({
   );
 }
 
-function DropdownList<TValue extends string>({
+function DropdownPanel<TValue extends string>({
   label,
   groups,
   value,
@@ -97,61 +96,49 @@ function DropdownList<TValue extends string>({
   }
 
   return (
-    <ul
-      role="listbox"
-      aria-multiselectable="true"
-      aria-label={label}
-      className="py-2 max-h-80 overflow-y-auto"
-    >
-      <li>
+    <div aria-label={label} className="space-y-3">
+      <div>
         <button
           type="button"
-          role="option"
-          aria-selected={value.length === 0}
+          aria-pressed={value.length === 0}
           onClick={() => onChange([])}
-          className="w-full min-h-11 px-3 py-2.5 rounded-md flex items-center gap-2 text-body-md text-text-secondary hover:bg-bg-hover cursor-pointer"
+          className="w-full rounded-md px-2 py-1.5 text-left text-label-md text-text-secondary hover:bg-bg-hover cursor-pointer"
         >
           {placeholder}
         </button>
-      </li>
-      {groups.map((group) => (
-        <li key={group.label} className="mt-1">
-          <p className="text-label-md text-text-tertiary px-3 py-1.5">{group.label}</p>
-          <ul>
+      </div>
+
+      <div className="max-h-80 overflow-y-auto space-y-3">
+        {groups.map((group) => (
+          <section key={group.label}>
+            <p className="mb-1.5 px-1 text-label-md text-text-tertiary">{group.label}</p>
+            <div role="group" aria-label={`${group.label} ${label}`} className="flex flex-wrap gap-3">
             {group.options.map((opt) => {
               const selected = value.includes(opt.value);
               return (
-                <li key={opt.value}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={selected}
-                    onClick={() => toggle(opt.value)}
-                    className={[
-                      'w-full min-h-11 px-3 py-2.5 rounded-md flex items-center gap-2 text-body-md cursor-pointer',
-                      selected
-                        ? 'text-text-primary bg-bg-hover font-medium'
-                        : 'text-text-primary hover:bg-bg-hover',
-                    ].join(' ')}
-                  >
-                    <span className="w-4 shrink-0 inline-flex items-center justify-center">
-                      {selected && (
-                        <Check
-                          size={14}
-                          aria-hidden="true"
-                          className="text-brand-primary-500"
-                        />
-                      )}
-                    </span>
-                    <span>{opt.label}</span>
-                  </button>
-                </li>
+                <button
+                  key={opt.value}
+                  type="button"
+                  aria-pressed={selected}
+                  aria-label={`${opt.label}, ${selected ? '선택됨' : '선택 안 됨'}`}
+                  onClick={() => toggle(opt.value)}
+                  className={[
+                    'relative h-8 px-3 rounded-full text-label-md inline-flex items-center gap-1 chip-hit-slop cursor-pointer transition-colors duration-fast active:scale-95',
+                    selected
+                      ? 'bg-neutral-500 text-text-inverse shadow-sm'
+                      : 'bg-chip-bg text-text-secondary hover:bg-chip-bg-hover',
+                  ].join(' ')}
+                >
+                  {selected && <Check size={14} aria-hidden="true" className="shrink-0" />}
+                  {opt.label}
+                </button>
               );
             })}
-          </ul>
-        </li>
-      ))}
-    </ul>
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -187,8 +174,8 @@ function FilterFieldDropdownDesktop<TValue extends string>(
         onToggle={() => setOpen((v) => !v)}
       />
       {open && (
-        <div className="absolute left-0 top-full mt-1 min-w-64 bg-bg-elevated rounded-md shadow-md z-dropdown overflow-hidden">
-          <DropdownList {...props} />
+        <div className="absolute left-0 top-full mt-1 min-w-64 max-w-lg bg-bg-elevated rounded-md shadow-md z-dropdown p-3 overflow-hidden">
+          <DropdownPanel {...props} />
         </div>
       )}
     </div>
@@ -209,8 +196,8 @@ function FilterFieldDropdownMobile<TValue extends string>(
         onToggle={() => setOpen((v) => !v)}
       />
       {open && (
-        <div className="max-h-[60vh] overflow-y-auto rounded-md bg-bg-sunken">
-          <DropdownList {...props} />
+        <div className="rounded-md bg-bg-sunken p-4">
+          <DropdownPanel {...props} />
         </div>
       )}
     </div>
