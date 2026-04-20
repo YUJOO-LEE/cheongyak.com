@@ -549,8 +549,11 @@ User feedback triggered three revisions to the previously-shipped
    as a generic primitive but is not mounted on `/listings`.
 2. **Region picker redesigned** — the existing Popover/list felt
    dense and rhythm-less. §3.1 now offers three alternative patterns
-   (A grouped chip pool, B tabbed, C map) with recommendation. Nolan
-   picks; Linus implements only the picked variant.
+   (A grouped chip pool, B tabbed, C map) with recommendation.
+   **Lead decision: Option A (grouped chip pool)** adopted — reuses
+   the slim-chip vocabulary from §3.2, resolves the density complaint
+   with zero new primitives, and keeps Options B / C as future
+   upgrades gated on backend (district) or polish bandwidth.
 3. **Chip slimmed** — `min-h-11` inflated status/type chips into
    44px-tall rectangles that dominated the bar. §3.2/§3.3 switch to a
    visible `h-8` chip with a `::before { inset: -6px }` hit-slop to
