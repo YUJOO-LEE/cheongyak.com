@@ -126,19 +126,26 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 - **Position:** Sticky below header (desktop) or below status bar (mobile)
 - **Style:** `white` background with ambient bottom shadow
-- **Filters:**
+- **Filters (bound to `/apt-sales` as of Phase 6):**
 
-| Filter | Type | Options |
-|---|---|---|
-| Region (시/도) | Dropdown | All 17 시/도 regions |
-| District (구/군) | Dependent dropdown | Populated based on selected 시/도 |
-| Subscription type | Chip toggle | 공공 (public), 민간 (private) |
-| Status | Chip toggle | 접수중, 접수예정, 마감 |
-| Supply type | Chip toggle | 특별공급, 일반공급 |
-| Builder | Searchable dropdown | All builders in database |
+| Filter | Type | Options | Query key |
+|---|---|---|---|
+| Keyword (단지명) | Text + clear, 300ms debounce, ≤50 chars | Free text substring | `q` |
+| Region (시/도) | Multi-select dropdown, 수도권/광역시/도 그룹 | 17 시/도 | `region` |
+| Status | Multi-select chip | 접수예정, 접수중, 발표대기, 발표일, 청약완료 | `status` |
+| Subscription type | Multi-select chip | 공공 (public), 민간 (private) | `type` |
 
+- Multi-select chips prepend a `Check` icon when active (color-only rule)
 - Active filter count badge on mobile filter icon
-- "Reset All" button when any filter is active
+- "초기화" button clears every filter (status + type + region + keyword)
+
+**Roadmap (backend-dependent, not implemented):**
+
+| Filter | Blocker |
+|---|---|
+| District (구/군) | `regionCode` only granular to 시/도 |
+| Supply type (특별/일반) | No query param; supply breakdown ships on detail endpoint only |
+| Builder | No query param; `constructorName` exposed on items but not filterable |
 
 #### 2.2 Sort Controls
 
@@ -454,7 +461,9 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 | 접수중 | `accepting` | `success-50` bg / `success-700` text | 접수중 |
 | 접수예정 | `upcoming` | `info-50` bg / `info-700` text | 접수예정 |
 | 마감임박 | `closing_soon` | `warning-50` bg / `warning-700` text | 마감임박 |
-| 마감 | `closed` | `neutral-100` bg / `neutral-500` text | 마감 |
+| 발표대기 | `pending` | `warning-100` bg / `warning-700` text | 발표대기 |
+| 발표일 | `result_today` | `warning-50` bg / `warning-700` text | 발표일 |
+| 청약완료 | `closed` | `neutral-100` bg / `neutral-500` text | 청약완료 |
 
 ### Date Formatting
 
