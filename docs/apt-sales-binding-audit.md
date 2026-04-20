@@ -112,8 +112,12 @@ Helen audited the four items surfaced during Phase 6 reviews. Outcomes:
    JS-only trap has no runtime dependency and matches existing
    lifecycle timing.
 
-Helen still owes a PR diff review on `00a70d3`. Once that lands as a
-thumbs-up, §12 closes.
+Helen reviewed `00a70d3` and issued a PASS verdict. One optional
+polish — the mobile expand variant of `DropdownPanel` inherits the
+`role="dialog"` intended for the desktop Popover, which is harmless
+but reads as a nested dialog to VoiceOver. Moved to the Phase 9
+backlog rather than held against `#12`, since it is not a WCAG
+failure and requires device testing to judge.
 
 ## 6. Manual smoke test suggestions
 
@@ -137,7 +141,8 @@ Not yet run (lead paused on `pnpm dev`). Before merge:
 | Backend error-envelope (4xx/5xx) schema | Tesla (coordinating with infra) | OpenAPI currently only documents 200 |
 | `.env.local` `OPENAPI_URL` CI secret | Lead → infra | Local codegen works; CI gate pending secret provisioning |
 | Prettier `format --write` sweep | — | 79 pre-existing files fail `format:check`; separate cleanup PR |
-| `text-text-tertiary` subheading contrast | Helen | Awaiting accessibility judgment (see §5.1) |
+| Mobile `DropdownPanel` `role="dialog"` de-duplication | Linus | Helen's optional finding — move `role="dialog"` to the desktop Popover wrapper only; mobile expand is an inline group, not a nested dialog. Needs real-device VoiceOver confirmation before shipping |
+| `inert`-based sheet focus trap (replace JS Tab cycle) | Linus | Browser-level focus blocking is stricter than the current JS trap; revisit when the bundle budget allows a dedicated polyfill or Safari ≥16.4 coverage is confirmed |
 
 ## 8. Not shipped in this PR (intentional)
 
