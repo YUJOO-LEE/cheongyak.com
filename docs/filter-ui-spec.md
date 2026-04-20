@@ -15,7 +15,7 @@ map to query parameters. Linus implements against this spec in Phase 6
 
 - [ ] Token names only — no raw hex, no Tailwind default palette.
 - [ ] No arbitrary Tailwind values (`p-[...]`, `bg-[#...]`, `shadow-[...]`).
-- [ ] No token outside `src/styles/globals.css` except `shadow-sheet-top` (lead-approved addition).
+- [ ] No token outside `src/styles/globals.css` (all tokens — including `shadow-sheet-top` — live there after commit a39e972).
 - [ ] TypeChip palette stays neutral; selected chip never uses `brand-primary-*`.
 - [ ] No nested cards — group separation via `bg-bg-sunken` tone shift only.
 - [ ] Every interactive element meets 44×44 minimum touch target (`min-h-11` = 44px).
@@ -66,7 +66,7 @@ Page top, above listing:
 └─────────────────────────────────────────────────────────────────┘
 
 Bottom sheet on tap:
-┌─ Filter sheet (bg-bg-page/55 backdrop-blur-glass rounded-t-xl) ─┐
+┌─ Filter sheet (bg-bg-page/80 backdrop-blur-glass rounded-t-xl) ─┐
 │ [필터]                                                      [✕]  │
 │                                                                 │
 │ ┌─ 지역 (bg-bg-sunken rounded-md p-4) ───────────────────────┐   │
@@ -404,7 +404,7 @@ retrofit into the B1 fields.
 ## 8. Review checklist (for Chanel pre-review)
 
 - [ ] All tokens referenced in this doc exist in `src/styles/globals.css`
-- [ ] `shadow-sheet-top` noted as lead-approved addition, not yet merged
+- [ ] `shadow-sheet-top` token merged (a39e972) and referenced directly
 - [ ] No TypeChip color violation (neutral lock)
 - [ ] No arbitrary Tailwind values
 - [ ] No nested card pattern
