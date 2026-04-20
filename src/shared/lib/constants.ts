@@ -4,7 +4,7 @@ export const STATUS_LABELS: Record<SubscriptionStatus, string> = {
   upcoming: '접수예정',
   accepting: '접수중',
   pending: '발표대기',
-  contracting: '계약중',
+  result_today: '발표일',
   closed: '청약완료',
 };
 

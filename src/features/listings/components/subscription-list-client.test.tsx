@@ -77,7 +77,7 @@ describe('SubscriptionListClient · filter math (reference)', () => {
   });
 
   it('returns an empty array when the filter matches nothing', () => {
-    expect(applyFilter(subs, 'contracting')).toEqual([]);
+    expect(applyFilter(subs, 'result_today')).toEqual([]);
   });
 });
 

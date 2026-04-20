@@ -18,12 +18,7 @@ const STATUS_MAP: Record<ItemStatus, SubscriptionStatus> = {
   SUBSCRIPTION_SCHEDULED: 'upcoming',
   SUBSCRIPTION_ACTIVE: 'accepting',
   RESULT_PENDING: 'pending',
-  // TODO(phase-6): API 의 RESULT_TODAY("발표일 당일") 와 클라이언트의
-  // contracting("계약중") 은 의미가 다릅니다. Jobs 의 UX 결정 후
-  // (a) 클라이언트 enum 을 result_today 로 리네임하거나
-  // (b) RESULT_TODAY → pending 으로 합치는 방향 중 하나를 선택.
-  // 현 PR 에서는 기존 라벨을 건드리지 않는 옵션 (a) 의 임시 형태로 contracting 유지.
-  RESULT_TODAY: 'contracting',
+  RESULT_TODAY: 'result_today',
   SUBSCRIPTION_COMPLETED: 'closed',
 };
 

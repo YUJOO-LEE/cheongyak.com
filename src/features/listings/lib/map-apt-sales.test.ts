@@ -14,7 +14,7 @@ describe('mapApiStatusToDomain', () => {
     expect(mapApiStatusToDomain('SUBSCRIPTION_SCHEDULED')).toBe('upcoming');
     expect(mapApiStatusToDomain('SUBSCRIPTION_ACTIVE')).toBe('accepting');
     expect(mapApiStatusToDomain('RESULT_PENDING')).toBe('pending');
-    expect(mapApiStatusToDomain('RESULT_TODAY')).toBe('contracting');
+    expect(mapApiStatusToDomain('RESULT_TODAY')).toBe('result_today');
     expect(mapApiStatusToDomain('SUBSCRIPTION_COMPLETED')).toBe('closed');
   });
 });

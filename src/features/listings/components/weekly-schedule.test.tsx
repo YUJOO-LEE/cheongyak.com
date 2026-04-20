@@ -116,11 +116,11 @@ describe('WeeklySchedule · getWeekdays (reference)', () => {
 
 /* ─────────────────────────────────────────────────────────── */
 /* Reference implementation of getSubsForDate.                 */
-/* Pins the invariant "only accepting/contracting survive".    */
+/* Pins the invariant "only accepting/result_today survive".   */
 /* ─────────────────────────────────────────────────────────── */
 
 function referenceGetSubsForDate(subs: Subscription[], date: Date): Subscription[] {
-  const ACTIVE = new Set<Subscription['status']>(['accepting', 'contracting']);
+  const ACTIVE = new Set<Subscription['status']>(['accepting', 'result_today']);
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
@@ -140,10 +140,10 @@ describe('WeeklySchedule · getSubsForDate (reference)', () => {
     applicationEnd: '2026-04-17',
   };
 
-  it('keeps accepting and contracting subscriptions that span the date', () => {
+  it('keeps accepting and result_today subscriptions that span the date', () => {
     const subs: Subscription[] = [
       makeSub({ id: 'a', status: 'accepting', ...base }),
-      makeSub({ id: 'b', status: 'contracting', ...base }),
+      makeSub({ id: 'b', status: 'result_today', ...base }),
     ];
     expect(referenceGetSubsForDate(subs, target).map((s) => s.id)).toEqual(['a', 'b']);
   });

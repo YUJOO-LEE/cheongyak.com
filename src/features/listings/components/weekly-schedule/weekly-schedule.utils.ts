@@ -35,8 +35,8 @@ export function getWeekdays(): DayInfo[] {
 }
 
 // 서버 /main/weekly-schedule 은 주간에 속한 모든 상태(마감 포함) 를 내려주므로
-// 이번 주 "진행 중" 일정만 보여주기 위해 accepting/contracting 만 통과시킨다.
-const ACTIVE_STATUSES = new Set<Subscription['status']>(['accepting', 'contracting']);
+// 이번 주 "진행 중" 일정만 보여주기 위해 accepting/result_today 만 통과시킨다.
+const ACTIVE_STATUSES = new Set<Subscription['status']>(['accepting', 'result_today']);
 
 export function getSubsForDate(subs: Subscription[], date: Date): Subscription[] {
   const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;

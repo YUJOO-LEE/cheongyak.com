@@ -47,11 +47,11 @@ const chipConfigs: Record<ChipStatus, ChipConfig> = {
     bg: 'bg-warning-100',
     text: 'text-warning-700',
   },
-  contracting: {
-    label: STATUS_LABELS.contracting,
+  result_today: {
+    label: STATUS_LABELS.result_today,
     icon: FileCheck,
-    bg: 'bg-brand-tertiary-100',
-    text: 'text-brand-tertiary-700',
+    bg: 'bg-warning-50',
+    text: 'text-warning-700',
   },
   closed: {
     label: STATUS_LABELS.closed,
