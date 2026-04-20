@@ -104,6 +104,8 @@ src/
 
 **nuqs 연동:** `src/app/layout.tsx`에서 `QueryProvider` 바깥을 `NuqsAdapter`로 감쌉니다. `/listings`의 필터(`status`, `type`, `page`)는 `useQueryState`로 URL 쿼리 파라미터에 바인딩되어, 이동·새로고침·링크 공유 시에도 필터 상태가 유지됩니다. 필터 값이 변경되면 중앙 집중화된 effect 하나가 `page`를 1로 리셋합니다 — 변경 핸들러는 페이지네이션을 직접 건드리지 않습니다.
 
+**FilterBar 슬롯 API:** `src/features/listings/components/filter-bar/`의 `FilterBar`는 3개 prop(`activeCount`, `onReset`, `children`)을 받는 shell이며, `FilterBar.DesktopBar`와 `FilterBar.Sheet` 두 개의 compound 슬롯을 노출합니다. 각 슬롯은 `FilterField.*` 조합을 받습니다 — `Inline`(데스크톱 칩 행), `Stacked`(시트 내 수직 그룹), `Range`(Phase 6 슬라이더). 새 필터 추가는 각 슬롯에 `FilterField` 인스턴스를 하나 추가하는 것으로 끝나며 shell 본체는 변경하지 않습니다. 이로써 §6 Component Conventions의 5-prop 상한을 필터 확장 속에서도 유지합니다.
+
 ### localStorage 기능 (비인증 개인화)
 
 | 기능 | Store | 데이터 | 제한 |

@@ -3,9 +3,14 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { SubscriptionCard } from './subscription-card';
-import { FilterBar } from './filter-bar';
+import { FilterBar, FilterField } from './filter-bar';
+import { statusOptions, typeOptions } from './filter-bar/filter-bar.options';
 import { EmptyState, Pagination } from '@/shared/components';
-import type { Subscription } from '@/shared/types/api';
+import type {
+  Subscription,
+  SubscriptionStatus,
+  SubscriptionType,
+} from '@/shared/types/api';
 
 interface SubscriptionListClientProps {
   subscriptions: Subscription[];
@@ -67,14 +72,40 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
 
   return (
     <>
-      <FilterBar
-        selectedStatus={selectedStatus}
-        selectedType={selectedType}
-        onStatusChange={handleStatusChange}
-        onTypeChange={handleTypeChange}
-        onReset={handleReset}
-        activeCount={activeFilterCount}
-      />
+      <FilterBar activeCount={activeFilterCount} onReset={handleReset}>
+        <FilterBar.DesktopBar>
+          <FilterField.Inline<SubscriptionStatus>
+            label="상태"
+            groupAriaLabel="청약 상태 필터"
+            options={statusOptions}
+            value={selectedStatus as SubscriptionStatus | null}
+            onChange={(next) => handleStatusChange(next)}
+          />
+          <FilterField.Inline<SubscriptionType>
+            label="유형"
+            groupAriaLabel="공급 유형 필터"
+            options={typeOptions}
+            value={selectedType as SubscriptionType | null}
+            onChange={(next) => handleTypeChange(next)}
+          />
+        </FilterBar.DesktopBar>
+        <FilterBar.Sheet>
+          <FilterField.Stacked<SubscriptionStatus>
+            label="상태"
+            groupAriaLabel="청약 상태 필터"
+            options={statusOptions}
+            value={selectedStatus as SubscriptionStatus | null}
+            onChange={(next) => handleStatusChange(next)}
+          />
+          <FilterField.Stacked<SubscriptionType>
+            label="유형"
+            groupAriaLabel="공급 유형 필터"
+            options={typeOptions}
+            value={selectedType as SubscriptionType | null}
+            onChange={(next) => handleTypeChange(next)}
+          />
+        </FilterBar.Sheet>
+      </FilterBar>
 
       {paged.length === 0 ? (
         <div className="animate-scale-in">

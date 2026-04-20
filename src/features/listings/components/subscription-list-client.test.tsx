@@ -160,8 +160,10 @@ describe('SubscriptionListClient · interactive status filter', () => {
     expect(screen.getAllByRole('article')).toHaveLength(3);
 
     // Click the "접수중" (accepting) chip in the desktop bar. The mobile
-    // sheet renders a duplicate chip; we pick the first occurrence.
-    const chip = screen.getAllByRole('button', { name: '접수중' })[0]!;
+    // sheet renders a duplicate chip; we pick the first occurrence. Chips
+    // now carry a composite aria-label ("{label}, 선택됨/선택 안 됨"), so
+    // we match by regex rather than exact string.
+    const chip = screen.getAllByRole('button', { name: /^접수중,/ })[0]!;
     fireEvent.click(chip);
 
     expect(screen.getAllByRole('article')).toHaveLength(2);
@@ -186,7 +188,7 @@ describe('SubscriptionListClient · interactive type filter (regression gate)', 
     expect(screen.getAllByRole('article')).toHaveLength(3);
 
     // Click the "민간" (private) type chip in the desktop bar.
-    const chip = screen.getAllByRole('button', { name: '민간' })[0]!;
+    const chip = screen.getAllByRole('button', { name: /^민간,/ })[0]!;
     fireEvent.click(chip);
 
     expect(screen.getAllByRole('article')).toHaveLength(2);
@@ -204,8 +206,8 @@ describe('SubscriptionListClient · interactive type filter (regression gate)', 
       />,
     );
 
-    fireEvent.click(screen.getAllByRole('button', { name: '접수중' })[0]!);
-    fireEvent.click(screen.getAllByRole('button', { name: '민간' })[0]!);
+    fireEvent.click(screen.getAllByRole('button', { name: /^접수중,/ })[0]!);
+    fireEvent.click(screen.getAllByRole('button', { name: /^민간,/ })[0]!);
 
     expect(screen.getAllByRole('article')).toHaveLength(1);
   });

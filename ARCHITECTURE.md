@@ -102,6 +102,8 @@ All pages use React Server Components by default. Client Components (`"use clien
 
 **nuqs integration:** `NuqsAdapter` is mounted in `src/app/layout.tsx` around `QueryProvider`. `/listings` filters (`status`, `type`, `page`) are bound to URL query params via `useQueryState`, so navigation, reload, and link-sharing preserve the filtered view. Changing any filter resets `page` to 1 via a single centralized effect — change handlers do not touch pagination directly.
 
+**FilterBar slot API:** `FilterBar` in `src/features/listings/components/filter-bar/` is a shell with three props (`activeCount`, `onReset`, `children`) plus two compound slots (`FilterBar.DesktopBar`, `FilterBar.Sheet`). Each slot accepts any `FilterField.*` composition — `Inline` (desktop chip row), `Stacked` (sheet vertical group), and `Range` (Phase 6 slider). Adding a new filter means adding a `FilterField` instance inside each slot; the shell itself does not change. This keeps the shell under the 5-prop cap from §6 Component Conventions even as the filter surface grows.
+
 ### localStorage Features (No-Auth Personalization)
 
 | Feature | Store | Data | Limit |
