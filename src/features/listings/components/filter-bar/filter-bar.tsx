@@ -1,6 +1,14 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { RotateCcw, SlidersHorizontal, X } from 'lucide-react';
 import { useLockBodyScroll } from '@/shared/hooks/use-lock-body-scroll';
 import { Button } from '@/shared/components';
@@ -12,6 +20,7 @@ interface FilterBarShellContextValue {
   closing: boolean;
   openSheet: () => void;
   closeSheet: () => void;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
 }
 
 const FilterBarShellContext = createContext<FilterBarShellContextValue | null>(null);
@@ -45,6 +54,7 @@ interface FilterBarProps {
 function FilterBarRoot({ activeCount, onReset, children }: FilterBarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [closing, setClosing] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   useLockBodyScroll(mobileOpen);
 
@@ -53,6 +63,9 @@ function FilterBarRoot({ activeCount, onReset, children }: FilterBarProps) {
     const timer = setTimeout(() => {
       setMobileOpen(false);
       setClosing(false);
+      // Return focus to the trigger so keyboard / screen-reader users
+      // land back where they opened the sheet from.
+      triggerRef.current?.focus();
     }, 250);
     return () => clearTimeout(timer);
   }, [closing]);
@@ -64,6 +77,7 @@ function FilterBarRoot({ activeCount, onReset, children }: FilterBarProps) {
     closing,
     openSheet: () => setMobileOpen(true),
     closeSheet: () => setClosing(true),
+    triggerRef,
   };
 
   return (
@@ -75,11 +89,12 @@ function FilterBarRoot({ activeCount, onReset, children }: FilterBarProps) {
 }
 
 function MobileTrigger() {
-  const { activeCount, openSheet } = useFilterBarShell();
+  const { activeCount, openSheet, triggerRef } = useFilterBarShell();
 
   return (
     <div className="lg:hidden px-4 py-3 mb-4 animate-fade-in-up">
       <button
+        ref={triggerRef}
         type="button"
         onClick={openSheet}
         className="flex items-center gap-2 px-3 min-h-11 rounded-md bg-bg-card text-text-secondary text-label-lg shadow-sm cursor-pointer"
@@ -129,6 +144,49 @@ interface SheetProps {
 
 function Sheet({ children }: SheetProps) {
   const { activeCount, onReset, mobileOpen, closing, closeSheet } = useFilterBarShell();
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
+
+  // Mount effects that run only while the sheet is open: first-focus,
+  // Tab-wrap, and Escape-to-close. We intentionally depend on
+  // `mobileOpen` alone (not `closing`) so the trap stays active through
+  // the 250ms close animation.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const sheet = sheetRef.current;
+    if (!sheet) return;
+
+    // First focus — the close button is the predictable landing point
+    // for both keyboard users and Korean TTS, and the sheet header is
+    // not focusable by default.
+    closeButtonRef.current?.focus();
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeSheet();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const focusables = sheet!.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && active === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && active === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [mobileOpen, closeSheet]);
 
   if (!mobileOpen) return null;
 
@@ -140,11 +198,18 @@ function Sheet({ children }: SheetProps) {
         aria-hidden="true"
       />
       <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className={`absolute bottom-0 left-0 right-0 bg-bg-page/80 backdrop-blur-glass rounded-t-xl shadow-sheet-top p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up-sheet ${closing ? 'sheet-closing' : ''}`}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-headline-sm">필터</h2>
+          <h2 id={titleId} className="text-headline-sm">
+            필터
+          </h2>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={closeSheet}
             className="p-3 cursor-pointer"

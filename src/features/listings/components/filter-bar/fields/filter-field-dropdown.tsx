@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import type { DropdownFieldProps } from './filter-field.types';
 
@@ -42,7 +42,12 @@ function DropdownTrigger<TValue extends string>({
   triggerAriaLabel,
   open,
   onToggle,
-}: DropdownFieldProps<TValue> & { open: boolean; onToggle: () => void }) {
+  panelId,
+}: DropdownFieldProps<TValue> & {
+  open: boolean;
+  onToggle: () => void;
+  panelId: string;
+}) {
   const flatOptions = groups.flatMap((g) => g.options);
   const selectedLabels = value
     .map((v) => flatOptions.find((o) => o.value === v)?.label)
@@ -55,6 +60,8 @@ function DropdownTrigger<TValue extends string>({
       type="button"
       onClick={onToggle}
       aria-expanded={open}
+      aria-haspopup="dialog"
+      aria-controls={panelId}
       aria-label={
         triggerAriaLabel ?? `${label}, ${count > 0 ? `${count}개 선택됨` : '전체'}`
       }
@@ -86,7 +93,10 @@ function DropdownPanel<TValue extends string>({
   value,
   onChange,
   placeholder,
-}: Omit<DropdownFieldProps<TValue>, 'triggerAriaLabel' | 'formatSummary'>) {
+  panelId,
+}: Omit<DropdownFieldProps<TValue>, 'triggerAriaLabel' | 'formatSummary'> & {
+  panelId: string;
+}) {
   function toggle(next: TValue) {
     const current = value;
     const nextValues = current.includes(next)
@@ -96,7 +106,12 @@ function DropdownPanel<TValue extends string>({
   }
 
   return (
-    <div aria-label={label} className="space-y-3">
+    <div
+      id={panelId}
+      role="dialog"
+      aria-label={`${label} 선택`}
+      className="space-y-3"
+    >
       <div>
         <button
           type="button"
@@ -111,7 +126,7 @@ function DropdownPanel<TValue extends string>({
       <div className="max-h-80 overflow-y-auto space-y-3">
         {groups.map((group) => (
           <section key={group.label}>
-            <p className="mb-1.5 px-1 text-label-md text-text-tertiary">{group.label}</p>
+            <p className="mb-1.5 px-1 text-label-md text-text-secondary">{group.label}</p>
             <div role="group" aria-label={`${group.label} ${label}`} className="flex flex-wrap gap-3">
             {group.options.map((opt) => {
               const selected = value.includes(opt.value);
@@ -146,6 +161,7 @@ function FilterFieldDropdownDesktop<TValue extends string>(
   props: DropdownFieldProps<TValue>,
 ) {
   const [open, setOpen] = useState(false);
+  const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -172,10 +188,11 @@ function FilterFieldDropdownDesktop<TValue extends string>(
         {...props}
         open={open}
         onToggle={() => setOpen((v) => !v)}
+        panelId={panelId}
       />
       {open && (
         <div className="absolute left-0 top-full mt-1 min-w-64 max-w-lg bg-bg-elevated rounded-md shadow-md z-dropdown p-3 overflow-hidden">
-          <DropdownPanel {...props} />
+          <DropdownPanel {...props} panelId={panelId} />
         </div>
       )}
     </div>
@@ -186,6 +203,7 @@ function FilterFieldDropdownMobile<TValue extends string>(
   props: DropdownFieldProps<TValue>,
 ) {
   const [open, setOpen] = useState(false);
+  const panelId = useId();
 
   return (
     <div className="flex flex-col gap-2">
@@ -194,10 +212,11 @@ function FilterFieldDropdownMobile<TValue extends string>(
         {...props}
         open={open}
         onToggle={() => setOpen((v) => !v)}
+        panelId={panelId}
       />
       {open && (
         <div className="rounded-md bg-bg-sunken p-4">
-          <DropdownPanel {...props} />
+          <DropdownPanel {...props} panelId={panelId} />
         </div>
       )}
     </div>
