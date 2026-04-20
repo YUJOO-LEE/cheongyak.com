@@ -40,6 +40,8 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+.claude/api-docs.local.md
+.claude/scheduled_tasks.lock
 
 # OMC plugin cache
 .omc
