@@ -132,7 +132,7 @@ action — hiding it behind "필터" violates the 3-tap rule).
 - Screen-reader update on results count: `aria-live="polite"` region near the results count ("검색 결과 N건")
 
 **Edge cases**
-- Paste > 50 chars → truncate silently to 50, flash toast "최대 50자까지 입력할 수 있어요." once per session
+- Paste > 50 chars → truncate silently to 50, render inline helper text "최대 50자까지 입력할 수 있어요." below the input using `text-caption text-text-tertiary`, mirrored to an `aria-live="polite"` region. (No toast — the project has no toast primitive yet; revisit in Phase 8 if a toast store lands.)
 - Composition (IME Korean input) → do not fire query update mid-composition (`onCompositionEnd` then flush)
 
 ---
@@ -173,7 +173,7 @@ Add a visible subheading per group using `text-label-md text-text-tertiary px-3 
 - Left: label text (`text-body-md`, truncated with ellipsis if overflow)
 - Right: `ChevronDown` icon (`icon-sm`)
 - Count badge (when ≥1 selected): circular neutral badge `bg-neutral-500 text-text-inverse rounded-full min-w-5 h-5 text-caption px-1.5`
-  - NOTE: Count badge uses neutral (not brand-primary) to align with TypeChip neutral-lock rule.
+  - NOTE: Count badge uses neutral (not brand-primary) — decided 2026-04-20 by Chanel + Nolan. Rationale: brand-primary is reserved for interactive primary (CTA, link); count is numeric info, not a state. Applies globally to every count badge in this spec (mobile filter trigger, region trigger).
 
 **Popover (desktop)**
 - Anchor: below trigger, 4px gap
@@ -192,6 +192,7 @@ Add a visible subheading per group using `text-label-md text-text-tertiary px-3 
 - `flex items-center gap-2 min-h-11 px-3 py-2.5 rounded-md cursor-pointer`
 - hover: `bg-bg-hover` (desktop only)
 - selected: prepend `Check` icon (`icon-xs`, `text-brand-primary-500`)
+  - The `Check` indicator icon is exempt from the TypeChip neutral-lock. The lock applies to chip/row surface color; state-indicator icons may use `brand-primary-500`.
 - text: `text-body-md text-text-primary`
 - focus-visible: 2px `brand-primary-500` outline
 
@@ -245,7 +246,7 @@ Add a visible subheading per group using `text-label-md text-text-tertiary px-3 
 
 | State | Classes |
 |---|---|
-| default | `bg-chip-bg text-text-secondary px-3.5 py-1.5 rounded-full text-label-md min-h-11 flex items-center gap-1.5` |
+| default | `bg-chip-bg text-text-secondary px-3 py-1.5 rounded-full text-label-md min-h-11 flex items-center gap-1.5` |
 | hover | `bg-chip-bg-hover` |
 | selected | `bg-neutral-500 text-text-inverse shadow-sm` + prepended `<Check icon-xs />` |
 | focus-visible | 2px `brand-primary-500` outline with 2px offset |
@@ -255,6 +256,7 @@ Add a visible subheading per group using `text-label-md text-text-tertiary px-3 
 - Selecting the same chip again toggles it off (multi toggle, not single-select).
 - Reset ("초기화") clears status + type + region + keyword together.
 - **Never** apply `bg-brand-primary-*` to selected chips — the neutral lock is a documented design-memory rule.
+- Chip padding aligns with existing `filter-bar-desktop.tsx` at `px-3 py-1.5`; the Check icon fits via `gap-1.5`, no new padding scale. Global Chip component consolidation (mobile sheet currently uses `px-4 py-2`) is deferred to Phase 8 backlog.
 
 **Accessibility**
 - Each chip: `<button aria-pressed="{selected}" aria-label="{label}, {selected ? '선택됨' : '선택 안 됨'}">`
@@ -303,6 +305,10 @@ Any filter change resets `page` to `1` to avoid pagination drift.
 
 SSR first paint reads the query from the request URL; client-side
 updates push to the URL via `setFilters` (not `router.push`).
+
+**Scroll behavior on filter change**: `setFilters` uses `{ shallow: true, scroll: false }` so filter-driven URL updates do not scroll the page. Pagination changes DO scroll to top (matches existing `subscription-list-client.tsx` behavior).
+
+**SSR hydration — no debounce on first paint**: Initial render must mount with the URL's `q` value already applied — the 300ms debounce timer runs only for user-initiated changes, not on the hydration pass. Concretely: initialize the input's `useState` from `filters.q` directly and start the debounce timer inside an `onChange` handler, not inside a `useEffect` that fires on mount. Confirm the generated hook's `initialData` path with Tesla during Phase 6 implementation.
 
 ### 4.2 Reset
 
@@ -374,7 +380,7 @@ Empty state copy when the selected filter yields 0 results:
 |---|---|
 | Dropdown focus return | On Popover close, move focus back to the trigger button |
 | Screen reader updates | `aria-live="polite"` region announcing `"검색 결과 N건"` after filter change |
-| Keyboard shortcuts | `⌘K` / `Ctrl+K` focuses the keyword input on desktop (optional, nice-to-have) |
+| Keyboard shortcuts | `⌘K` / `Ctrl+K` is **reserved for the global search overlay** (`src/app/search-root.tsx`, commit 558aa23). Filter keyword input gets no dedicated shortcut in B3; Helen decides in Phase 8 whether to bind `/` or similar. |
 | Escape | Closes Popover or sheet, returns focus to trigger |
 | Touch targets | All interactive rows meet 44×44 via `min-h-11` |
 | Color-only status | Every status chip pairs label with `Check` icon when selected; status-chip colors always pair with a Korean label |
@@ -414,10 +420,10 @@ retrofit into the B1 fields.
 
 ---
 
-## 9. Open questions for the team
+## 9. Resolved decisions (2026-04-20)
 
-1. **⌘K shortcut**: does the existing global search overlay already own this? If yes, drop from §6. — Jobs to confirm with Nolan.
-2. **Active count badge color**: spec says neutral-500 for consistency with chip neutral lock, but Chanel's audit mentioned `brand-primary-500` for the region count badge. Reconcile: **neutral-500 everywhere** to avoid split identity unless Chanel confirms the region-specific override.
-3. **Keyword debounce on SSR**: first paint from URL param should not fire a second debounced request. Jobs to document the expected SSR-hydration path with Tesla.
+All Phase-6-blocking questions have been resolved. Kept here for audit trail.
 
-Resolve before Phase 6 PR opens.
+1. **⌘K shortcut** — reserved for the global search overlay; not reused for the FilterBar keyword input. Helen may bind an alternative (e.g. `/`) during the Phase 8 a11y pass.
+2. **Count badge color** — `neutral-500` everywhere (mobile filter trigger + region trigger). Brand-primary stays reserved for interactive primary (CTA, link); count is numeric info, not a state. Chanel's earlier brand-primary-for-region proposal is withdrawn.
+3. **Keyword debounce on SSR** — initial render mounts with the URL's `q` already applied; the 300ms debounce timer runs only for user-initiated changes. Jobs + Tesla confirm the hook's `initialData` path when Phase 6 implementation begins.
