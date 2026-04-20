@@ -101,9 +101,10 @@ navigation bar, which routes them through `SearchOverlay`.
 
 > §3.1 (Keyword input) was **removed** in the 2026-04-20 revision.
 > Search belongs to the global overlay (`src/app/search-root.tsx`).
-> The section numbers below are renumbered accordingly; `FilterField.Text`
-> component stays in the codebase (generic text field primitive) but is
-> **not** mounted on `/listings`.
+> The section numbers below are renumbered accordingly. The
+> short-lived `FilterField.Text` primitive introduced during the B3
+> rework was **deleted** from the codebase once it was clear nothing
+> else consumed it.
 
 ---
 
@@ -582,8 +583,9 @@ User feedback triggered three revisions to the previously-shipped
    apartment-name search. `/listings` keyword input duplicated that
    primitive. Spec §1 scope table, §2 ASCII diagrams, the former §3.1
    "Keyword input" field, and §4.1 nuqs parsers were updated to drop
-   the `q` key. The `FilterField.Text` component stays in the codebase
-   as a generic primitive but is not mounted on `/listings`.
+   the `q` key. The `FilterField.Text` primitive was subsequently
+   deleted from the codebase — nothing else consumed it, so it was
+   dead weight rather than a reusable building block.
 2. **Region picker redesigned** — the existing Popover/list felt
    dense and rhythm-less. §3.1 now offers three alternative patterns
    (A grouped chip pool, B tabbed, C map) with recommendation.

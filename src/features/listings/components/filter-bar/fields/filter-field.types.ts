@@ -55,33 +55,3 @@ export interface DropdownFieldProps<TValue extends string = string> {
   triggerAriaLabel?: string;
 }
 
-export interface TextFieldProps {
-  label: string;
-  value: string;
-  onChange: (next: string) => void;
-  placeholder?: string;
-  /** Max characters to accept. Paste beyond the limit is truncated. */
-  maxLength?: number;
-  /** Debounce (ms) applied to `onChange`. 0 disables debounce. */
-  debounceMs?: number;
-  /** Optional inline helper text (e.g. length warning). */
-  helperText?: string;
-  /**
-   * `aria-label` for the input. Falls back to `label`.
-   */
-  inputAriaLabel?: string;
-  /**
-   * `aria-label` for the clear button. Defaults to `검색어 지우기`.
-   */
-  clearAriaLabel?: string;
-}
-
-export interface RangeFieldProps {
-  label: string;
-  min: number;
-  max: number;
-  step?: number;
-  value: [number, number] | null;
-  onChange: (next: [number, number] | null) => void;
-  formatValue?: (value: number) => string;
-}

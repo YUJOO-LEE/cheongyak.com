@@ -4,8 +4,6 @@ export type {
   ChipFieldProps,
   SingleChipFieldProps,
   MultiChipFieldProps,
-  RangeFieldProps,
   DropdownFieldProps,
-  TextFieldProps,
   FilterFieldOption,
 } from './fields';
