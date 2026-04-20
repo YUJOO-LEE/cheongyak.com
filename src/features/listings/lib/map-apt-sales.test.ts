@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  REGION_GROUPS,
+  REGION_LABEL_MAP,
   mapApiDetailTypeToDomain,
   mapApiStatusToDomain,
   mapItemToSubscription,
 } from './map-apt-sales';
 import type { Item } from '@/shared/api/generated/schemas/item';
+import { ItemRegionCode } from '@/shared/api/generated/schemas/itemRegionCode';
 
 describe('mapApiStatusToDomain', () => {
   it('maps the five backend status codes to domain enum', () => {
@@ -25,6 +28,29 @@ describe('mapApiDetailTypeToDomain', () => {
   it('falls back to private when the API omits the detail type', () => {
     expect(mapApiDetailTypeToDomain(undefined)).toBe('private');
     expect(mapApiDetailTypeToDomain(null)).toBe('private');
+  });
+});
+
+describe('REGION_GROUPS', () => {
+  it('covers every ItemRegionCode exactly once', () => {
+    const flat = REGION_GROUPS.flatMap((g) => g.codes);
+    const expected = Object.values(ItemRegionCode).filter(
+      (v): v is NonNullable<typeof v> => v !== null,
+    );
+    expect(new Set(flat)).toEqual(new Set(expected));
+    expect(flat).toHaveLength(expected.length);
+  });
+
+  it('has a Korean label for every code in the map', () => {
+    for (const group of REGION_GROUPS) {
+      for (const code of group.codes) {
+        expect(REGION_LABEL_MAP[code]).toBeTruthy();
+      }
+    }
+  });
+
+  it('preserves the filter-ui-spec group order', () => {
+    expect(REGION_GROUPS.map((g) => g.label)).toEqual(['수도권', '광역시', '도']);
   });
 });
 

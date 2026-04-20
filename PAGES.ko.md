@@ -171,10 +171,13 @@
 
 | 엔드포인트 | 데이터 |
 |---|---|
-| `GET /api/subscriptions` | 페이지네이션된 청약 목록 |
-| **쿼리 파라미터** | `region`, `district`, `type`, `status`, `supply`, `builder`, `sort`, `page` |
-| `GET /api/filters/regions` | 지역 계층 구조 (시/도 → 구/군) |
-| `GET /api/filters/builders` | 자동완성용 시공사 목록 |
+| `GET /apt-sales` | 페이지네이션된 청약 목록 (orval 생성 `useGetAptSalesList` 로 바인딩) |
+| **쿼리 파라미터 (바인딩 완료)** | `status[]`, `houseDetailType[]`, `regionCode[]`, `keyword`, `page`, `size` |
+| **쿼리 파라미터 (로드맵)** | `district` (구/군), `supply` (공급유형), `builder` — 백엔드 미지원. API 도착 전까지 UI 노출 보류 |
+
+지역 옵션은 orval 이 생성한 `ItemRegionCode` enum 에서 가져오며 별도
+`/filters/*` 엔드포인트를 호출하지 않습니다. 구 문서에 남아있던
+`/api/filters/regions`, `/api/filters/builders` 표기는 무효입니다.
 
 ### 모바일 레이아웃
 

@@ -35,8 +35,9 @@ const DETAIL_TYPE_MAP: Record<'PRIVATE' | 'NATIONAL', SubscriptionType> = {
 /**
  * 17개 시도 enum → 한국어 시도명. `regionName` 이 서버에서 올라오면
  * 그 값을 우선 쓰지만, null 이면 enum 기반 fallback 이 필요합니다.
+ * Phase 6 의 지역 드롭다운도 이 맵의 라벨을 그대로 씁니다.
  */
-const REGION_LABEL_MAP: Record<NonNullable<ItemRegionCode>, string> = {
+export const REGION_LABEL_MAP: Record<NonNullable<ItemRegionCode>, string> = {
   SEOUL: '서울특별시',
   GANGWON: '강원도',
   DAEJEON: '대전광역시',
@@ -55,6 +56,35 @@ const REGION_LABEL_MAP: Record<NonNullable<ItemRegionCode>, string> = {
   DAEGU: '대구광역시',
   GYEONGBUK: '경상북도',
 };
+
+/**
+ * Region dropdown grouping — preserves the Korean mental model of
+ * 수도권 → 광역시 → 도 rather than alphabetical order. Consumed by
+ * the Phase 6 region multi-select per `docs/filter-ui-spec.md` §3.2.
+ */
+export const REGION_GROUPS: ReadonlyArray<{
+  label: string;
+  codes: ReadonlyArray<NonNullable<ItemRegionCode>>;
+}> = [
+  { label: '수도권', codes: ['SEOUL', 'GYEONGGI', 'INCHEON'] },
+  {
+    label: '광역시',
+    codes: ['BUSAN', 'DAEGU', 'GWANGJU', 'DAEJEON', 'ULSAN', 'SEJONG'],
+  },
+  {
+    label: '도',
+    codes: [
+      'GANGWON',
+      'CHUNGBUK',
+      'CHUNGNAM',
+      'JEONBUK',
+      'JEONNAM',
+      'GYEONGBUK',
+      'GYEONGNAM',
+      'JEJU',
+    ],
+  },
+];
 
 export function mapApiStatusToDomain(apiStatus: ItemStatus): SubscriptionStatus {
   return STATUS_MAP[apiStatus];

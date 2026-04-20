@@ -1,6 +1,5 @@
 import { http, HttpResponse } from 'msw';
 import { subscriptions, subscriptionDetail } from './fixtures/subscriptions';
-import { filterOptions } from './fixtures/filters';
 import { aptSalesItems } from './fixtures/apt-sales';
 import type { Item } from '@/shared/api/generated/schemas/item';
 import type { ItemHouseDetailType } from '@/shared/api/generated/schemas/itemHouseDetailType';
@@ -191,15 +190,6 @@ export const handlers = [
       );
     }
     return HttpResponse.json({ ...subscriptionDetail, ...sub });
-  }),
-
-  // Filter options
-  http.get(`${API_BASE}/filters/regions`, () => {
-    return HttpResponse.json(filterOptions.regions);
-  }),
-
-  http.get(`${API_BASE}/filters/builders`, () => {
-    return HttpResponse.json(filterOptions.builders);
   }),
 
   // Search
