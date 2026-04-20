@@ -1,23 +1,86 @@
 /**
  * Regression tests for SubscriptionListClient.
  *
- * Layers:
- *   1. Pure filter / pagination math (reference implementation mirrors the
- *      component body).
- *   2. Server-rendered output — populated and empty branches.
- *   3. Interactive filter — status and type chips both reduce the rendered
- *      card set; combined filters intersect.
+ * After the Phase 7 API binding, the component fetches from
+ * `/apt-sales` via a Suspense query instead of receiving a prop.
+ * These tests spin up MSW, let the query resolve, and assert on the
+ * rendered DOM. The reference math suites (filter / pagination) stay
+ * as lightweight unit checks against the same mental model.
  */
-import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, screen } from '@testing-library/react';
-import { SubscriptionListClient } from './subscription-list-client';
 import {
-  renderToStaticMarkupWithNuqs as renderToStaticMarkup,
-  renderWithNuqs as render,
-} from '@/test/render';
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+} from 'vitest';
+import { cleanup, screen, waitFor } from '@testing-library/react';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+import { SubscriptionListClient } from './subscription-list-client';
+import { renderWithNuqs as render } from '@/test/render';
+import { handlers } from '@/mocks/handlers';
+import type { Item } from '@/shared/api/generated/schemas/item';
 import type { Subscription } from '@/shared/types/api';
 
+const server = setupServer(...handlers);
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+afterEach(() => {
+  server.resetHandlers();
+  cleanup();
+});
+afterAll(() => server.close());
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 const ITEMS_PER_PAGE = 20;
+
+function makeItem(
+  id: number,
+  status: Item['status'],
+  detailType: Item['houseDetailType'] = 'PRIVATE',
+  overrides: Partial<Item> = {},
+): Item {
+  return {
+    id,
+    houseName: `청약 ${id}`,
+    status,
+    houseDetailType: detailType,
+    regionCode: 'SEOUL',
+    regionName: '서울특별시',
+    sigunguName: '강남구',
+    dongName: '역삼동',
+    constructorName: '테스트건설',
+    subscriptionStartDate: '2026-04-10',
+    subscriptionEndDate: '2026-04-12',
+    totalSupplyHousehold: 100,
+    minSupplyArea: 59,
+    maxSupplyArea: 59,
+    ...overrides,
+  };
+}
+
+function mockAptSales(items: Item[]) {
+  server.use(
+    http.get(`${API_BASE}/apt-sales`, () => {
+      return HttpResponse.json({
+        data: {
+          totalCount: items.length,
+          page: 0,
+          size: ITEMS_PER_PAGE,
+          items,
+        },
+      });
+    }),
+  );
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/* Reference filter/pagination logic (mirrors component body). */
+/* These are pure math checks on the same mental model the     */
+/* component uses — no rendering.                              */
+/* ─────────────────────────────────────────────────────────── */
 
 function makeSub(
   id: string,
@@ -37,11 +100,6 @@ function makeSub(
     sizeRange: '59㎡',
   };
 }
-
-/* ─────────────────────────────────────────────────────────── */
-/* Reference filter/pagination logic (mirrors component body). */
-/* Page reset invariant: changing a filter resets page to 1.   */
-/* ─────────────────────────────────────────────────────────── */
 
 function applyFilter(
   subs: Subscription[],
@@ -98,125 +156,51 @@ describe('SubscriptionListClient · pagination math (reference)', () => {
     expect(Math.ceil(21 / ITEMS_PER_PAGE)).toBe(2);
     expect(Math.ceil(0 / ITEMS_PER_PAGE)).toBe(0);
   });
-
-  it('uses first-page slicing when currentPage is 1 after a filter reset', () => {
-    // Regression target: after status/type/reset change, currentPage must be 1.
-    // This verifies the slice math that position resetting is observable on.
-    const first = paginate(many, 1, ITEMS_PER_PAGE);
-    expect(first[0]!.id).toBe('x0');
-    expect(first[19]!.id).toBe('x19');
-  });
 });
 
 /* ─────────────────────────────────────────────────────────── */
-/* Server-rendered output captures the two initial-render      */
-/* branches: populated list with count text, or empty-state    */
-/* with reset CTA.                                             */
+/* API-bound rendering — populated, empty, and listings page   */
+/* should never ship a keyword input (spec §4.1).              */
 /* ─────────────────────────────────────────────────────────── */
 
-describe('SubscriptionListClient · server markup', () => {
-  it('renders the "총 N건" count and one card per subscription on first page', () => {
-    const subs = [
-      makeSub('a', 'accepting'),
-      makeSub('b', 'closed'),
-      makeSub('c', 'upcoming'),
-    ];
-    const html = renderToStaticMarkup(<SubscriptionListClient subscriptions={subs} />);
-    expect(html).toContain('총 3건');
-    expect(html).toContain('href="/listings/a"');
-    expect(html).toContain('href="/listings/b"');
-    expect(html).toContain('href="/listings/c"');
-  });
+describe('SubscriptionListClient · API-bound rendering', () => {
+  it('renders the "총 N건" count and one card per item returned by /apt-sales', async () => {
+    mockAptSales([
+      makeItem(1, 'SUBSCRIPTION_ACTIVE'),
+      makeItem(2, 'SUBSCRIPTION_COMPLETED'),
+      makeItem(3, 'SUBSCRIPTION_SCHEDULED'),
+    ]);
 
-  it('does not render a listings-scoped keyword input', () => {
-    const html = renderToStaticMarkup(
-      <SubscriptionListClient subscriptions={[makeSub('a', 'accepting')]} />,
-    );
-    expect(html).not.toContain('단지명 검색');
-    expect(html).not.toContain('filter-keyword');
-  });
+    render(<SubscriptionListClient />);
 
-  it('renders the empty-state CTA and reset button when the input list is empty', () => {
-    const html = renderToStaticMarkup(<SubscriptionListClient subscriptions={[]} />);
-    expect(html).toContain('조건에 맞는 청약 정보가 없습니다.');
-    expect(html).toContain('필터 초기화');
-  });
-});
-
-/* ─────────────────────────────────────────────────────────── */
-/* Interactive filter — status and type chips both reduce the  */
-/* rendered card set; combined filters intersect.              */
-/* ─────────────────────────────────────────────────────────── */
-
-describe('SubscriptionListClient · interactive status filter', () => {
-  afterEach(() => {
-    cleanup();
-  });
-
-  it('reduces the rendered cards to those matching the clicked status chip', () => {
-    render(
-      <SubscriptionListClient
-        subscriptions={[
-          makeSub('a', 'accepting'),
-          makeSub('b', 'accepting'),
-          makeSub('c', 'closed'),
-        ]}
-      />,
-    );
-
-    // Sanity: all three render initially.
+    await waitFor(() => {
+      expect(screen.getByText('총 3건')).toBeInTheDocument();
+    });
     expect(screen.getAllByRole('article')).toHaveLength(3);
-
-    // Click the "접수중" (accepting) chip in the desktop bar. The mobile
-    // sheet renders a duplicate chip; we pick the first occurrence. Chips
-    // now carry a composite aria-label ("{label}, 선택됨/선택 안 됨"), so
-    // we match by regex rather than exact string.
-    const chip = screen.getAllByRole('button', { name: /^접수중,/ })[0]!;
-    fireEvent.click(chip);
-
-    expect(screen.getAllByRole('article')).toHaveLength(2);
-  });
-});
-
-describe('SubscriptionListClient · interactive type filter (regression gate)', () => {
-  afterEach(() => {
-    cleanup();
   });
 
-  it('filters rendered cards to selectedType', () => {
-    render(
-      <SubscriptionListClient
-        subscriptions={[
-          makeSub('a', 'accepting', 'public'),
-          makeSub('b', 'accepting', 'private'),
-          makeSub('c', 'closed', 'private'),
-        ]}
-      />,
-    );
-    expect(screen.getAllByRole('article')).toHaveLength(3);
+  it('renders the empty-state CTA when /apt-sales returns an empty list', async () => {
+    mockAptSales([]);
 
-    // Click the "민간" (private) type chip in the desktop bar.
-    const chip = screen.getAllByRole('button', { name: /^민간,/ })[0]!;
-    fireEvent.click(chip);
+    render(<SubscriptionListClient />);
 
-    expect(screen.getAllByRole('article')).toHaveLength(2);
+    await waitFor(() => {
+      expect(
+        screen.getByText('조건에 맞는 청약 정보가 없습니다.'),
+      ).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: '필터 초기화' })).toBeInTheDocument();
   });
 
-  it('combines selectedStatus and selectedType', () => {
-    render(
-      <SubscriptionListClient
-        subscriptions={[
-          makeSub('a', 'accepting', 'public'),
-          makeSub('b', 'accepting', 'private'),
-          makeSub('c', 'closed', 'private'),
-          makeSub('d', 'upcoming', 'private'),
-        ]}
-      />,
-    );
+  it('does not render a listings-scoped keyword input (global SearchOverlay owns search)', async () => {
+    mockAptSales([makeItem(1, 'SUBSCRIPTION_ACTIVE')]);
 
-    fireEvent.click(screen.getAllByRole('button', { name: /^접수중,/ })[0]!);
-    fireEvent.click(screen.getAllByRole('button', { name: /^민간,/ })[0]!);
+    const { container } = render(<SubscriptionListClient />);
 
-    expect(screen.getAllByRole('article')).toHaveLength(1);
+    await waitFor(() => {
+      expect(screen.getByText('총 1건')).toBeInTheDocument();
+    });
+    expect(container.querySelector('input[type="search"]')).toBeNull();
+    expect(screen.queryByPlaceholderText('단지명 검색')).toBeNull();
   });
 });

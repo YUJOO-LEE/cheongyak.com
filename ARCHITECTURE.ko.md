@@ -153,6 +153,13 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 3. 생성된 fetch 함수는 `src/shared/lib/api-client.ts`의 `apiClientMutator`를 통해 라우팅 — base URL, headers, `ApiClientError` 정규화의 단일 지점.
 4. CI는 `pnpm codegen:check`를 실행 — 스펙이 변경됐는데 생성 파일이 재커밋되지 않으면 실패.
 
+### SSR 데이터 흐름 (예: `/listings` → `/apt-sales`)
+1. Server Component 가 `searchParams` 를 resolve 하고 `parseListingsSearchParams` → `toAptSalesRequest` 로 wire 요청을 구성.
+2. `getQueryClient()` 로 요청별 `QueryClient` 를 만들고 `queryClient.prefetchQuery(aptSalesQueryOptions(request))` 로 캐시를 심음.
+3. `<HydrationBoundary state={dehydrate(queryClient)}>` 로 시드를 클라이언트에 전달. Suspense 바운더리가 스켈레톤 fallback 으로 감쌈.
+4. 클라이언트는 동일한 key·request 로 `useSuspenseQuery(aptSalesQueryOptions(request))` 를 호출 → hydration 시 재요청 없음. 이후 nuqs 변경이 백그라운드 refetch 를 트리거.
+5. `src/features/listings/lib/apt-sales-query.ts` wrapper 가 존재하는 이유: orval 이 생성한 param 형태가 `{ request: AptSalesListRequest }` 라서, wrapper 가 URL 직렬화(flat `status[]`, `regionCode[]`)를 담당. 생성 타입은 source of truth 로 유지하면서 직렬화만 우회.
+
 ### 에러 처리 패턴
 ```typescript
 // API 에러를 일관된 형태로 정규화

@@ -178,7 +178,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 | Endpoint | Data |
 |---|---|
-| `GET /apt-sales` | Paginated subscription list (bound via orval-generated `useGetAptSalesList`) |
+| `GET /apt-sales` | Paginated subscription list. Server Component prefetches via `queryClient.prefetchQuery(aptSalesQueryOptions(request))` and hands the dehydrated state to a Suspense-wrapped client that reads with `useSuspenseQuery`. |
 | **Query params (bound)** | `status[]`, `houseDetailType[]`, `regionCode[]`, `page`, `size` |
 | **Query params (roadmap)** | `district` (구/군), `supply` (공급유형), `builder` — no backend support yet; UI omitted until API lands |
 

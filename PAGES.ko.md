@@ -180,7 +180,7 @@
 
 | 엔드포인트 | 데이터 |
 |---|---|
-| `GET /apt-sales` | 페이지네이션된 청약 목록 (orval 생성 `useGetAptSalesList` 로 바인딩) |
+| `GET /apt-sales` | 페이지네이션된 청약 목록. Server Component 가 `queryClient.prefetchQuery(aptSalesQueryOptions(request))` 로 prefetch 하고, dehydrate 된 상태를 Suspense 로 감싸진 클라이언트가 `useSuspenseQuery` 로 읽습니다. |
 | **쿼리 파라미터 (바인딩 완료)** | `status[]`, `houseDetailType[]`, `regionCode[]`, `page`, `size` |
 | **쿼리 파라미터 (로드맵)** | `district` (구/군), `supply` (공급유형), `builder` — 백엔드 미지원. API 도착 전까지 UI 노출 보류 |
 

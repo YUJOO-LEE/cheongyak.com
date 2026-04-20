@@ -151,6 +151,13 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 3. Generated fetch functions route through `apiClientMutator` in `src/shared/lib/api-client.ts`, centralizing base URL, headers, and `ApiClientError` normalization.
 4. CI runs `pnpm codegen:check` — fails if the spec changed but the generated files weren't re-committed.
 
+### SSR Data Flow (e.g. `/listings` → `/apt-sales`)
+1. Server Component resolves `searchParams`, runs `parseListingsSearchParams` → `toAptSalesRequest` to build a wire request.
+2. `getQueryClient()` creates a per-request `QueryClient`. `queryClient.prefetchQuery(aptSalesQueryOptions(request))` seeds the cache.
+3. `<HydrationBoundary state={dehydrate(queryClient)}>` ships the seed to the client. A Suspense boundary with a skeleton fallback guards the client subtree.
+4. The client component calls `useSuspenseQuery(aptSalesQueryOptions(request))` — same key, same request → no refetch on hydration. nuqs mutations then trigger background refetches.
+5. Feature-local wrappers (`src/features/listings/lib/apt-sales-query.ts`) exist because orval's generated param shape is `{ request: AptSalesListRequest }`; the wrapper owns URL serialization (flat `status[]`, `regionCode[]`) so the generated types stay the source of truth without fighting the serializer.
+
 ### Error Handling Pattern
 ```typescript
 // API errors normalized to a consistent shape

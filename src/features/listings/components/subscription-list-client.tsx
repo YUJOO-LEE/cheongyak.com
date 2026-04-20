@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   parseAsArrayOf,
   parseAsInteger,
@@ -11,24 +12,24 @@ import { SubscriptionCard } from './subscription-card';
 import { FilterBar, FilterField } from './filter-bar';
 import { statusOptions, typeOptions } from './filter-bar/filter-bar.options';
 import { EmptyState, Pagination } from '@/shared/components';
+import { aptSalesQueryOptions } from '@/features/listings/lib/apt-sales-query';
+import {
+  PAGE_SIZE,
+  toAptSalesRequest,
+  type ListingsFilterState,
+} from '@/features/listings/lib/listings-search-params';
 import {
   REGION_GROUPS,
   REGION_LABEL_MAP,
+  mapItemToSubscription,
 } from '@/features/listings/lib/map-apt-sales';
 import type { ItemRegionCode } from '@/shared/api/generated/schemas/itemRegionCode';
 import {
   SubscriptionStatusSchema,
   SubscriptionTypeSchema,
-  type Subscription,
   type SubscriptionStatus,
   type SubscriptionType,
 } from '@/shared/types/api';
-
-interface SubscriptionListClientProps {
-  subscriptions: Subscription[];
-}
-
-const ITEMS_PER_PAGE = 20;
 
 type RegionCode = NonNullable<ItemRegionCode>;
 const REGION_CODES = Object.keys(REGION_LABEL_MAP) as RegionCode[];
@@ -55,18 +56,7 @@ const regionGroups = REGION_GROUPS.map((group) => ({
   })),
 }));
 
-// 시/도 명(예: "서울특별시") 을 region code 의 Korean label 과 매칭.
-// API 바인딩 전에는 fixture 의 sido 이름이 regionCode 의 label 과 동일하므로
-// 문자열 동등 비교만으로 충분하다.
-function subscriptionMatchesRegion(
-  subscription: Subscription,
-  regionCodes: ReadonlyArray<RegionCode>,
-): boolean {
-  if (regionCodes.length === 0) return true;
-  return regionCodes.some((code) => subscription.location.sido === REGION_LABEL_MAP[code]);
-}
-
-export function SubscriptionListClient({ subscriptions }: SubscriptionListClientProps) {
+export function SubscriptionListClient() {
   const [selectedStatus, setSelectedStatus] = useQueryState('status', statusParser);
   const [selectedType, setSelectedType] = useQueryState('type', typeParser);
   const [selectedRegions, setSelectedRegions] = useQueryState('region', regionParser);
@@ -89,26 +79,26 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
     setCurrentPage(null);
   }, [selectedStatus, selectedType, selectedRegions, setCurrentPage]);
 
-  const filtered = useMemo(() => {
-    return subscriptions.filter((s) => {
-      if (selectedStatus.length > 0 && !selectedStatus.includes(s.status)) {
-        return false;
-      }
-      if (selectedType.length > 0 && !selectedType.includes(s.type)) {
-        return false;
-      }
-      if (!subscriptionMatchesRegion(s, selectedRegions)) {
-        return false;
-      }
-      return true;
-    });
-  }, [subscriptions, selectedStatus, selectedType, selectedRegions]);
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paged = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
+  const filterState = useMemo<ListingsFilterState>(
+    () => ({
+      status: selectedStatus,
+      type: selectedType,
+      region: selectedRegions,
+      page: currentPage,
+    }),
+    [selectedStatus, selectedType, selectedRegions, currentPage],
   );
+
+  const request = useMemo(() => toAptSalesRequest(filterState), [filterState]);
+
+  const { data: envelope } = useSuspenseQuery(aptSalesQueryOptions(request));
+  const response = envelope.data.data;
+  const subscriptions = useMemo(
+    () => (response?.items ?? []).map(mapItemToSubscription),
+    [response?.items],
+  );
+  const totalCount = response?.totalCount ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   function handleReset() {
     setSelectedStatus(null);
@@ -178,7 +168,7 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
         </FilterBar.Sheet>
       </FilterBar>
 
-      {paged.length === 0 ? (
+      {subscriptions.length === 0 ? (
         <div className="animate-scale-in">
           <EmptyState size="lg">
             <p className="text-body-lg text-text-secondary">
@@ -198,14 +188,14 @@ export function SubscriptionListClient({ subscriptions }: SubscriptionListClient
             className="text-body-sm text-text-tertiary mb-4 px-4 lg:px-0 animate-count-up-fade"
             style={{ animationDelay: '60ms' }}
           >
-            총 {filtered.length}건
+            총 {totalCount}건
           </p>
 
           <div
             key={listKey}
             className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 lg:px-0"
           >
-            {paged.map((sub, index) => (
+            {subscriptions.map((sub, index) => (
               <div
                 key={sub.id}
                 className="animate-fade-in-up"
