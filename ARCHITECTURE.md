@@ -134,7 +134,9 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 
 ### API Client
 - Single typed API client generated from OpenAPI spec via orval.
-- Base URL from environment variable (`NEXT_PUBLIC_API_URL`).
+- Base URL is context-dependent in `src/shared/lib/api-client.ts`:
+  - **Server** (RSC, SSR prefetch) reads `API_BACKEND_URL` — server-only env var, no `NEXT_PUBLIC_` prefix.
+  - **Browser** uses the relative `/api/backend` path. `next.config.ts` rewrites `/api/backend/:path*` to `${API_BACKEND_URL}/:path*` server-side, keeping CSR calls same-origin and hiding the backend host from the client bundle.
 - Request/response interceptors for error normalization.
 - All API types auto-generated — never hand-write API interfaces.
 
@@ -276,7 +278,8 @@ features/*/ErrorFallback   → Feature-level inline errors
 | Development | Local | `next dev` with MSW mocking |
 
 ### Environment Variables
-- `NEXT_PUBLIC_API_URL` — Backend API base URL (varies per environment).
+- `API_BACKEND_URL` — Backend API origin (server-only, varies per environment). Consumed by `next.config.ts` rewrites and by `src/shared/lib/api-client.ts` on the server. Deliberately lacks the `NEXT_PUBLIC_` prefix so the host never enters the browser bundle; client code always uses the relative `/api/backend` path.
+- `OPENAPI_URL` — OpenAPI JSON URL for `pnpm codegen` (orval), read via `dotenv-cli` from `.env.local`.
 - All secrets managed via Vercel environment variables dashboard — never in code.
 
 ---

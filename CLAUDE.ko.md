@@ -319,7 +319,8 @@ interface ApiError {
 ### 환경 변수
 | 변수 | 범위 | 용도 |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | 전체 | 백엔드 API 기본 URL |
+| `API_BACKEND_URL` | 서버 전용 | 백엔드 API origin. 브라우저는 이 값을 보지 않음 — CSR 호출은 `/api/backend/*` 로 가고 `next.config.ts` rewrites 가 서버 사이드에서 이 origin 으로 포워딩. `NEXT_PUBLIC_` 접두사를 의도적으로 쓰지 않음. |
+| `OPENAPI_URL` | 빌드 타임 | `pnpm codegen` (orval) 이 읽는 OpenAPI JSON URL. `dotenv-cli` 가 `.env.local` 에서 주입. |
 
 모든 시크릿은 Vercel 대시보드를 통해 관리 — **코드나 커밋에 절대 포함하지 않음**.
 

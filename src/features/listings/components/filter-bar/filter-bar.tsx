@@ -140,13 +140,59 @@ function DesktopBar({ children }: DesktopBarProps) {
 
 interface SheetProps {
   children: ReactNode;
+  /**
+   * Called once each time the sheet transitions into the open state.
+   * Callers use this to seed their "draft" state from committed values
+   * — chip clicks inside the sheet only mutate the draft; nothing is
+   * applied to the real filter state until the user taps 적용.
+   */
+  onOpen?: () => void;
+  /**
+   * Called when the user taps the 적용 button. Commit the in-progress
+   * draft to the real filter state here. The sheet closes after this
+   * runs (animated).
+   */
+  onApply?: () => void;
+  /**
+   * Called when the user taps 초기화 inside the sheet. Clears the
+   * draft selections only — the sheet stays open. If omitted, the
+   * shell-level `onReset` runs instead.
+   */
+  onResetDraft?: () => void;
+  /**
+   * Count of selections in the draft (mobile) vs. committed
+   * (desktop). Controls 초기화 button visibility. When omitted we
+   * fall back to the shell-level `activeCount`.
+   */
+  draftActiveCount?: number;
 }
 
-function Sheet({ children }: SheetProps) {
+function Sheet({
+  children,
+  onOpen,
+  onApply,
+  onResetDraft,
+  draftActiveCount,
+}: SheetProps) {
   const { activeCount, onReset, mobileOpen, closing, closeSheet } = useFilterBarShell();
   const sheetRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
+
+  // Fire `onOpen` on every transition into the open state so callers
+  // can snapshot the current committed filter values into a draft.
+  // Gating on `!closing` keeps the seed from firing during the 250ms
+  // close animation window.
+  useEffect(() => {
+    if (mobileOpen && !closing) onOpen?.();
+  }, [mobileOpen, closing, onOpen]);
+
+  const resetCount = draftActiveCount ?? activeCount;
+  const handleResetClick = onResetDraft ?? onReset;
+  function handleApplyClick() {
+    onApply?.();
+    closeSheet();
+  }
 
   // Mount effects that run only while the sheet is open: first-focus,
   // Tab-wrap, and Escape-to-close. We intentionally depend on
@@ -222,18 +268,23 @@ function Sheet({ children }: SheetProps) {
         <div className="flex flex-col gap-6 mb-6">{children}</div>
 
         <div className="flex gap-3">
-          {activeCount > 0 && (
-            <Button variant="secondary" size="lg" onClick={onReset} className="flex-1">
+          {resetCount > 0 && (
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={handleResetClick}
+              className="flex-1"
+            >
               초기화
             </Button>
           )}
           <Button
-            variant={activeCount > 0 ? 'primary' : 'secondary'}
+            variant="primary"
             size="lg"
-            onClick={closeSheet}
+            onClick={handleApplyClick}
             className="flex-1"
           >
-            닫기
+            적용
           </Button>
         </div>
       </div>

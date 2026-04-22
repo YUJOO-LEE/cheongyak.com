@@ -3,12 +3,20 @@
  *
  * ## Base URL policy
  *
- * - Reads `NEXT_PUBLIC_API_URL`; falls back to `http://localhost:3000/api`
- *   so dev works without env setup.
- * - Production values must start with `https://` (or `http://localhost`
- *   in dev). A misconfigured env that points at an arbitrary host aborts
- *   module load via a thrown Error — early + loud is safer than silently
- *   leaking requests.
+ * Context-dependent so the backend host never ships in the client bundle:
+ *
+ * - **Server** (RSC, Route Handlers, SSR prefetch): reads
+ *   `API_BACKEND_URL` — a server-only env var with no `NEXT_PUBLIC_`
+ *   prefix. Calls the backend directly, no proxy hop.
+ * - **Browser** (CSR, client components): uses the relative path
+ *   `/api/backend`. `next.config.ts` rewrites `/api/backend/:path*` to
+ *   `${API_BACKEND_URL}/:path*` server-side, so every browser fetch is
+ *   same-origin and immune to CORS.
+ *
+ * A misconfigured server env that points at an arbitrary host aborts
+ * module load via a thrown Error — early + loud is safer than silently
+ * leaking requests. The browser branch skips validation because the
+ * base is a hard-coded relative path.
  *
  * ## Envelope & parsing
  *
@@ -38,18 +46,23 @@
  * `LISTING_NOT_FOUND`) for branching in error boundaries.
  */
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const IS_SERVER = typeof window === 'undefined';
 
-// 프로덕션에서 NEXT_PUBLIC_API_URL 이 잘못 주입돼 임의 호스트로 요청이 가는 것을 방지.
-// 로컬 기본값(localhost)은 dev 편의를 위해 허용.
+const API_BASE_URL = IS_SERVER
+  ? process.env.API_BACKEND_URL || 'http://localhost:3000/api'
+  : '/api/backend';
+
+// 서버에서 API_BACKEND_URL 이 잘못 주입돼 임의 호스트로 요청이 가는 것을 방지.
+// 로컬 기본값(localhost)은 dev 편의를 위해 허용. 브라우저는 항상 상대경로라
+// 검증 대상이 아님.
 if (
+  IS_SERVER &&
   API_BASE_URL &&
   !API_BASE_URL.startsWith('https://') &&
   !API_BASE_URL.startsWith('http://localhost')
 ) {
   throw new Error(
-    'NEXT_PUBLIC_API_URL must start with "https://" (or http://localhost for dev).',
+    'API_BACKEND_URL must start with "https://" (or http://localhost for dev).',
   );
 }
 

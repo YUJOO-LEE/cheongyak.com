@@ -8,7 +8,9 @@ const server = setupServer(...handlers);
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterAll(() => server.close());
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Node's fetch needs an absolute URL; MSW handlers match on pathname so
+// any origin works. `/api/backend` mirrors the browser-side base URL.
+const API_BASE = 'http://localhost:3000/api/backend';
 
 interface Envelope {
   data: {

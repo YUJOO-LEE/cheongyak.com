@@ -1,7 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { Suspense } from 'react';
 import { SubscriptionListClient } from '@/features/listings/components/subscription-list-client';
-import { SubscriptionListSkeleton } from '@/features/listings/components/subscription-list-skeleton';
 import { aptSalesQueryOptions } from '@/features/listings/lib/apt-sales-query';
 import {
   parseListingsSearchParams,
@@ -51,9 +49,12 @@ export default async function SubscriptionsPage({
       <h1 className="sr-only">청약 목록</h1>
       <div className="lg:px-8">
         <HydrationBoundary state={dehydrate(queryClient)}>
-          <Suspense fallback={<SubscriptionListSkeleton />}>
-            <SubscriptionListClient />
-          </Suspense>
+          {/*
+            Suspense lives inside `SubscriptionListClient` so the
+            FilterBar renders above the suspending card grid. Wrapping
+            it here would also blank the filters on every refetch.
+          */}
+          <SubscriptionListClient />
         </HydrationBoundary>
       </div>
     </div>

@@ -136,7 +136,9 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 
 ### API Client
 - OpenAPI 스펙에서 orval을 통해 생성된 단일 타입 API 클라이언트.
-- 환경 변수 (`NEXT_PUBLIC_API_URL`)에서 Base URL 설정.
+- Base URL 은 `src/shared/lib/api-client.ts` 에서 실행 컨텍스트에 따라 분기:
+  - **서버** (RSC, SSR prefetch) 는 `API_BACKEND_URL` 읽음 — 서버 전용 env, `NEXT_PUBLIC_` 접두사 없음.
+  - **브라우저** 는 상대경로 `/api/backend` 사용. `next.config.ts` 의 rewrites 가 `/api/backend/:path*` → `${API_BACKEND_URL}/:path*` 로 서버 사이드에서 포워딩 → CSR 호출은 same-origin 이 되고 백엔드 호스트는 클라이언트 번들에 노출되지 않음.
 - 요청/응답 인터셉터로 에러 정규화.
 - 모든 API 타입은 자동 생성 — API 인터페이스를 수동으로 작성하지 않음.
 
@@ -278,7 +280,8 @@ features/*/ErrorFallback   → 기능별 인라인 에러
 | Development | Local | `next dev` + MSW 모킹 |
 
 ### 환경 변수
-- `NEXT_PUBLIC_API_URL` — 백엔드 API Base URL (환경별 상이).
+- `API_BACKEND_URL` — 백엔드 API origin (서버 전용, 환경별 상이). `next.config.ts` rewrites 와 `src/shared/lib/api-client.ts` 의 서버 측에서만 사용. `NEXT_PUBLIC_` 접두사를 의도적으로 빼서 호스트가 브라우저 번들에 들어가지 않도록 함 — 클라이언트는 항상 상대경로 `/api/backend` 사용.
+- `OPENAPI_URL` — `pnpm codegen` (orval) 용 OpenAPI JSON URL. `dotenv-cli` 가 `.env.local` 에서 주입.
 - 모든 시크릿은 Vercel 환경 변수 대시보드에서 관리 — 코드에 절대 포함하지 않음.
 
 ---

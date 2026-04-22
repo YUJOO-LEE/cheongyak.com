@@ -12,7 +12,10 @@ import {
   mainTopTrades,
 } from './fixtures/main';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Matches the client-side base in `src/shared/lib/api-client.ts`. Browser
+// calls hit `/api/backend/*` (Next rewrites to the real backend in prod),
+// so MSW intercepts the same relative path — origin-agnostic pattern.
+const API_BASE = '/api/backend';
 
 /**
  * Filter an `Item` list against the query-param surface defined for

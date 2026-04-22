@@ -33,7 +33,10 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Mirrors the browser-side base in `src/shared/lib/api-client.ts`. happy-dom
+// resolves relative URLs against its own origin, but MSW matches on pathname
+// so any origin works here.
+const API_BASE = 'http://localhost:3000/api/backend';
 const ITEMS_PER_PAGE = 20;
 
 function makeItem(

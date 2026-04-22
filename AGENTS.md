@@ -275,7 +275,7 @@ vitest 3.
 ## 10. API Integration
 
 ### Pattern
-- Backend team publishes OpenAPI 3.1 spec. The URL lives in `.env.local` as `OPENAPI_URL` — never committed (see `.claude/api-docs.local.md`, gitignored).
+- Backend team publishes OpenAPI 3.1 spec. The URL lives in `.env.local` as `OPENAPI_URL` — never committed (see `.Codex/api-docs.local.md`, gitignored).
 - `pnpm codegen` runs `orval` through `dotenv-cli`, emitting TanStack Query hooks, fetch functions, and Zod validators to `src/shared/api/generated/`.
 - Config: `orval.config.ts` at repo root. Mutator: generated fetch calls route through `apiClientMutator` in `src/shared/lib/api-client.ts` — single source for base URL, headers, and `ApiClientError` normalization.
 - `pnpm codegen:check` (CI gate) runs codegen and fails if the generated files drift from committed.
@@ -296,7 +296,7 @@ interface ApiError {
 
 ## 11. SEO & GEO
 
-**Owner:** Dewey (`.claude/agents/dewey.md`). Bolt owns Core Web Vitals as a ranking signal.
+**Owner:** Dewey (`.Codex/agents/dewey.md`). Bolt owns Core Web Vitals as a ranking signal.
 
 ### SEO (classical search)
 - Every route uses `buildPageMetadata()` from `src/shared/lib/seo.ts` — enforces canonical, OG, Twitter, and Korean-language meta descriptions consistently
@@ -355,24 +355,24 @@ Every task that modifies code or documentation must include a cross-validation s
 
 | Trigger (code change) | Docs that must be updated |
 |---|---|
-| Add / remove / rename a route under `src/app/` | `PAGES.md`·`PAGES.ko.md` (route table, SEO requirements), `ARCHITECTURE.md`·`ko` §3 rendering table, `CLAUDE.md`·`ko` §4, `src/app/sitemap.ts` |
-| Edit `src/shared/lib/seo.ts` (metadata helper) | `CLAUDE.md`·`ko` §11, `ARCHITECTURE.md`·`ko` §7 |
-| Edit `src/shared/components/json-ld.tsx` (schema helpers) | `CLAUDE.md`·`ko` §11, `ARCHITECTURE.md`·`ko` §7 (schema table) |
+| Add / remove / rename a route under `src/app/` | `PAGES.md`·`PAGES.ko.md` (route table, SEO requirements), `ARCHITECTURE.md`·`ko` §3 rendering table, `AGENTS.md`·`ko` §4, `src/app/sitemap.ts` |
+| Edit `src/shared/lib/seo.ts` (metadata helper) | `AGENTS.md`·`ko` §11, `ARCHITECTURE.md`·`ko` §7 |
+| Edit `src/shared/components/json-ld.tsx` (schema helpers) | `AGENTS.md`·`ko` §11, `ARCHITECTURE.md`·`ko` §7 (schema table) |
 | Edit `src/app/og/route.tsx` or any OG design constant | `DESIGN.md`·`ko` (token drift check), `ARCHITECTURE.md`·`ko` §7 |
 | Edit `public/llms.txt` | `docs/seo-keyword-map.md`, trigger Kim Jeong-ho domain review |
-| Edit `docs/seo-keyword-map.md` or per-page `keywords` arrays | `docs/seo-keyword-map.md` route table + `CLAUDE.md`·`ko` §11 if ownership shifts |
+| Edit `docs/seo-keyword-map.md` or per-page `keywords` arrays | `docs/seo-keyword-map.md` route table + `AGENTS.md`·`ko` §11 if ownership shifts |
 | Add / remove Tailwind token or tailwind.config change | `DESIGN.md`·`ko` (token tables), `PAGES.md`·`ko` (usage snippets) |
 | Change API endpoint contracts or `src/shared/types/api.ts` | `PAGES.md`·`ko` data requirements, `ARCHITECTURE.md`·`ko` §6 API table |
-| Add / change an agent under `.claude/agents/*.md` | `CLAUDE.md`·`ko` §2 (if role boundary shifts), cross-referenced agents' "Behavior in Discussions" |
-| Change Next.js / React / Tailwind / Vitest major version in `package.json` | `CLAUDE.md`·`ko` §2 tech-stack table, `ARCHITECTURE.md`·`ko` §1 |
-| Add a test strategy or CI gate (e.g. `scripts/audit-seo.mjs`) | `CLAUDE.md`·`ko` §8, `ARCHITECTURE.md`·`ko` §9 |
+| Add / change an agent under `.Codex/agents/*.md` | `AGENTS.md`·`ko` §2 (if role boundary shifts), cross-referenced agents' "Behavior in Discussions" |
+| Change Next.js / React / Tailwind / Vitest major version in `package.json` | `AGENTS.md`·`ko` §2 tech-stack table, `ARCHITECTURE.md`·`ko` §1 |
+| Add a test strategy or CI gate (e.g. `scripts/audit-seo.mjs`) | `AGENTS.md`·`ko` §8, `ARCHITECTURE.md`·`ko` §9 |
 
 ### Document Sync (pairwise consistency)
 - When modifying any `.md` file, its `.ko.md` counterpart must be updated in the same commit
-- Tech stack versions must match exactly across `CLAUDE.md` and `ARCHITECTURE.md`
-- Route paths must match exactly across `CLAUDE.md`, `ARCHITECTURE.md`, and `PAGES.md`
+- Tech stack versions must match exactly across `AGENTS.md` and `ARCHITECTURE.md`
+- Route paths must match exactly across `AGENTS.md`, `ARCHITECTURE.md`, and `PAGES.md`
 - Color token names and values must match exactly across `DESIGN.md` and `PAGES.md`
-- Schema.org types in use must match across `src/shared/components/json-ld.tsx`, `CLAUDE.md` §11, `ARCHITECTURE.md` §7, `PAGES.md` SEO Requirements
+- Schema.org types in use must match across `src/shared/components/json-ld.tsx`, `AGENTS.md` §11, `ARCHITECTURE.md` §7, `PAGES.md` SEO Requirements
 
 ### Translation Sync
 - All `.ko.md` files must have identical section structure to their English counterparts
@@ -399,7 +399,7 @@ Every task that modifies code or documentation must include a cross-validation s
 
 Agents communicate via Slack threads. Each task has its own thread per channel.
 
-### Scripts (`~/.claude/scripts/`)
+### Scripts (`~/.Codex/scripts/`)
 
 | Script | Usage |
 |---|---|
@@ -441,9 +441,9 @@ Agents communicate via Slack threads. Each task has its own thread per channel.
 
 ---
 
-## 17. Writing to `.claude/` Directory
+## 17. Writing to `.Codex/` Directory
 
-The `.claude/` directory is protected. Standard `Write` and `Edit` tools will be denied.
+The `.Codex/` directory is protected. Standard `Write` and `Edit` tools will be denied.
 
 **Use `mcp__filesystem__write_file` and `mcp__filesystem__edit_file` instead.**
 
