@@ -1,45 +1,29 @@
-import { Skeleton, SkeletonText } from '@/shared/components';
+import { Skeleton } from '@/shared/components';
+import { HomeHeroSkeleton } from '@/features/listings/components/featured-subscription.skeleton';
+import { WeeklyScheduleSkeleton } from '@/features/listings/components/weekly-schedule/weekly-schedule.skeleton';
+import { TopTradesSkeleton } from '@/features/listings/components/top-trades.skeleton';
 
 export default function HomeLoading() {
   return (
-    <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-10" aria-hidden="true">
-      {/* Hero skeleton */}
-      <div className="mb-10">
-        <Skeleton className="w-full h-48 lg:h-56" />
-      </div>
+    <div
+      className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-12"
+      aria-hidden="true"
+    >
+      <section className="mb-12 lg:mb-16">
+        <HomeHeroSkeleton />
+      </section>
 
-      {/* Weekly schedule skeleton */}
-      <div className="mb-10">
-        <Skeleton width={200} height={28} className="mb-4" />
-        <div className="flex gap-4 overflow-hidden">
-          {Array.from({ length: 4 }, (_, i) => (
-            <Skeleton key={i} className="shrink-0 w-70 h-32 lg:w-full" />
-          ))}
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton width={200} height={28} />
+          <Skeleton width={64} height={16} />
         </div>
-      </div>
+        <WeeklyScheduleSkeleton />
+      </section>
 
-      {/* Market insights skeleton */}
-      <div className="mb-10">
-        <Skeleton width={160} height={28} className="mb-4" />
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }, (_, i) => (
-            <Skeleton key={i} className="h-24" />
-          ))}
-        </div>
-      </div>
-
-      {/* News skeleton */}
-      <div className="mb-10">
-        <Skeleton width={140} height={28} className="mb-4" />
-        <div className="flex flex-col gap-4">
-          {Array.from({ length: 3 }, (_, i) => (
-            <div key={i} className="flex gap-4">
-              <Skeleton className="shrink-0 w-20 h-20" />
-              <SkeletonText lines={2} className="flex-1" />
-            </div>
-          ))}
-        </div>
-      </div>
+      <section className="mb-12">
+        <TopTradesSkeleton />
+      </section>
     </div>
   );
 }

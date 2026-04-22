@@ -366,6 +366,7 @@ Every task that modifies code or documentation must include a cross-validation s
 | Add / change an agent under `.claude/agents/*.md` | `CLAUDE.md`·`ko` §2 (if role boundary shifts), cross-referenced agents' "Behavior in Discussions" |
 | Change Next.js / React / Tailwind / Vitest major version in `package.json` | `CLAUDE.md`·`ko` §2 tech-stack table, `ARCHITECTURE.md`·`ko` §1 |
 | Add a test strategy or CI gate (e.g. `scripts/audit-seo.mjs`) | `CLAUDE.md`·`ko` §8, `ARCHITECTURE.md`·`ko` §9 |
+| Edit a real component that has a `*.skeleton.tsx` sibling, or add / modify / remove a route-level `loading.tsx` | Matching `*.skeleton.tsx` sibling (update DOM structure + approximate heights so Suspense/route fallback mirrors the final layout — preserves CLS per `ARCHITECTURE.md` §7 Performance) |
 
 ### Document Sync (pairwise consistency)
 - When modifying any `.md` file, its `.ko.md` counterpart must be updated in the same commit
@@ -373,6 +374,7 @@ Every task that modifies code or documentation must include a cross-validation s
 - Route paths must match exactly across `CLAUDE.md`, `ARCHITECTURE.md`, and `PAGES.md`
 - Color token names and values must match exactly across `DESIGN.md` and `PAGES.md`
 - Schema.org types in use must match across `src/shared/components/json-ld.tsx`, `CLAUDE.md` §11, `ARCHITECTURE.md` §7, `PAGES.md` SEO Requirements
+- **Skeleton pairing:** every feature component with non-trivial layout SHOULD ship a sibling `*.skeleton.tsx` that renders the same outer shell and approximate dimensions. If the component changes shape (adds/removes a section, changes grid columns, shifts major heights), the sibling skeleton must be updated in the same PR. Route-level `loading.tsx` should compose these sibling skeletons rather than duplicate their DOM. Skeletons MUST use the shared `<Skeleton>` primitive — never raw `animate-pulse` — so `prefers-reduced-motion` stays honored.
 
 ### Translation Sync
 - All `.ko.md` files must have identical section structure to their English counterparts

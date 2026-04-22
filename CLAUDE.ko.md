@@ -359,6 +359,7 @@ interface ApiError {
 | `.claude/agents/*.md` 에이전트 추가·변경 | `CLAUDE.md`·`ko` §2 (역할 경계 변동 시), 상호 참조된 에이전트의 "Behavior in Discussions" 섹션 |
 | Next.js / React / Tailwind / Vitest 메이저 버전 변경 | `CLAUDE.md`·`ko` §2 기술 스택 표, `ARCHITECTURE.md`·`ko` §1 |
 | 테스트 전략·CI 게이트 추가 (예: `scripts/audit-seo.mjs`) | `CLAUDE.md`·`ko` §8, `ARCHITECTURE.md`·`ko` §9 |
+| 형제 `*.skeleton.tsx`가 있는 실제 컴포넌트 수정, 또는 라우트 수준 `loading.tsx` 추가·수정·삭제 | 대응 `*.skeleton.tsx` (DOM 구조와 대략 높이를 함께 갱신해 Suspense/route fallback이 최종 레이아웃과 일치하도록 — `ARCHITECTURE.md` §7 Performance CLS 규칙 준수) |
 
 ### 문서 동기화 (쌍 대응)
 - `.md` 파일 수정 시 `.ko.md` 대응 파일도 **같은 커밋에서** 업데이트
@@ -366,6 +367,7 @@ interface ApiError {
 - 라우트 경로는 `CLAUDE.md`, `ARCHITECTURE.md`, `PAGES.md` 간에 정확히 일치
 - 색상 토큰 이름과 값은 `DESIGN.md`와 `PAGES.md` 간에 정확히 일치
 - 사용 중인 schema.org 타입은 `src/shared/components/json-ld.tsx`, `CLAUDE.md` §11, `ARCHITECTURE.md` §7, `PAGES.md` SEO Requirements 간에 일치
+- **스켈레톤 쌍 유지:** 레이아웃이 단순하지 않은 피처 컴포넌트는 형제 `*.skeleton.tsx`를 함께 두어 동일한 외곽 셸과 유사한 치수를 렌더해야 합니다. 컴포넌트의 형상이 변하면(섹션 추가·제거, 그리드 컬럼 수 변경, 주요 높이 변경) **같은 PR에서** 형제 스켈레톤도 갱신해야 합니다. 라우트 수준 `loading.tsx`는 DOM을 중복 작성하는 대신 형제 스켈레톤을 조립해 구성합니다. 모든 스켈레톤은 공용 `<Skeleton>` 프리미티브를 사용해야 하며, raw `animate-pulse`는 금지입니다(`prefers-reduced-motion` 존중을 위해).
 
 ### 번역 동기화
 - 모든 `.ko.md` 파일은 영어 대응 파일과 동일한 섹션 구조를 유지

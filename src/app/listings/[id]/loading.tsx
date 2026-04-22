@@ -10,12 +10,11 @@ export default function SubscriptionDetailLoading() {
             <Skeleton width="70%" height={36} className="mb-3" />
             <SkeletonText lines={3} />
           </div>
-          <Skeleton className="h-64 rounded-lg mb-8" />
-          <Skeleton className="h-48 rounded-lg mb-8" />
+          <Skeleton className="h-96 rounded-lg mb-8" />
+          <Skeleton className="h-80 rounded-lg mb-8" />
         </div>
         <div className="lg:col-span-1">
-          <Skeleton className="h-32 rounded-lg mb-6" />
-          <Skeleton className="h-48 rounded-lg" />
+          <Skeleton className="h-40 rounded-lg" />
         </div>
       </div>
     </div>

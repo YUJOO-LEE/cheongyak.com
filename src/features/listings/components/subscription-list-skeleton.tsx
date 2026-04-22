@@ -1,24 +1,23 @@
+import { Skeleton } from '@/shared/components';
+import { SubscriptionCardSkeleton } from './subscription-card.skeleton';
+
 /**
- * Placeholder skeleton for the Suspense boundary around
- * `SubscriptionListClient`. Renders a static count line plus six
- * card-shaped blocks so the layout stays stable during the first
- * paint (prevents CLS on deep-link refreshes).
- *
- * Tokens only — no raw palette or arbitrary values. The `bg-bg-sunken`
- * tone shift mirrors the empty-state pattern so we do not introduce
- * nested cards (CLAUDE.md §5 memory rule).
+ * Client-side Suspense fallback for `SubscriptionListClient`.
+ * Renders the same building blocks as the route-level
+ * `/listings` loader so users never see two different skeletons
+ * for the same page. The outer wrapper carries aria-busy /
+ * aria-live so assistive tech knows this is a loading state
+ * (the route-level loader already sits inside `<html>` so it
+ * skips the aria wrapper).
  */
 export function SubscriptionListSkeleton() {
   return (
     <div aria-busy="true" aria-live="polite" className="px-4 lg:px-0">
       <p className="sr-only">청약 목록을 불러오는 중입니다.</p>
-      <div className="h-4 w-24 mb-4 rounded-md bg-bg-sunken animate-pulse" />
+      <Skeleton className="mb-4" width={80} height={16} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {Array.from({ length: 6 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-40 rounded-lg bg-bg-sunken animate-pulse"
-          />
+          <SubscriptionCardSkeleton key={index} />
         ))}
       </div>
     </div>
