@@ -110,20 +110,25 @@ function DropdownPanel<TValue extends string>({
       id={panelId}
       role="dialog"
       aria-label={`${label} 선택`}
-      className="space-y-3"
+      className="flex flex-col"
     >
-      <div>
+      <div className="shrink-0 p-3">
         <button
           type="button"
           aria-pressed={value.length === 0}
           onClick={() => onChange([])}
-          className="w-full rounded-md px-2 py-1.5 text-left text-label-md text-text-secondary hover:bg-bg-hover cursor-pointer"
+          className={[
+            'w-full rounded-md px-3 py-2 text-left text-label-md transition-colors duration-fast cursor-pointer',
+            value.length === 0
+              ? 'bg-neutral-500 text-text-inverse shadow-sm'
+              : 'bg-bg-sunken text-text-secondary hover:bg-chip-bg-hover',
+          ].join(' ')}
         >
           {placeholder}
         </button>
       </div>
 
-      <div className="max-h-80 overflow-y-auto space-y-3">
+      <div className="max-h-80 overflow-y-auto overflow-x-hidden px-3 pb-3 space-y-3">
         {groups.map((group) => (
           <section key={group.label}>
             <p className="mb-1.5 px-1 text-label-md text-text-secondary">{group.label}</p>
@@ -191,7 +196,7 @@ function FilterFieldDropdownDesktop<TValue extends string>(
         panelId={panelId}
       />
       {open && (
-        <div className="absolute left-0 top-full mt-1 min-w-64 max-w-lg bg-bg-elevated rounded-md shadow-md z-dropdown p-3 overflow-hidden">
+        <div className="absolute left-0 top-full mt-1 min-w-64 max-w-lg bg-bg-elevated rounded-md shadow-md z-dropdown overflow-hidden flex flex-col">
           <DropdownPanel {...props} panelId={panelId} />
         </div>
       )}
@@ -215,7 +220,7 @@ function FilterFieldDropdownMobile<TValue extends string>(
         panelId={panelId}
       />
       {open && (
-        <div className="rounded-md bg-bg-sunken p-4">
+        <div className="rounded-md bg-bg-elevated overflow-hidden">
           <DropdownPanel {...props} panelId={panelId} />
         </div>
       )}
