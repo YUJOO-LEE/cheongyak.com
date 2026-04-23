@@ -150,6 +150,8 @@ can start in parallel to P1.
 - Helen (a11y) invited for final pass — focus order, keyboard traps on new Popover/Sheet, announcements on filter change.
 - Verify `CLAUDE.md` §14 rows all fire green.
 
+> **2026-04-23 follow-up:** the server-side `prefetchQuery` + `HydrationBoundary` from Phase 7 was removed in a later PR. Awaiting the backend round-trip in the Server Component made every home → `/listings` soft-navigation hold `loading.tsx` for the full API wait, while `apiClientMutator` had no `next.revalidate` to short-circuit it. The route file is now a bare Server Component shell; `SubscriptionListClient` (already built on `useQuery` + `keepPreviousData` + `staleTime: 60_000`) owns the first fetch too. Canonical description lives in `ARCHITECTURE.md` §6 "Client Data Flow" and `PAGES.md` §2 `GET /apt-sales` row.
+
 ---
 
 ## 4. Parallelization map (revised 2026-04-19 — 3-PR reshuffle)

@@ -142,8 +142,10 @@ export function SubscriptionListClient() {
 
   // `keepPreviousData` lets the card grid keep rendering the old results
   // while the new ones fetch — no Suspense fallback, no skeleton flicker.
-  // Initial hydration still lands instantly via `HydrationBoundary` +
-  // `prefetchQuery` in the server page.
+  // The route-level server file is a bare shell; this client owns the
+  // first fetch too, so the route skeleton from `loading.tsx` is only
+  // visible for the RSC transition (near-instant) and the
+  // `SubscriptionListSkeleton` below covers the actual API wait.
   const { data: envelope } = useQuery({
     ...aptSalesQueryOptions(request),
     placeholderData: keepPreviousData,

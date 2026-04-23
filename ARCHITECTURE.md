@@ -77,7 +77,7 @@ src/
 | Page | Strategy | Rationale |
 |---|---|---|
 | **Home Dashboard** | SSR + ISR (60s) | Shows latest listings and news; must be fresh but cacheable |
-| **Listings** | SSR | Filter/sort params make each request unique; server rendering ensures SEO for filtered views |
+| **Listings** | Server shell + CSR fetch | Route file is a non-awaiting Server Component so `<Link>` can prefetch the shell; TanStack Query owns the data fetch (`aptSalesQueryOptions`, staleTime 60s) with `keepPreviousData` for flicker-free filter/page changes. Initial HTML carries no list data — Googlebot executes JS on hydration; the list page has no structured data, so no SEO regression. |
 | **Listing Detail** | SSG + ISR (300s) | Individual listing content changes infrequently; pre-render known IDs, ISR for long tail |
 | **News Feed** | SSR + ISR (120s) | Frequently updated feed; ISR balances freshness with performance |
 | **News Article** | SSG + ISR (600s) | Published articles are near-static; ISR handles edits |
@@ -153,12 +153,11 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 3. Generated fetch functions route through `apiClientMutator` in `src/shared/lib/api-client.ts`, centralizing base URL, headers, and `ApiClientError` normalization.
 4. CI runs `pnpm codegen:check` — fails if the spec changed but the generated files weren't re-committed.
 
-### SSR Data Flow (e.g. `/listings` → `/apt-sales`)
-1. Server Component resolves `searchParams`, runs `parseListingsSearchParams` → `toAptSalesRequest` to build a wire request.
-2. `getQueryClient()` creates a per-request `QueryClient`. `queryClient.prefetchQuery(aptSalesQueryOptions(request))` seeds the cache.
-3. `<HydrationBoundary state={dehydrate(queryClient)}>` ships the seed to the client. A Suspense boundary with a skeleton fallback guards the client subtree.
-4. The client component calls `useSuspenseQuery(aptSalesQueryOptions(request))` — same key, same request → no refetch on hydration. nuqs mutations then trigger background refetches.
-5. Feature-local wrappers (`src/features/listings/lib/apt-sales-query.ts`) exist because orval's generated param shape is `{ request: AptSalesListRequest }`; the wrapper owns URL serialization (flat `status[]`, `regionCode[]`) so the generated types stay the source of truth without fighting the serializer.
+### Client Data Flow (e.g. `/listings` → `/apt-sales`)
+1. The route file (`src/app/listings/page.tsx`) is a bare Server Component — no `async`, no prefetch, no `HydrationBoundary`. This keeps the RSC payload instant so `<Link>` prefetching works and `loading.tsx` doesn't hold the user through a backend round-trip.
+2. `SubscriptionListClient` reads the active filters from the URL via nuqs, builds an `AptSalesListRequest` with `toAptSalesRequest`, and calls `useQuery({ ...aptSalesQueryOptions(request), placeholderData: keepPreviousData })`. The hook's internal `SubscriptionListSkeleton` covers the first-paint fetch; `keepPreviousData` keeps old results visible on filter/page changes so the skeleton never flashes.
+3. The query has `staleTime: 60_000`, so same-session repeat visits (e.g. 홈 → `/listings` → back → `/listings`) paint instantly from the TanStack cache.
+4. Feature-local wrappers (`src/features/listings/lib/apt-sales-query.ts`) exist because orval's generated param shape is `{ request: AptSalesListRequest }`; the wrapper owns URL serialization (flat `status[]`, `regionCode[]`) so the generated types stay the source of truth without fighting the serializer.
 
 ### Error Handling Pattern
 ```typescript

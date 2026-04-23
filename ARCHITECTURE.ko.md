@@ -79,7 +79,7 @@ src/
 | 페이지 | 전략 | 근거 |
 |---|---|---|
 | **홈 대시보드** | SSR + ISR (60s) | 최신 목록과 뉴스 표시; 신선하면서도 캐시 가능해야 함 |
-| **청약 목록** | SSR | 필터/정렬 파라미터로 매 요청이 고유; 서버 렌더링으로 필터된 뷰의 SEO 보장 |
+| **청약 목록** | Server shell + CSR fetch | 라우트 파일은 await 하지 않는 Server Component 라서 `<Link>` 가 RSC payload 를 즉시 prefetch 할 수 있음. 데이터 fetch 는 TanStack Query 가 소유 (`aptSalesQueryOptions`, staleTime 60s) 하며 `keepPreviousData` 로 필터/페이지 전환 시 스켈레톤 깜빡임 없음. 초기 HTML 에 리스트가 없지만 목록 페이지엔 structured data 가 없어 SEO 영향 없음 (크롤러는 hydration 후 JS 실행 결과를 색인). |
 | **청약 상세** | SSG + ISR (300s) | 개별 청약 정보는 변경 빈도가 낮음; 알려진 ID는 사전 렌더링, 나머지는 ISR로 처리 |
 | **뉴스 피드** | SSR + ISR (120s) | 자주 업데이트되는 피드; ISR로 신선도와 성능의 균형 |
 | **뉴스 기사** | SSG + ISR (600s) | 게시된 기사는 거의 정적; ISR로 수정사항 반영 |
@@ -155,12 +155,11 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 3. 생성된 fetch 함수는 `src/shared/lib/api-client.ts`의 `apiClientMutator`를 통해 라우팅 — base URL, headers, `ApiClientError` 정규화의 단일 지점.
 4. CI는 `pnpm codegen:check`를 실행 — 스펙이 변경됐는데 생성 파일이 재커밋되지 않으면 실패.
 
-### SSR 데이터 흐름 (예: `/listings` → `/apt-sales`)
-1. Server Component 가 `searchParams` 를 resolve 하고 `parseListingsSearchParams` → `toAptSalesRequest` 로 wire 요청을 구성.
-2. `getQueryClient()` 로 요청별 `QueryClient` 를 만들고 `queryClient.prefetchQuery(aptSalesQueryOptions(request))` 로 캐시를 심음.
-3. `<HydrationBoundary state={dehydrate(queryClient)}>` 로 시드를 클라이언트에 전달. Suspense 바운더리가 스켈레톤 fallback 으로 감쌈.
-4. 클라이언트는 동일한 key·request 로 `useSuspenseQuery(aptSalesQueryOptions(request))` 를 호출 → hydration 시 재요청 없음. 이후 nuqs 변경이 백그라운드 refetch 를 트리거.
-5. `src/features/listings/lib/apt-sales-query.ts` wrapper 가 존재하는 이유: orval 이 생성한 param 형태가 `{ request: AptSalesListRequest }` 라서, wrapper 가 URL 직렬화(flat `status[]`, `regionCode[]`)를 담당. 생성 타입은 source of truth 로 유지하면서 직렬화만 우회.
+### 클라이언트 데이터 흐름 (예: `/listings` → `/apt-sales`)
+1. 라우트 파일(`src/app/listings/page.tsx`)은 `async` 도, prefetch 도, `HydrationBoundary` 도 없는 얇은 Server Component. 이렇게 둬야 RSC payload 가 즉시 반환돼 `<Link>` prefetch 가 살아 있고, `loading.tsx` 가 백엔드 라운드트립 동안 사용자를 붙잡지 않음.
+2. `SubscriptionListClient` 가 nuqs 로 URL 필터 상태를 읽고 `toAptSalesRequest` 로 `AptSalesListRequest` 를 만들어 `useQuery({ ...aptSalesQueryOptions(request), placeholderData: keepPreviousData })` 를 호출. 첫 페인트의 스켈레톤은 내부 `SubscriptionListSkeleton` 이 담당하며, `keepPreviousData` 가 필터/페이지 변경 시 기존 결과를 유지해 스켈레톤이 번쩍이지 않음.
+3. 쿼리의 `staleTime: 60_000` 덕에 세션 내 재방문(예: 홈 → `/listings` → 뒤로 → `/listings`)은 TanStack 캐시에서 즉시 렌더.
+4. `src/features/listings/lib/apt-sales-query.ts` wrapper 가 존재하는 이유: orval 이 생성한 param 형태가 `{ request: AptSalesListRequest }` 라서, wrapper 가 URL 직렬화(flat `status[]`, `regionCode[]`)를 담당. 생성 타입은 source of truth 로 유지하면서 직렬화만 우회.
 
 ### 에러 처리 패턴
 ```typescript

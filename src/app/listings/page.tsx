@@ -1,13 +1,5 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { SubscriptionListClient } from '@/features/listings/components/subscription-list-client';
-import { aptSalesQueryOptions } from '@/features/listings/lib/apt-sales-query';
-import {
-  parseListingsSearchParams,
-  toAptSalesRequest,
-  type RawSearchParams,
-} from '@/features/listings/lib/listings-search-params';
 import { buildPageMetadata } from '@/shared/lib/seo';
-import { getQueryClient } from '@/shared/lib/query-client';
 
 export const metadata = buildPageMetadata({
   title: '청약 목록',
@@ -27,35 +19,20 @@ export const metadata = buildPageMetadata({
 });
 
 /**
- * Next.js 16 hands `searchParams` to Server Components as a Promise.
- * We resolve it once, run the shared filter parser, and use the same
- * request shape for both (1) the prefetch call and (2) the hydration
- * seed — the client picks up the resolved data without a second fetch.
+ * Server shell for /listings. Keeping this route-level file as a
+ * non-awaiting Server Component means the RSC payload streams back to
+ * the router instantly, so soft navigations (e.g. 홈 → "전체 보기")
+ * paint the page shell + client skeleton without the backend
+ * round-trip blocking `loading.tsx`. The full data fetch is owned by
+ * `SubscriptionListClient` via TanStack Query, which also enables its
+ * own `keepPreviousData` behavior on filter/page changes.
  */
-export default async function SubscriptionsPage({
-  searchParams,
-}: {
-  searchParams: Promise<RawSearchParams>;
-}) {
-  const resolved = await searchParams;
-  const filterState = parseListingsSearchParams(resolved);
-  const request = toAptSalesRequest(filterState);
-
-  const queryClient = getQueryClient();
-  await queryClient.prefetchQuery(aptSalesQueryOptions(request));
-
+export default function SubscriptionsPage() {
   return (
     <div className="mx-auto max-w-300 pt-3 pb-6 lg:py-10">
       <h1 className="sr-only">청약 목록</h1>
       <div className="lg:px-8">
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          {/*
-            Suspense lives inside `SubscriptionListClient` so the
-            FilterBar renders above the suspending card grid. Wrapping
-            it here would also blank the filters on every refetch.
-          */}
-          <SubscriptionListClient />
-        </HydrationBoundary>
+        <SubscriptionListClient />
       </div>
     </div>
   );

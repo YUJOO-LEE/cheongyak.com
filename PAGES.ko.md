@@ -180,7 +180,7 @@
 
 | 엔드포인트 | 데이터 |
 |---|---|
-| `GET /apt-sales` | 페이지네이션된 청약 목록. Server Component 가 `queryClient.prefetchQuery(aptSalesQueryOptions(request))` 로 prefetch 하고, dehydrate 된 상태를 Suspense 로 감싸진 클라이언트가 `useSuspenseQuery` 로 읽습니다. |
+| `GET /apt-sales` | 페이지네이션된 청약 목록. 라우트 파일은 얇은 Server Component 셸이고, `SubscriptionListClient` 가 `useQuery(aptSalesQueryOptions(request))` + `keepPreviousData` + 60s `staleTime` 로 데이터 fetch 를 소유해 세션 내 재방문을 즉시 렌더합니다. |
 | **쿼리 파라미터 (바인딩 완료)** | `status[]`, `houseDetailType[]`, `regionCode[]`, `page`, `size` |
 | **쿼리 파라미터 (로드맵)** | `district` (구/군), `supply` (공급유형), `builder` — 백엔드 미지원. API 도착 전까지 UI 노출 보류 |
 
@@ -441,7 +441,7 @@
 | 라우트 | 페이지 | SSR | 인증 |
 |---|---|---|---|
 | `/` | 홈 대시보드 | Yes (ISR) | 공개 |
-| `/listings` | 청약 목록 | Yes (SSR) | 공개 |
+| `/listings` | 청약 목록 | 셸만 (CSR fetch) | 공개 |
 | `/listings/[id]` | 청약 상세 | Yes (SSG + ISR) | 공개 |
 | `/news` | 뉴스 피드 | Yes (ISR) | 공개 |
 | `/news/[id]` | 뉴스 기사 상세 | Yes (SSG + ISR) | 공개 |

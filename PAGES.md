@@ -178,7 +178,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 | Endpoint | Data |
 |---|---|
-| `GET /apt-sales` | Paginated subscription list. Server Component prefetches via `queryClient.prefetchQuery(aptSalesQueryOptions(request))` and hands the dehydrated state to a Suspense-wrapped client that reads with `useSuspenseQuery`. |
+| `GET /apt-sales` | Paginated subscription list. The route file is a bare Server Component shell; `SubscriptionListClient` owns the fetch via `useQuery(aptSalesQueryOptions(request))` with `keepPreviousData` and a 60s `staleTime` for same-session repeat navigations. |
 | **Query params (bound)** | `status[]`, `houseDetailType[]`, `regionCode[]`, `page`, `size` |
 | **Query params (roadmap)** | `district` (구/군), `supply` (공급유형), `builder` — no backend support yet; UI omitted until API lands |
 
@@ -440,7 +440,7 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 | Route | Page | SSR | Auth |
 |---|---|---|---|
 | `/` | Home Dashboard | Yes (ISR) | Public |
-| `/listings` | Listings | Yes (SSR) | Public |
+| `/listings` | Listings | Shell only (CSR fetch) | Public |
 | `/listings/[id]` | Listing Detail | Yes (SSG + ISR) | Public |
 | `/news` | News Feed | Yes (ISR) | Public |
 | `/news/[id]` | News Article Detail | Yes (SSG + ISR) | Public |
