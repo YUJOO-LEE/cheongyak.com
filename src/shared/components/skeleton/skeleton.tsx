@@ -3,6 +3,7 @@ interface SkeletonProps {
   variant?: 'rectangle' | 'circle' | 'text';
   width?: string | number;
   height?: string | number;
+  'data-testid'?: string;
 }
 
 export function Skeleton({
@@ -10,6 +11,7 @@ export function Skeleton({
   variant = 'rectangle',
   width,
   height,
+  'data-testid': dataTestId,
 }: SkeletonProps) {
   const variantStyles = {
     rectangle: 'rounded-md',
@@ -22,6 +24,7 @@ export function Skeleton({
       aria-hidden="true"
       className={['skeleton', variantStyles[variant], className].join(' ')}
       style={{ width, height }}
+      data-testid={dataTestId}
     />
   );
 }

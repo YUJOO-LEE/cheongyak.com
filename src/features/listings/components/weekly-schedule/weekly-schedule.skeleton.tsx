@@ -12,7 +12,11 @@ export function WeeklyScheduleSkeleton() {
   return (
     <>
       {/* ── Mobile ─────────────────────────────────────── */}
-      <div className="lg:hidden" aria-hidden="true">
+      <div
+        className="lg:hidden"
+        aria-hidden="true"
+        data-testid="weekly-schedule-skeleton"
+      >
         <div className="flex gap-2 mb-4">
           {Array.from({ length: 7 }, (_, i) => (
             <div
@@ -44,7 +48,11 @@ export function WeeklyScheduleSkeleton() {
       </div>
 
       {/* ── Desktop ────────────────────────────────────── */}
-      <div className="hidden lg:grid grid-cols-5 gap-6" aria-hidden="true">
+      <div
+        className="hidden lg:grid grid-cols-5 gap-6"
+        aria-hidden="true"
+        data-testid="weekly-schedule-skeleton"
+      >
         {Array.from({ length: 5 }, (_, col) => (
           <div key={col}>
             <div className="text-center mb-3 flex flex-col items-center gap-1">

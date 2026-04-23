@@ -11,6 +11,7 @@ export function HomeHeroSkeleton() {
     <div
       className="grid grid-cols-1 lg:grid-cols-3 gap-4"
       aria-hidden="true"
+      data-testid="home-hero-skeleton"
     >
       {/* Featured subscription placeholder (2-col on desktop) */}
       <div className="lg:col-span-2 bg-brand-primary-500/70 rounded-xl p-6 lg:p-8">

@@ -251,6 +251,13 @@ vitest 3.
 - Use realistic Korean test data, not Lorem Ipsum
 - Flaky tests are P0 bugs — fix or remove immediately
 - CI fails on test failure — no merging with broken tests
+- **Skeleton parity RTL gate (Phase B-2a):** every route-level `loading.tsx`
+  has a sibling `loading.test.tsx` that pins which `*.skeleton.tsx` components
+  it renders and in what count. If you change the loader's shape, update the
+  test in the same PR — dropping a sibling skeleton or reintroducing a phantom
+  section must fail CI, not slip through review. See
+  `docs/skeleton-parity-test-plan.md` for the full strategy (B-2b Playwright
+  bounding-box parity is the slow gate, still deferred).
 
 ---
 
@@ -366,7 +373,7 @@ Every task that modifies code or documentation must include a cross-validation s
 | Add / change an agent under `.claude/agents/*.md` | `CLAUDE.md`·`ko` §2 (if role boundary shifts), cross-referenced agents' "Behavior in Discussions" |
 | Change Next.js / React / Tailwind / Vitest major version in `package.json` | `CLAUDE.md`·`ko` §2 tech-stack table, `ARCHITECTURE.md`·`ko` §1 |
 | Add a test strategy or CI gate (e.g. `scripts/audit-seo.mjs`) | `CLAUDE.md`·`ko` §8, `ARCHITECTURE.md`·`ko` §9 |
-| Edit a real component that has a `*.skeleton.tsx` sibling, or add / modify / remove a route-level `loading.tsx` | Matching `*.skeleton.tsx` sibling (update DOM structure + approximate heights so Suspense/route fallback mirrors the final layout — preserves CLS per `ARCHITECTURE.md` §7 Performance) |
+| Edit a real component that has a `*.skeleton.tsx` sibling, or add / modify / remove a route-level `loading.tsx` | Matching `*.skeleton.tsx` sibling (update DOM structure + approximate heights so Suspense/route fallback mirrors the final layout — preserves CLS per `ARCHITECTURE.md` §7 Performance) + matching `loading.test.tsx` sibling (update sibling-skeleton counts / `data-testid` assertions so the RTL gate stays green) |
 
 ### Document Sync (pairwise consistency)
 - When modifying any `.md` file, its `.ko.md` counterpart must be updated in the same commit
@@ -374,7 +381,7 @@ Every task that modifies code or documentation must include a cross-validation s
 - Route paths must match exactly across `CLAUDE.md`, `ARCHITECTURE.md`, and `PAGES.md`
 - Color token names and values must match exactly across `DESIGN.md` and `PAGES.md`
 - Schema.org types in use must match across `src/shared/components/json-ld.tsx`, `CLAUDE.md` §11, `ARCHITECTURE.md` §7, `PAGES.md` SEO Requirements
-- **Skeleton pairing:** every feature component with non-trivial layout SHOULD ship a sibling `*.skeleton.tsx` that renders the same outer shell and approximate dimensions. If the component changes shape (adds/removes a section, changes grid columns, shifts major heights), the sibling skeleton must be updated in the same PR. Route-level `loading.tsx` should compose these sibling skeletons rather than duplicate their DOM. Skeletons MUST use the shared `<Skeleton>` primitive — never raw `animate-pulse` — so `prefers-reduced-motion` stays honored. The primitive animates with a `skeleton-wave` gradient keyed off `--duration-shimmer` (defined in `globals.css`); never revive the old `skeleton-pulse` keyframe.
+- **Skeleton pairing:** every feature component with non-trivial layout SHOULD ship a sibling `*.skeleton.tsx` that renders the same outer shell and approximate dimensions. If the component changes shape (adds/removes a section, changes grid columns, shifts major heights), the sibling skeleton must be updated in the same PR. Route-level `loading.tsx` should compose these sibling skeletons rather than duplicate their DOM. Skeletons MUST use the shared `<Skeleton>` primitive — never raw `animate-pulse` — so `prefers-reduced-motion` stays honored. The primitive animates with a `skeleton-wave` gradient keyed off `--duration-shimmer` (defined in `globals.css`); never revive the old `skeleton-pulse` keyframe. Each sibling skeleton carries a stable `data-testid` (e.g. `subscription-card-skeleton`, `home-hero-skeleton`) so the sibling `loading.test.tsx` at the route level can pin its composition — renaming or removing those testids without updating the test is a CI failure.
 - **App bootstrap splash vs route skeleton:** the brand logo splash (`<AppSplash />` + `<AppReadyMarker />` wired in `app/layout.tsx`, styled as `#app-splash` in `globals.css`) covers only the pre-hydration bootstrap frame. It hides on first `useEffect` via `body[data-app-ready="true"]` and stays hidden for the remainder of the session. Route-level `loading.tsx` files MUST remain page-shaped skeletons and MUST NOT be replaced with the splash — they handle in-app navigation and API loading, which run after the splash is gone.
 
 ### Translation Sync

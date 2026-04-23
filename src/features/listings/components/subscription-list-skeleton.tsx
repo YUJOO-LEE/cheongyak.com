@@ -12,7 +12,12 @@ import { SubscriptionCardSkeleton } from './subscription-card.skeleton';
  */
 export function SubscriptionListSkeleton() {
   return (
-    <div aria-busy="true" aria-live="polite" className="px-4 lg:px-0">
+    <div
+      aria-busy="true"
+      aria-live="polite"
+      className="px-4 lg:px-0"
+      data-testid="subscription-list-skeleton"
+    >
       <p className="sr-only">청약 목록을 불러오는 중입니다.</p>
       <Skeleton className="mb-4" width={80} height={16} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

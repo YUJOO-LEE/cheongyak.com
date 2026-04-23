@@ -6,7 +6,7 @@ import { Skeleton } from '@/shared/components';
  */
 export function TopTradesSkeleton() {
   return (
-    <div aria-hidden="true">
+    <div aria-hidden="true" data-testid="top-trades-skeleton">
       <div className="mb-4">
         <Skeleton className="mb-2" width={220} height={24} />
         <Skeleton width={280} height={16} />

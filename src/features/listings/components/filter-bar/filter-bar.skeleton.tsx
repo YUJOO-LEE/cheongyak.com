@@ -9,7 +9,11 @@ export function FilterBarSkeleton() {
   return (
     <>
       {/* Mobile: matches FilterBar MobileTrigger wrapper (lg:hidden px-4 py-3 mb-4) */}
-      <div className="lg:hidden px-4 py-3 mb-4" aria-hidden="true">
+      <div
+        className="lg:hidden px-4 py-3 mb-4"
+        aria-hidden="true"
+        data-testid="filter-bar-skeleton-mobile"
+      >
         <Skeleton className="rounded-md" width={96} height={44} />
       </div>
 
@@ -17,6 +21,7 @@ export function FilterBarSkeleton() {
       <div
         className="hidden lg:flex items-center gap-x-4 gap-y-3 bg-bg-card/80 backdrop-blur-glass px-6 py-3 rounded-lg shadow-sm mb-6"
         aria-hidden="true"
+        data-testid="filter-bar-skeleton-desktop"
       >
         <Skeleton className="rounded-md" width={140} height={36} />
         <Skeleton className="rounded-md" width={220} height={36} />

@@ -14,7 +14,10 @@ export default function SubscriptionsLoading() {
               <SubscriptionCardSkeleton key={i} />
             ))}
           </div>
-          <div className="mt-8 flex items-center justify-center gap-2">
+          <div
+            className="mt-8 flex items-center justify-center gap-2"
+            data-testid="listings-pagination-skeleton"
+          >
             {Array.from({ length: 5 }, (_, i) => (
               <Skeleton
                 key={i}

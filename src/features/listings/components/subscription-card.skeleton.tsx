@@ -8,7 +8,11 @@ import { Card, Skeleton } from '@/shared/components';
  */
 export function SubscriptionCardSkeleton() {
   return (
-    <Card variant="subscription" interactive={false}>
+    <Card
+      variant="subscription"
+      interactive={false}
+      data-testid="subscription-card-skeleton"
+    >
       <div className="flex items-center gap-2 mb-3">
         <Skeleton width={56} height={24} className="rounded-full" />
         <Skeleton width={64} height={24} className="rounded-full" />

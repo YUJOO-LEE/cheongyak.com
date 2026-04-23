@@ -245,6 +245,13 @@ shared/components/
 - Lorem Ipsum이 아닌 실제 한국어 테스트 데이터 사용
 - 불안정한 테스트는 P0 버그 — 즉시 수정 또는 제거
 - 테스트 실패 시 CI 실패 — 깨진 테스트로 병합 금지
+- **스켈레톤 페리티 RTL 게이트 (Phase B-2a):** 모든 라우트 레벨 `loading.tsx`
+  는 형제 `loading.test.tsx` 를 두어 어떤 `*.skeleton.tsx` 컴포넌트를 어느
+  개수로 렌더링하는지 고정한다. 로더의 형태를 바꾸면 같은 PR 에서 테스트도
+  업데이트해야 한다 — 형제 스켈레톤을 빠뜨리거나 이미 사라진 팬텀 섹션을
+  다시 들여오는 변경은 리뷰가 아닌 CI 에서 잡혀야 한다. 전체 전략은
+  `docs/skeleton-parity-test-plan.md` 참조 (Playwright 바운딩 박스 parity 인
+  B-2b 는 느린 게이트로 아직 보류).
 
 ---
 
@@ -359,7 +366,7 @@ interface ApiError {
 | `.claude/agents/*.md` 에이전트 추가·변경 | `CLAUDE.md`·`ko` §2 (역할 경계 변동 시), 상호 참조된 에이전트의 "Behavior in Discussions" 섹션 |
 | Next.js / React / Tailwind / Vitest 메이저 버전 변경 | `CLAUDE.md`·`ko` §2 기술 스택 표, `ARCHITECTURE.md`·`ko` §1 |
 | 테스트 전략·CI 게이트 추가 (예: `scripts/audit-seo.mjs`) | `CLAUDE.md`·`ko` §8, `ARCHITECTURE.md`·`ko` §9 |
-| 형제 `*.skeleton.tsx`가 있는 실제 컴포넌트 수정, 또는 라우트 수준 `loading.tsx` 추가·수정·삭제 | 대응 `*.skeleton.tsx` (DOM 구조와 대략 높이를 함께 갱신해 Suspense/route fallback이 최종 레이아웃과 일치하도록 — `ARCHITECTURE.md` §7 Performance CLS 규칙 준수) |
+| 형제 `*.skeleton.tsx`가 있는 실제 컴포넌트 수정, 또는 라우트 수준 `loading.tsx` 추가·수정·삭제 | 대응 `*.skeleton.tsx` (DOM 구조와 대략 높이를 함께 갱신해 Suspense/route fallback이 최종 레이아웃과 일치하도록 — `ARCHITECTURE.md` §7 Performance CLS 규칙 준수) + 대응 `loading.test.tsx` (형제 스켈레톤 개수·`data-testid` 단언을 함께 갱신해 RTL 게이트가 계속 통과하도록) |
 
 ### 문서 동기화 (쌍 대응)
 - `.md` 파일 수정 시 `.ko.md` 대응 파일도 **같은 커밋에서** 업데이트
@@ -367,7 +374,7 @@ interface ApiError {
 - 라우트 경로는 `CLAUDE.md`, `ARCHITECTURE.md`, `PAGES.md` 간에 정확히 일치
 - 색상 토큰 이름과 값은 `DESIGN.md`와 `PAGES.md` 간에 정확히 일치
 - 사용 중인 schema.org 타입은 `src/shared/components/json-ld.tsx`, `CLAUDE.md` §11, `ARCHITECTURE.md` §7, `PAGES.md` SEO Requirements 간에 일치
-- **스켈레톤 쌍 유지:** 레이아웃이 단순하지 않은 피처 컴포넌트는 형제 `*.skeleton.tsx`를 함께 두어 동일한 외곽 셸과 유사한 치수를 렌더해야 합니다. 컴포넌트의 형상이 변하면(섹션 추가·제거, 그리드 컬럼 수 변경, 주요 높이 변경) **같은 PR에서** 형제 스켈레톤도 갱신해야 합니다. 라우트 수준 `loading.tsx`는 DOM을 중복 작성하는 대신 형제 스켈레톤을 조립해 구성합니다. 모든 스켈레톤은 공용 `<Skeleton>` 프리미티브를 사용해야 하며, raw `animate-pulse`는 금지입니다(`prefers-reduced-motion` 존중을 위해). 프리미티브는 `globals.css`의 `--duration-shimmer`에 묶인 `skeleton-wave` 그라데이션으로 애니메이션되며, 과거의 `skeleton-pulse` keyframe은 다시 도입하지 않습니다.
+- **스켈레톤 쌍 유지:** 레이아웃이 단순하지 않은 피처 컴포넌트는 형제 `*.skeleton.tsx`를 함께 두어 동일한 외곽 셸과 유사한 치수를 렌더해야 합니다. 컴포넌트의 형상이 변하면(섹션 추가·제거, 그리드 컬럼 수 변경, 주요 높이 변경) **같은 PR에서** 형제 스켈레톤도 갱신해야 합니다. 라우트 수준 `loading.tsx`는 DOM을 중복 작성하는 대신 형제 스켈레톤을 조립해 구성합니다. 모든 스켈레톤은 공용 `<Skeleton>` 프리미티브를 사용해야 하며, raw `animate-pulse`는 금지입니다(`prefers-reduced-motion` 존중을 위해). 프리미티브는 `globals.css`의 `--duration-shimmer`에 묶인 `skeleton-wave` 그라데이션으로 애니메이션되며, 과거의 `skeleton-pulse` keyframe은 다시 도입하지 않습니다. 각 형제 스켈레톤은 안정적인 `data-testid` (예: `subscription-card-skeleton`, `home-hero-skeleton`) 를 가져 라우트 레벨 형제 `loading.test.tsx` 가 조합을 고정할 수 있게 합니다 — 테스트를 함께 갱신하지 않고 testid 를 바꾸거나 제거하면 CI 에서 실패합니다.
 - **앱 부트스트랩 스플래시 vs 라우트 스켈레톤:** 브랜드 로고 스플래시(`app/layout.tsx`에 배선된 `<AppSplash />` + `<AppReadyMarker />`, `globals.css`의 `#app-splash`)는 hydration 직전의 부트스트랩 프레임만을 덮습니다. 첫 `useEffect` 에서 `body[data-app-ready="true"]` 가 세팅되면서 숨겨지고, 이후 세션 동안 다시 나타나지 않습니다. 라우트 수준 `loading.tsx` 파일은 반드시 페이지 구조형 스켈레톤을 유지해야 하며, 스플래시로 대체하지 않습니다 — in-app 네비게이션과 API 로딩은 스플래시가 사라진 뒤에 발생하기 때문입니다.
 
 ### 번역 동기화
