@@ -249,9 +249,19 @@ shared/components/
   는 형제 `loading.test.tsx` 를 두어 어떤 `*.skeleton.tsx` 컴포넌트를 어느
   개수로 렌더링하는지 고정한다. 로더의 형태를 바꾸면 같은 PR 에서 테스트도
   업데이트해야 한다 — 형제 스켈레톤을 빠뜨리거나 이미 사라진 팬텀 섹션을
-  다시 들여오는 변경은 리뷰가 아닌 CI 에서 잡혀야 한다. 전체 전략은
-  `docs/skeleton-parity-test-plan.md` 참조 (Playwright 바운딩 박스 parity 인
-  B-2b 는 느린 게이트로 아직 보류).
+  다시 들여오는 변경은 리뷰가 아닌 CI 에서 잡혀야 한다.
+- **스켈레톤 페리티 Playwright 게이트 (Phase B-2b):**
+  `e2e/skeleton-parity.spec.ts` 가 `pnpm dev`(포트 715) 위에 Chromium 을
+  띄워 `/listings` 의 TanStack Query fetch 와 `/listings/[id]` 의 RSC
+  payload 를 인위적으로 지연시킨 뒤, 각 스켈레톤의 렌더된 `offsetHeight`
+  가 대응 실제 섹션의 10% 이내임을 단언한다(HomeHero / WeeklySchedule /
+  TopTrades 와 listing detail 카드 래퍼에 붙은 `data-section` 훅으로
+  매칭). main 브랜치 전용 작업이므로 `pnpm test:e2e:skeleton-parity` 로
+  opt-in 하여 돌리며, 기본 `pnpm test:e2e` 는 이를 건너뛰어 PR 지연을
+  줄인다. 홈(`/`) 은 아직 커버되지 않는다 — API fetch 가 서버측에서
+  일어나므로 `page.route` 만으로는 스켈레톤 구간을 연장할 수 없고,
+  MSW browser worker 또는 dev 서버 지연 플래그가 필요하다. 후속 과제는
+  `docs/skeleton-parity-test-plan.md` 에 기록.
 
 ---
 

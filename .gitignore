@@ -26,6 +26,10 @@ next-env.d.ts
 coverage/
 playwright-report/
 test-results/
+blob-report/
+/test-results/
+/playwright-report/
+/blob-report/
 
 # Debug logs
 npm-debug.log*

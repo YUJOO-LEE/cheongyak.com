@@ -2,6 +2,31 @@
 
 > Phase A-1 ~ A-3 (스켈레톤 재작성) 및 B-1 (Cross-Validation 룰) 완료 이후 남은 **테스트 커버리지** 단계. 이 문서는 단독 PR 단위로 실행할 수 있는 수준까지 쪼개어 작성되었습니다.
 
+## 진행 상태 (세션 간 핸드오프)
+
+- **B-2a 완료** — 브랜치 `v2`, 커밋 `6170038` (`test(skeletons): pin route loader composition with RTL parity gate (Phase B-2a)`).
+  - 6 개 스켈레톤 `data-testid` + Skeleton 프리미티브 passthrough, listing-detail `loading.tsx` 섹션 testid, `/listings/loading.tsx` 페이지네이션 testid.
+  - 4 개 RTL 테스트 추가 (114/114 초록, `tsc --noEmit` 통과).
+  - `CLAUDE.md`·`ko` §8/§14 + `ARCHITECTURE.md`·`ko` §8 CLS 셀 업데이트.
+- **B-2b 완료** — 브랜치 `v2`, 두 개의 커밋으로 분리 착지:
+  1. `4407ffa` `test(components): add data-section hooks for skeleton parity (Phase B-2b/1)` — HomeHero·WeeklySchedule·TopTrades 의 컴포넌트 루트 와, listing detail `page.tsx` 의 schedule/supply 카드 래퍼 + OfficialLinks 루트에 `data-section` 속성 추가. 프로덕션 동작 드리프트 0 (스타일·JS 영향 없음). 114/114 초록 + `tsc --noEmit` 통과.
+  2. `<이 커밋>` `test(e2e): add Playwright skeleton parity bounding-box gate (Phase B-2b/2)` — `playwright.config.ts` 신규 + `e2e/skeleton-parity.spec.ts` 신규 + `package.json` 에 `test:e2e:skeleton-parity` opt-in 스크립트 추가 + `.gitignore` 에 `blob-report/` 보강 + `CLAUDE.md`·`ko` §8 와 `ARCHITECTURE.md`·`ko` §8 CLS 셀에 B-2b 게이트 문장 미러링.
+- **Scope 조정 (B-2b 실측 결과, 플랜에서 이탈)**
+  - 커버리지: `/listings` 그리드 + `/listings/[id]` detail 3 카드(schedule/supply/links) 만 포함.
+  - 제외: 홈 `/` — 홈 `page.tsx` 는 Server Component 이고 `/main/*` fetch 가 서버측에서 일어나므로 `page.route` 로는 스켈레톤 구간을 연장할 수 없다. MSW browser worker 또는 dev 서버 지연 플래그(`?delay=2s` env) 가 필요한 후속 작업으로 정리.
+  - 측정 전략: `readStableHeight()` 헬퍼가 `offsetHeight` 두 번 연속 동일할 때까지 폴링하여 shimmer wave 애니메이션 / 폰트 settle 타이밍 flake 제거.
+- **MSW 충돌 조사 결과** — 충돌 없음.
+  - `src/mocks/` 에는 `setupWorker`/`browser.ts` 가 없고, `public/mockServiceWorker.js` 도 없다. MSW 는 Vitest 테스트 내부의 `setupServer` 용도로만 의존된다 (`subscription-list-client.test.tsx`, `apt-sales-handler.test.ts`).
+  - 따라서 dev 서버에서 MSW 는 로드되지 않으며, Playwright 의 `page.route` 가 브라우저 네트워크를 단독으로 소유한다. TanStack Query 하이드레이션 간섭 리스크도 실제로는 발생하지 않는다(서버측 prefetch + HydrationBoundary 후에 클라이언트가 첫 refetch 를 할 때 `page.route` 가 한 번 지연시키는 구조).
+- **Playwright 실행 상태** — 이 세션에서는 실행하지 않음.
+  - `npx playwright --version` → 1.59.1 확인 (`@playwright/test ^1.59.1` 이미 `package.json` 에 있음).
+  - `~/Library/Caches/ms-playwright/` 부재 → Chromium 미설치. 사용자 환경에서 최초 실행 전 `npx playwright install --with-deps chromium` 수행 필요.
+  - 본 세션에서는 설치·실행을 건너뛰었고, 대신 `pnpm type-check` / `pnpm test --run` 으로 타입·유닛 회귀만 확인 (114/114 초록 유지).
+- **후속 작업 (B-2b 이후)**
+  - `.github/workflows/` 디렉토리가 아직 없음 → main 전용 워크플로 추가는 분리된 PR 로 진행. 최소 골격: Ubuntu runner + `pnpm install` + `npx playwright install --with-deps chromium` + `pnpm test:e2e:skeleton-parity`. trigger 는 `push to main` + `workflow_dispatch`.
+  - 홈 `/` 페리티 커버: MSW browser worker 도입 또는 `API_BACKEND_URL` 프록시 레이어에 dev-only delay flag 추가 검토.
+  - 의도적 실패 검증 (`SubscriptionCardSkeleton` 높이를 80px 로 축소 → spec 실패) 은 `e2e/skeleton-parity.spec.ts` 상단 JSDoc 의 "Review guidance" 섹션에 수동 절차로 기록만 하고, 실제로 깨뜨리지는 않았다.
+
 ## Context
 
 - **배경:** 이전 작업에서 `*.skeleton.tsx` 형제 패턴을 정착시키고, `CLAUDE.md` §14에 "스켈레톤 쌍 유지" 규칙을 추가했습니다. 그러나 *사람이 규칙을 지킨다고 가정*하는 상태이고, 자동 검증은 없습니다.

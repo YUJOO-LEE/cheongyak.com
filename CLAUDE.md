@@ -255,9 +255,19 @@ vitest 3.
   has a sibling `loading.test.tsx` that pins which `*.skeleton.tsx` components
   it renders and in what count. If you change the loader's shape, update the
   test in the same PR — dropping a sibling skeleton or reintroducing a phantom
-  section must fail CI, not slip through review. See
-  `docs/skeleton-parity-test-plan.md` for the full strategy (B-2b Playwright
-  bounding-box parity is the slow gate, still deferred).
+  section must fail CI, not slip through review.
+- **Skeleton parity Playwright gate (Phase B-2b):** `e2e/skeleton-parity.spec.ts`
+  boots Chromium against `pnpm dev` (port 715), artificially delays the
+  TanStack Query fetch for `/listings` and the RSC payload for
+  `/listings/[id]`, and asserts every measured skeleton's rendered
+  `offsetHeight` is within 10% of the real section it replaces (matched via
+  `data-section` hooks on HomeHero / WeeklySchedule / TopTrades and the
+  listing detail card wrappers). It is main-branch-only work — opt in via
+  `pnpm test:e2e:skeleton-parity`; the default `pnpm test:e2e` skips it so
+  PR latency stays low. Home (`/`) is not yet covered: its API fetches run
+  server-side, so `page.route` cannot lengthen the skeleton phase without
+  an MSW browser worker or a dev-server latency flag — tracked in
+  `docs/skeleton-parity-test-plan.md` as follow-up.
 
 ---
 
