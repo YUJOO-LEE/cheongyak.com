@@ -22,10 +22,10 @@
   - `npx playwright --version` → 1.59.1 확인 (`@playwright/test ^1.59.1` 이미 `package.json` 에 있음).
   - `~/Library/Caches/ms-playwright/` 부재 → Chromium 미설치. 사용자 환경에서 최초 실행 전 `npx playwright install --with-deps chromium` 수행 필요.
   - 본 세션에서는 설치·실행을 건너뛰었고, 대신 `pnpm type-check` / `pnpm test --run` 으로 타입·유닛 회귀만 확인 (114/114 초록 유지).
+- **B-2b CI 연결 완료** — `.github/workflows/skeleton-parity.yml` 추가. `push to main` + `workflow_dispatch` 에서 실행. Ubuntu + pnpm 10.13.1 + Node 20 + Playwright 버전별 `~/.cache/ms-playwright` 캐싱 + `pnpm test:e2e:skeleton-parity`. 실패 시 `playwright-report/` 와 `test-results/` 를 artifact 로 업로드(보존 14일). dev 서버가 backend 를 실제 호출하므로 레포 시크릿 `API_BACKEND_URL` 이 필요하며, 미설정 시 첫 스텝에서 `::error::` 로 즉시 실패하도록 가드했음.
 - **후속 작업 (B-2b 이후)**
-  - `.github/workflows/` 디렉토리가 아직 없음 → main 전용 워크플로 추가는 분리된 PR 로 진행. 최소 골격: Ubuntu runner + `pnpm install` + `npx playwright install --with-deps chromium` + `pnpm test:e2e:skeleton-parity`. trigger 는 `push to main` + `workflow_dispatch`.
   - 홈 `/` 페리티 커버: MSW browser worker 도입 또는 `API_BACKEND_URL` 프록시 레이어에 dev-only delay flag 추가 검토.
-  - 의도적 실패 검증 (`SubscriptionCardSkeleton` 높이를 80px 로 축소 → spec 실패) 은 `e2e/skeleton-parity.spec.ts` 상단 JSDoc 의 "Review guidance" 섹션에 수동 절차로 기록만 하고, 실제로 깨뜨리지는 않았다.
+  - 의도적 실패 검증 (`SubscriptionCardSkeleton` 높이를 80px 로 축소 → spec 실패) 은 `e2e/skeleton-parity.spec.ts` 상단 JSDoc 의 "Review guidance" 섹션에 수동 절차로 기록만 하고, 실제로 깨뜨리지는 않았다. CI 워크플로 첫 그린 런 이후 한 번 깨뜨려 레드 빌드 → 복구 를 실증해 게이트 신뢰도를 확보할 것.
 
 ## Context
 

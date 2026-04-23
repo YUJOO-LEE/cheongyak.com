@@ -261,9 +261,13 @@ shared/components/
   TopTrades 와 listing detail 카드 래퍼에 붙은 `data-section` 훅으로
   매칭). main 브랜치 전용 작업이므로 `pnpm test:e2e:skeleton-parity` 로
   opt-in 하여 돌리며, 기본 `pnpm test:e2e` 는 이를 건너뛰어 PR 지연을
-  줄인다. 홈(`/`) 은 아직 커버되지 않는다 — API fetch 가 서버측에서
-  일어나므로 `page.route` 만으로는 스켈레톤 구간을 연장할 수 없고,
-  MSW browser worker 또는 dev 서버 지연 플래그가 필요하다. 후속 과제는
+  줄인다. CI 연결은 `.github/workflows/skeleton-parity.yml` 이 담당한다
+  — `main` 으로의 `push` 와 `workflow_dispatch` 에서 실행되며, spec 의
+  `page.route` 핸들러가 실제 트래픽을 지연만 시키고 stub 하지 않기
+  때문에 레포 시크릿 `API_BACKEND_URL` 이 필요하다. 홈(`/`) 은 아직
+  커버되지 않는다 — API fetch 가 서버측에서 일어나므로 `page.route` 만
+  으로는 스켈레톤 구간을 연장할 수 없고, MSW browser worker 또는 dev
+  서버 지연 플래그가 필요하다. 후속 과제는
   `docs/skeleton-parity-test-plan.md` 에 기록.
 
 ---

@@ -268,9 +268,13 @@ vitest 3.
   `data-section` hooks on HomeHero / WeeklySchedule / TopTrades and the
   listing detail card wrappers). It is main-branch-only work — opt in via
   `pnpm test:e2e:skeleton-parity`; the default `pnpm test:e2e` skips it so
-  PR latency stays low. Home (`/`) is not yet covered: its API fetches run
-  server-side, so `page.route` cannot lengthen the skeleton phase without
-  an MSW browser worker or a dev-server latency flag — tracked in
+  PR latency stays low. CI wiring lives in
+  `.github/workflows/skeleton-parity.yml`, which runs on `push` to `main`
+  and `workflow_dispatch`; it requires an `API_BACKEND_URL` repo secret
+  because the spec's `page.route` handler delays but does not stub real
+  traffic. Home (`/`) is not yet covered: its API fetches run server-side,
+  so `page.route` cannot lengthen the skeleton phase without an MSW
+  browser worker or a dev-server latency flag — tracked in
   `docs/skeleton-parity-test-plan.md` as follow-up.
 
 ---
