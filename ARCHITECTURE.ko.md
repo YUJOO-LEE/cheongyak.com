@@ -221,7 +221,7 @@ interface ApiError {
 |---|---|---|
 | **LCP** | < 2.5s | 스크롤 이전 콘텐츠 서버 렌더링; 히어로 이미지 preload; 초기 뷰에서 클라이언트 사이드 데이터 페칭 회피 |
 | **INP** | < 200ms | 메인 스레드 작업 최소화; 비긴급 업데이트에 `startTransition` 사용; 필터 입력 debounce |
-| **CLS** | < 0.1 | 모든 이미지에 명시적 `width`/`height`; 스켈레톤 플레이스홀더가 최종 레이아웃과 일치 (형제 `*.skeleton.tsx` + 라우트 `loading.tsx`, 매 PR 에서 `loading.test.tsx` RTL 게이트로 고정하고, `/listings` 는 main 전용 Playwright per-card 페리티 게이트 `e2e/skeleton-parity.spec.ts` 로 추가 고정, CI 연결은 `.github/workflows/skeleton-parity.yml` 이 `main` `push` + `workflow_dispatch` 에서 실행하며 레포 시크릿 `API_BACKEND_URL` 필요 — `docs/skeleton-parity-test-plan.md` 참조); 레이아웃 변경 없는 폰트 스왑 |
+| **CLS** | < 0.1 | 모든 이미지에 명시적 `width`/`height`; 스켈레톤 플레이스홀더가 최종 레이아웃과 일치 (형제 `*.skeleton.tsx` + 라우트 `loading.tsx`, 매 PR 에서 `loading.test.tsx` RTL 게이트로 고정하고, main 전용 Playwright 페리티 게이트 `e2e/skeleton-parity.spec.ts` 가 `/listings` 는 `page.route` 로 per-card 페리티를, `/` 홈은 `src/instrumentation.ts` 로 `/main/*` 서버 fetch 를 fixture + 지연시켜 Hero + TopTrades 페리티를 추가 고정, CI 연결은 `.github/workflows/skeleton-parity.yml` 이 `main` `push` + `workflow_dispatch` 에서 실행하며 /listings 용으로 레포 시크릿 `API_BACKEND_URL` 필요 — `docs/skeleton-parity-test-plan.md` 참조); 레이아웃 변경 없는 폰트 스왑 |
 
 ### 번들 예산
 | 예산 항목 | 목표 |

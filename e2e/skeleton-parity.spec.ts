@@ -34,14 +34,24 @@
  *   not a meaningful signal for a skeleton users never see. If this
  *   page becomes async (real API fetch instead of fixtures), revisit
  *   this decision.
- * - `/` (home) is *not* covered here. The home page is a pure Server
- *   Component that does its API fetches server-side, before any
- *   browser-visible request exists for `page.route` to intercept. The
- *   RTL gate in `src/app/loading.test.tsx` (and the inline Suspense
- *   fallback tests) still pins the home loader's composition; pairing
- *   height parity on the home route requires either an MSW browser
- *   worker or a dev-server latency flag, both tracked in
- *   `docs/skeleton-parity-test-plan.md` as follow-up.
+ * - `/` (home) covers the Hero and TopTrades sections via a dev-only
+ *   fetch shim. The home page's three sections each suspend on a
+ *   server-side `/main/*` fetch, so `page.route` can't reach them.
+ *   Instead, `src/instrumentation.ts` monkey-patches `globalThis.fetch`
+ *   inside the Next server whenever `SKELETON_PARITY_DELAY_MS` is set,
+ *   stalls each `/main/*` fetch by that many milliseconds, and serves
+ *   deterministic fixture bodies so the assertion isn't hostage to
+ *   real-backend drift. `playwright.config.ts` wires the env onto its
+ *   webServer (default `2000`).
+ *
+ *   WeeklySchedule is *excluded* from the home gate: its layout is
+ *   date-sensitive (`getWeekdays()` + `getSubsForDate`), so any static
+ *   fixture will drop into the empty state once the current week rolls
+ *   past its announcement dates — which happens 6 days out of 7. That
+ *   318px skeleton → 124px empty-state collapse is a real production
+ *   CLS risk, but the fix belongs in the component (match the empty
+ *   state's footprint with a dedicated fallback). Follow-up is tracked
+ *   in `docs/skeleton-parity-test-plan.md`.
  *
  * Flake controls:
  *
@@ -93,17 +103,32 @@ async function readStableHeight(
 ): Promise<number> {
   const start = Date.now();
   let previous = -1;
+  const samples: number[] = [];
   while (Date.now() - start < 5_000) {
+    // querySelectorAll + first-visible picks past skeletons that render
+    // multiple responsive variants (e.g. WeeklyScheduleSkeleton mobile
+    // vs desktop) — the hidden variant has offsetHeight 0 at the active
+    // breakpoint, so the polling loop would otherwise never settle.
     const current = await page.evaluate((sel) => {
-      const el = document.querySelector(sel) as HTMLElement | null;
-      return el ? el.offsetHeight : 0;
+      const nodes = Array.from(
+        document.querySelectorAll(sel),
+      ) as HTMLElement[];
+      for (const el of nodes) {
+        if (el.offsetHeight > 0) return el.offsetHeight;
+      }
+      return 0;
     }, selector);
+    samples.push(current);
     if (current === previous && current > 0) return current;
     previous = current;
     await page.waitForTimeout(100);
   }
+  // Include the sample trace in the error so a timeout tells you
+  // whether the element was never rendered (`[0,0,...]`), was briefly
+  // rendered and detached (`[X,0,...]`), or kept flickering — each
+  // fails for a different reason.
   throw new Error(
-    `readStableHeight(${label}) did not settle within 5s (selector: ${selector})`,
+    `readStableHeight(${label}) did not settle within 5s (selector: ${selector}). Samples: [${samples.join(',')}]`,
   );
 }
 
@@ -192,5 +217,66 @@ test.describe('skeleton ↔ real layout parity (CLS gate)', () => {
 
       expectHeightParity('listings-card', skeletonCardHeight, realCardHeight);
     });
+  });
+
+  test('/ home Suspense fallbacks match their real sections', async ({
+    page,
+  }) => {
+    // The webServer boots with `SKELETON_PARITY_DELAY_MS=2000`, which
+    // `src/instrumentation.ts` consumes to stall every server-side
+    // `/main/*` fetch by that many milliseconds. During the stall the
+    // SSR stream emits shell + three `<Suspense fallback>` skeletons;
+    // when the fetches resolve, Next streams replacement HTML that
+    // swaps each skeleton out for its real section. We measure during
+    // the stall window, then await the swap and measure the real
+    // sections.
+
+    // Kick navigation without awaiting — we need the fallback phase
+    // alive when we measure. The await comes after heights are captured.
+    const navigation = page.goto('/', { waitUntil: 'load' });
+
+    const heroSkel = page.getByTestId('home-hero-skeleton');
+    await heroSkel.waitFor({ state: 'visible', timeout: 5_000 });
+
+    const heroSkelH = await readStableHeight(
+      page,
+      '[data-testid="home-hero-skeleton"]',
+      'home-hero-skeleton',
+    );
+    const topTradesSkelH = await readStableHeight(
+      page,
+      '[data-testid="top-trades-skeleton"]',
+      'top-trades-skeleton',
+    );
+
+    // Let the SSR stream finish — real sections replace the fallbacks.
+    await navigation;
+    await heroSkel.waitFor({ state: 'detached', timeout: 10_000 });
+
+    // Real sections. Hero + TopTrades only. WeeklySchedule is
+    // deliberately excluded — its rendering depends on today's weekday
+    // via `getWeekdays()`, so fixture announcements dated to a static
+    // week will land in the empty state whenever the test clock is
+    // outside that week. That collapse (skeleton 310px → empty 124px)
+    // is a real production CLS risk of its own, but solving it belongs
+    // in the component, not in a gate that would red-bar on the 6 days
+    // out of 7 that the fixture week doesn't match. See
+    // `docs/skeleton-parity-test-plan.md` for the open follow-up.
+    const heroReal = page.locator('[data-section="home-hero"]').first();
+    await heroReal.waitFor({ state: 'visible', timeout: 10_000 });
+
+    const heroRealH = await readStableHeight(
+      page,
+      '[data-section="home-hero"]',
+      'home-hero-real',
+    );
+    const topTradesRealH = await readStableHeight(
+      page,
+      '[data-section="top-trades"]',
+      'top-trades-real',
+    );
+
+    expectHeightParity('home-hero', heroSkelH, heroRealH);
+    expectHeightParity('top-trades', topTradesSkelH, topTradesRealH);
   });
 });

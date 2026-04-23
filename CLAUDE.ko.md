@@ -254,31 +254,37 @@ shared/components/
   fallback 으로 스켈레톤을 소유한다. 그래야 스트리밍 중 홈 스켈레톤이
   `/listings` 등 하위 라우트의 외부 Suspense 경계로 새지 않는다.
 - **스켈레톤 페리티 Playwright 게이트 (Phase B-2b):**
-  `e2e/skeleton-parity.spec.ts` 가 `pnpm dev`(포트 715) 위에 Chromium 을
-  띄워 `/listings` 의 TanStack Query fetch 를 인위적으로 지연시킨 뒤,
-  첫 번째 `SubscriptionCardSkeleton` 의 렌더된 `offsetHeight` 가 첫
-  번째 실제 `<article>` 의 10% 이내임을 단언한다. per-card 단위가 옳은
-  기준이다 — 스켈레톤은 항상 6 장을 렌더하지만 실제 리스트는 20장
-  이상이라 outer wrapper 총 높이는 절대 일치할 수 없지만, 각 카드는
-  자기 플레이스홀더와 동일한 박스를 차지해야 사용자가 layout shift 를
-  느끼지 않는다. main 브랜치 전용 작업이므로
-  `pnpm test:e2e:skeleton-parity` 로 opt-in 하여 돌리며, 기본
-  `pnpm test:e2e` 는 이를 건너뛰어 PR 지연을 줄인다. CI 연결은
-  `.github/workflows/skeleton-parity.yml` 이 담당한다 — `main` 으로의
-  `push` 와 `workflow_dispatch` 에서 실행되며, spec 의 `page.route`
-  핸들러가 실제 트래픽을 지연만 시키고 stub 하지 않기 때문에 레포
-  시크릿 `API_BACKEND_URL` 이 필요하다. `/listings/[id]` 는 커버되지
-  않는다 — detail 페이지가 정적 fixture 를 읽는 순수 Server Component
-  라서 Next 16 + React 19 의 concurrent router 가 새 트리를
-  `<div hidden>` 에 staging 한 뒤 원자적으로 unwrap 하며, 따라서
-  `loading.tsx` 가 사용자에게 실제로 가시화되지 않아 runtime CLS
-  위험 자체가 없다. 대신
+  `e2e/skeleton-parity.spec.ts` 가 `pnpm dev`(포트 715) 위에 Chromium
+  을 띄워 두 라우트를 커버한다: (1) `/listings` 는 `page.route` 로
+  TanStack Query fetch 를 지연시켜 첫 번째
+  `SubscriptionCardSkeleton` 의 렌더 `offsetHeight` 가 첫 번째 실제
+  `<article>` 의 10% 이내임을 단언한다 — per-card 단위가 옳은 기준
+  (스켈레톤은 항상 6 장, 실제 리스트는 20장 이상이라 outer wrapper
+  총 높이는 맞출 수 없지만, 각 카드는 플레이스홀더와 동일한 박스를
+  차지해야 함). (2) `/` 홈은 `src/instrumentation.ts`(env
+  `SKELETON_PARITY_DELAY_MS` 가 설정될 때만 로드됨)가
+  `globalThis.fetch` 를 패치해 서버측 `/main/*` 요청을 지연시키고
+  `src/mocks/fixtures/main/` 고정 fixture 로 응답한 뒤,
+  `home-hero-skeleton` 와 `top-trades-skeleton` 이 각각 대응
+  `data-section` 실제 섹션의 10% 이내임을 단언한다. WeeklySchedule
+  은 홈 게이트에서 제외 — `getWeekdays()` + `getSubsForDate` 로
+  today's weekday 에 종속되는 레이아웃이라 static fixture 는 7 일 중
+  6 일은 empty state 로 떨어지며, 이 skeleton-too-tall-for-empty
+  이슈는 별도 follow-up 으로
+  `docs/skeleton-parity-test-plan.md` 에 기록. main 브랜치 전용
+  작업이므로 `pnpm test:e2e:skeleton-parity` 로 opt-in 하여 돌리며,
+  기본 `pnpm test:e2e` 는 이를 건너뛰어 PR 지연을 줄인다. CI 연결은
+  `.github/workflows/skeleton-parity.yml` 이 담당한다 — `main`
+  `push` + `workflow_dispatch` 에서 실행되며, `/listings` 의
+  `page.route` 핸들러가 실제 트래픽을 지연만 시키고 stub 하지 않기
+  때문에 레포 시크릿 `API_BACKEND_URL` 이 필요하다. `/listings/[id]`
+  는 커버되지 않는다 — detail 페이지가 정적 fixture 를 읽는 순수
+  Server Component 라서 Next 16 + React 19 의 concurrent router 가
+  새 트리를 `<div hidden>` 에 staging 한 뒤 원자적으로 unwrap 하며,
+  따라서 `loading.tsx` 가 사용자에게 실제로 가시화되지 않아 runtime
+  CLS 위험 자체가 없다. 대신
   `src/app/listings/[id]/loading.test.tsx` RTL 게이트가 loader 구성
-  자체는 계속 고정한다(정합성 가드). 홈(`/`) 도 아직 커버되지 않는다
-  — API fetch 가 서버측에서 일어나므로 `page.route` 만으로는
-  스켈레톤 구간을 연장할 수 없고, MSW browser worker 또는 dev 서버
-  지연 플래그가 필요하다. 후속 과제는
-  `docs/skeleton-parity-test-plan.md` 에 기록.
+  자체는 계속 고정한다(정합성 가드).
 
 ---
 

@@ -12,10 +12,11 @@
   1. `4407ffa` `test(components): add data-section hooks for skeleton parity (Phase B-2b/1)` — HomeHero·WeeklySchedule·TopTrades 의 컴포넌트 루트 와, listing detail `page.tsx` 의 schedule/supply 카드 래퍼 + OfficialLinks 루트에 `data-section` 속성 추가. 프로덕션 동작 드리프트 0 (스타일·JS 영향 없음). 114/114 초록 + `tsc --noEmit` 통과.
   2. `<이 커밋>` `test(e2e): add Playwright skeleton parity bounding-box gate (Phase B-2b/2)` — `playwright.config.ts` 신규 + `e2e/skeleton-parity.spec.ts` 신규 + `package.json` 에 `test:e2e:skeleton-parity` opt-in 스크립트 추가 + `.gitignore` 에 `blob-report/` 보강 + `CLAUDE.md`·`ko` §8 와 `ARCHITECTURE.md`·`ko` §8 CLS 셀에 B-2b 게이트 문장 미러링.
 - **Scope 조정 (B-2b 실측 결과, 플랜에서 이탈)**
-  - 커버리지: `/listings` 의 첫 카드 per-card 페리티만 포함. Outer-wrapper 총 높이는 스켈레톤(6 장 고정) vs 실제(20+ 장)가 절대 일치할 수 없으므로 의미 있는 단위가 per-card 로 바뀜.
+  - 커버리지 (1): `/listings` 의 첫 카드 per-card 페리티. Outer-wrapper 총 높이는 스켈레톤(6 장 고정) vs 실제(20+ 장)가 절대 일치할 수 없으므로 의미 있는 단위가 per-card 로 바뀜.
+  - 커버리지 (2): `/` 홈 Hero + TopTrades 페리티. `src/instrumentation.ts` 가 `SKELETON_PARITY_DELAY_MS` 를 소비해 `globalThis.fetch` 를 패치하고, `/main/*` 요청에 대해 `src/mocks/fixtures/main/` fixture 로 응답 + `delayMs` 지연을 적용한다. `playwright.config.ts` 의 webServer 가 이 env 를 기본 `2000` 으로 주입. Hero + TopTrades 는 fixture 데이터에서 populated 상태로 렌더되므로 per-section 페리티가 의미 있는 신호.
   - 제외 (1): `/listings/[id]` detail 3 카드 — 실측 결과 Next 16 + React 19 의 concurrent router 가 동기 Server Component (fixture 에서 read) 에 대해 새 트리를 `<div hidden>` 에 staging 한 뒤 원자적으로 unwrap 하므로 `loading.tsx` 가 사용자에게 한 번도 가시화되지 않음(스켈레톤 `offsetHeight` 는 RSC 지연 2 초 내내 0, 언와랩 100ms 이내에 DOM 에서 제거됨을 instrumented run 으로 확인). Runtime CLS 위험 자체가 없으므로 Playwright 높이 페리티는 의미 없는 신호. Detail loader 구성 자체는 `src/app/listings/[id]/loading.test.tsx` RTL 게이트가 계속 고정. 해당 페이지가 실 API 로 전환되면 재검토.
-  - 제외 (2): 홈 `/` — 홈 `page.tsx` 는 Server Component 이고 `/main/*` fetch 가 서버측에서 일어나므로 `page.route` 로는 스켈레톤 구간을 연장할 수 없다. MSW browser worker 또는 dev 서버 지연 플래그(`?delay=2s` env) 가 필요한 후속 작업으로 정리.
-  - 측정 전략: `readStableHeight()` 헬퍼가 `offsetHeight` 두 번 연속 동일할 때까지 폴링하여 shimmer wave 애니메이션 / 폰트 settle 타이밍 flake 제거. `loading.tsx` 래퍼의 `aria-hidden="true"` 때문에 Playwright locator 의 visibility 기반 auto-wait 가 무한 대기하는 이슈가 있어 측정은 `page.evaluate(sel => qs(sel).offsetHeight)` 로 bypass.
+  - 제외 (2): 홈 WeeklySchedule — `getWeekdays()` + `getSubsForDate` 가 today's weekday 에 따라 현재 주 5 일 컬럼을 만들기 때문에, fixture 가 고정된 2026-04-13~17 announcements 를 담아도 7 일 중 6 일은 현재 주와 안 맞아 EmptyState (124px) 로 떨어진다. Desktop 스켈레톤(310px) 과 차이 150% → 항상 red. 이 skeleton-too-tall-for-empty 현상은 프로덕션 에서도 발생하는 진짜 UX 이슈(스켈레톤 → empty-state collapse)지만 해결은 컴포넌트 단위에서 dedicated empty-state fallback 을 만드는 것이며, 게이트가 실패로 배너 박는 것은 그 이슈 해결 전까지 오진. 아래 "후속 작업" 에서 정리.
+  - 측정 전략: `readStableHeight()` 헬퍼가 `offsetHeight` 두 번 연속 동일할 때까지 폴링하여 shimmer wave 애니메이션 / 폰트 settle 타이밍 flake 제거. 다중 responsive 변종을 가진 스켈레톤(`WeeklyScheduleSkeleton` 같이 mobile + desktop 쌍을 둘 다 emit 하는 경우) 에서 `display:none` 변종을 건너뛰도록 `querySelectorAll` 로 첫 positive offsetHeight 를 선택. `loading.tsx` 래퍼의 `aria-hidden="true"` 때문에 Playwright locator 의 visibility 기반 auto-wait 가 무한 대기하는 이슈가 있어 측정은 `page.evaluate(sel => qsa(sel))` 로 bypass.
 - **MSW 충돌 조사 결과** — 충돌 없음.
   - `src/mocks/` 에는 `setupWorker`/`browser.ts` 가 없고, `public/mockServiceWorker.js` 도 없다. MSW 는 Vitest 테스트 내부의 `setupServer` 용도로만 의존된다 (`subscription-list-client.test.tsx`, `apt-sales-handler.test.ts`).
   - 따라서 dev 서버에서 MSW 는 로드되지 않으며, Playwright 의 `page.route` 가 브라우저 네트워크를 단독으로 소유한다. TanStack Query 하이드레이션 간섭 리스크도 실제로는 발생하지 않는다(서버측 prefetch + HydrationBoundary 후에 클라이언트가 첫 refetch 를 할 때 `page.route` 가 한 번 지연시키는 구조).
@@ -32,8 +33,9 @@
   1. `/listings` outer-wrapper 비교(스켈레톤 6장 vs 실제 20+장) → per-card 비교로 교체.
   2. `/listings/[id]` skeleton 이 `aria-hidden="true"` subtree 안에 있어 `locator.evaluate`/`waitFor({ state: 'visible' })` 가 무한 대기 → `page.evaluate(sel)` 기반 `readStableHeight` 로 리팩토링. detail 테스트 자체는 위 "제외 (1)" 사유로 삭제.
   3. Detail 페이지용으로 4407ffa 에서 추가된 `data-section="listing-detail-schedule"`·`"-supply"`·`"-links"` 훅은 소비자 (Playwright 테스트) 가 사라져 제거. 홈용(`home-hero` / `weekly-schedule` / `top-trades`) 은 추후 홈 페리티 작업에서 쓰일 예정이라 유지.
+- **홈 페리티 커버 완료** — `src/instrumentation.ts` 가 `SKELETON_PARITY_DELAY_MS` env 를 소비해 `globalThis.fetch` 를 패치, `/main/*` 요청을 `src/mocks/fixtures/main/` fixture 로 응답하고 `delayMs` 만큼 지연. `playwright.config.ts` 의 webServer 가 env 를 기본 `2000` 으로 주입. Hero + TopTrades 는 게이팅, WeeklySchedule 는 "제외 (2)" 사유로 스킵.
 - **후속 작업 (B-2b 이후)**
-  - 홈 `/` 페리티 커버: MSW browser worker 도입 또는 `API_BACKEND_URL` 프록시 레이어에 dev-only delay flag 추가 검토.
+  - 홈 WeeklySchedule 페리티: `WeeklyScheduleSkeleton` 이 populated-week 기준 5 컬럼 desktop grid (~310px) 를 그리지만 실 데이터가 없는 주 (대부분의 시간대) 에는 EmptyState (~124px) 로 떨어져 스켈레톤 → empty collapse 가 실제 사용자에게도 발생. 컴포넌트 단위로 EmptyState 와 높이가 같은 dedicated skeleton 을 분기 렌더하도록 설계 수정이 먼저 필요하며, 그 이후 홈 게이트에 포함.
 
 ## Context
 

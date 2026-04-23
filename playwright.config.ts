@@ -44,6 +44,18 @@ export default defineConfig({
     timeout: 120_000,
     stdout: 'ignore',
     stderr: 'pipe',
+    // `SKELETON_PARITY_DELAY_MS` is consumed by `src/instrumentation.ts`
+    // (dev-only) to stall any server-side `/main/*` fetch long enough for
+    // the home-route Suspense fallbacks to stay rendered and measurable.
+    // Only the home page uses `/main/*`, so the /listings spec is
+    // unaffected. Locally: if a dev server is already running *without*
+    // this env set, the home parity test fails — restart dev under
+    // `SKELETON_PARITY_DELAY_MS=2000 pnpm dev`, or kill the existing
+    // server so Playwright boots a fresh one.
+    env: {
+      SKELETON_PARITY_DELAY_MS:
+        process.env.SKELETON_PARITY_DELAY_MS ?? '2000',
+    },
   },
   projects: [
     {
