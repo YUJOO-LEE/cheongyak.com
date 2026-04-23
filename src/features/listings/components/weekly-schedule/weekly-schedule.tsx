@@ -20,20 +20,22 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
 
   if (subscriptions.length === 0) {
     return (
-      <EmptyState>
-        <CalendarOff size={32} className="mx-auto text-text-tertiary mb-3" aria-hidden="true" />
-        <p className="text-body-md text-text-secondary mb-2">예정된 청약이 없어요</p>
-        <Link href="/listings" className="text-body-md text-brand-primary-500 hover:text-brand-primary-600 transition-colors">
-          전체 청약 보기
-        </Link>
-      </EmptyState>
+      <div data-section="weekly-schedule">
+        <EmptyState>
+          <CalendarOff size={32} className="mx-auto text-text-tertiary mb-3" aria-hidden="true" />
+          <p className="text-body-md text-text-secondary mb-2">예정된 청약이 없어요</p>
+          <Link href="/listings" className="text-body-md text-brand-primary-500 hover:text-brand-primary-600 transition-colors">
+            전체 청약 보기
+          </Link>
+        </EmptyState>
+      </div>
     );
   }
 
   return (
     <>
       {/* ═══════ Mobile ═══════ */}
-      <div className="lg:hidden">
+      <div data-section="weekly-schedule" className="lg:hidden">
         {/* Day selector — fixed height, always 3 rows: label, date, count/placeholder */}
         <div className="flex gap-2 mb-4">
           {weekdays.map((day, i) => {
@@ -86,7 +88,7 @@ export function WeeklySchedule({ subscriptions }: WeeklyScheduleProps) {
       </div>
 
       {/* ═══════ Desktop: flat columns, cards only ═══════ */}
-      <div className="hidden lg:grid grid-cols-5 gap-6">
+      <div data-section="weekly-schedule" className="hidden lg:grid grid-cols-5 gap-6">
         {weekdays.map((day, i) => {
           const daySubs = getSubsForDate(subscriptions, day.date);
 

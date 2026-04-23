@@ -30,7 +30,7 @@ export function TopTrades({ trades }: TopTradesProps) {
   if (trades.length === 0) return null;
 
   return (
-    <div>
+    <div data-section="top-trades">
       <div className="mb-4">
         <h2 className="text-headline-lg text-text-primary">
           전국 실거래가 TOP {trades.length}

@@ -40,7 +40,7 @@ export function OfficialLinks({
   if (links.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div data-section="listing-detail-links" className="flex flex-col gap-2">
       {links.map((link) => {
         const Icon = link.icon;
         return (

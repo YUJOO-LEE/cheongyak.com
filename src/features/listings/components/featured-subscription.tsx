@@ -53,7 +53,10 @@ export function HomeHero({ featured, insights }: HomeHeroProps) {
   // featured 가 없을 때(서버 장애 등)는 insights 만 가로 3-column 으로 노출.
   if (!featured) {
     return insights.length > 0 ? (
-      <div className="grid grid-cols-1 min-[600px]:grid-cols-3 gap-4">
+      <div
+        data-section="home-hero"
+        className="grid grid-cols-1 min-[600px]:grid-cols-3 gap-4"
+      >
         {insights.map((insight, i) => (
           <InsightCard key={insight.label} insight={insight} index={i} />
         ))}
@@ -62,7 +65,10 @@ export function HomeHero({ featured, insights }: HomeHeroProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div
+      data-section="home-hero"
+      className="grid grid-cols-1 lg:grid-cols-3 gap-4"
+    >
       {/* Featured subscription card */}
       <div className="lg:col-span-2 bg-brand-primary-500 text-text-on-dark rounded-xl p-6 lg:p-8">
         <p className="text-label-md text-text-on-dark-muted mb-2 animate-fade-in-up">
