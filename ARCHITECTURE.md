@@ -219,7 +219,7 @@ interface ApiError {
 |---|---|---|
 | **LCP** | < 2.5s | Server-render above-fold content; preload hero images; avoid client-side data fetching for initial view |
 | **INP** | < 200ms | Minimize main-thread work; use `startTransition` for non-urgent updates; debounce filter inputs |
-| **CLS** | < 0.1 | Explicit `width`/`height` on all images; skeleton placeholders match final layout (sibling `*.skeleton.tsx` + route `loading.tsx`, pinned by `loading.test.tsx` RTL gate on every PR and by the main-only Playwright bounding-box gate `e2e/skeleton-parity.spec.ts` for `/listings` + `/listings/[id]`, wired into CI via `.github/workflows/skeleton-parity.yml` which runs on `push` to `main` + `workflow_dispatch` and needs an `API_BACKEND_URL` repo secret — see `docs/skeleton-parity-test-plan.md`); no layout-shifting font swap |
+| **CLS** | < 0.1 | Explicit `width`/`height` on all images; skeleton placeholders match final layout (sibling `*.skeleton.tsx` + route `loading.tsx`, pinned by `loading.test.tsx` RTL gate on every PR and by the main-only Playwright per-card parity gate `e2e/skeleton-parity.spec.ts` for `/listings`, wired into CI via `.github/workflows/skeleton-parity.yml` which runs on `push` to `main` + `workflow_dispatch` and needs an `API_BACKEND_URL` repo secret — see `docs/skeleton-parity-test-plan.md`); no layout-shifting font swap |
 
 ### Bundle Budget
 | Budget | Target |

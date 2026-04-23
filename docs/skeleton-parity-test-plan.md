@@ -12,9 +12,10 @@
   1. `4407ffa` `test(components): add data-section hooks for skeleton parity (Phase B-2b/1)` — HomeHero·WeeklySchedule·TopTrades 의 컴포넌트 루트 와, listing detail `page.tsx` 의 schedule/supply 카드 래퍼 + OfficialLinks 루트에 `data-section` 속성 추가. 프로덕션 동작 드리프트 0 (스타일·JS 영향 없음). 114/114 초록 + `tsc --noEmit` 통과.
   2. `<이 커밋>` `test(e2e): add Playwright skeleton parity bounding-box gate (Phase B-2b/2)` — `playwright.config.ts` 신규 + `e2e/skeleton-parity.spec.ts` 신규 + `package.json` 에 `test:e2e:skeleton-parity` opt-in 스크립트 추가 + `.gitignore` 에 `blob-report/` 보강 + `CLAUDE.md`·`ko` §8 와 `ARCHITECTURE.md`·`ko` §8 CLS 셀에 B-2b 게이트 문장 미러링.
 - **Scope 조정 (B-2b 실측 결과, 플랜에서 이탈)**
-  - 커버리지: `/listings` 그리드 + `/listings/[id]` detail 3 카드(schedule/supply/links) 만 포함.
-  - 제외: 홈 `/` — 홈 `page.tsx` 는 Server Component 이고 `/main/*` fetch 가 서버측에서 일어나므로 `page.route` 로는 스켈레톤 구간을 연장할 수 없다. MSW browser worker 또는 dev 서버 지연 플래그(`?delay=2s` env) 가 필요한 후속 작업으로 정리.
-  - 측정 전략: `readStableHeight()` 헬퍼가 `offsetHeight` 두 번 연속 동일할 때까지 폴링하여 shimmer wave 애니메이션 / 폰트 settle 타이밍 flake 제거.
+  - 커버리지: `/listings` 의 첫 카드 per-card 페리티만 포함. Outer-wrapper 총 높이는 스켈레톤(6 장 고정) vs 실제(20+ 장)가 절대 일치할 수 없으므로 의미 있는 단위가 per-card 로 바뀜.
+  - 제외 (1): `/listings/[id]` detail 3 카드 — 실측 결과 Next 16 + React 19 의 concurrent router 가 동기 Server Component (fixture 에서 read) 에 대해 새 트리를 `<div hidden>` 에 staging 한 뒤 원자적으로 unwrap 하므로 `loading.tsx` 가 사용자에게 한 번도 가시화되지 않음(스켈레톤 `offsetHeight` 는 RSC 지연 2 초 내내 0, 언와랩 100ms 이내에 DOM 에서 제거됨을 instrumented run 으로 확인). Runtime CLS 위험 자체가 없으므로 Playwright 높이 페리티는 의미 없는 신호. Detail loader 구성 자체는 `src/app/listings/[id]/loading.test.tsx` RTL 게이트가 계속 고정. 해당 페이지가 실 API 로 전환되면 재검토.
+  - 제외 (2): 홈 `/` — 홈 `page.tsx` 는 Server Component 이고 `/main/*` fetch 가 서버측에서 일어나므로 `page.route` 로는 스켈레톤 구간을 연장할 수 없다. MSW browser worker 또는 dev 서버 지연 플래그(`?delay=2s` env) 가 필요한 후속 작업으로 정리.
+  - 측정 전략: `readStableHeight()` 헬퍼가 `offsetHeight` 두 번 연속 동일할 때까지 폴링하여 shimmer wave 애니메이션 / 폰트 settle 타이밍 flake 제거. `loading.tsx` 래퍼의 `aria-hidden="true"` 때문에 Playwright locator 의 visibility 기반 auto-wait 가 무한 대기하는 이슈가 있어 측정은 `page.evaluate(sel => qs(sel).offsetHeight)` 로 bypass.
 - **MSW 충돌 조사 결과** — 충돌 없음.
   - `src/mocks/` 에는 `setupWorker`/`browser.ts` 가 없고, `public/mockServiceWorker.js` 도 없다. MSW 는 Vitest 테스트 내부의 `setupServer` 용도로만 의존된다 (`subscription-list-client.test.tsx`, `apt-sales-handler.test.ts`).
   - 따라서 dev 서버에서 MSW 는 로드되지 않으며, Playwright 의 `page.route` 가 브라우저 네트워크를 단독으로 소유한다. TanStack Query 하이드레이션 간섭 리스크도 실제로는 발생하지 않는다(서버측 prefetch + HydrationBoundary 후에 클라이언트가 첫 refetch 를 할 때 `page.route` 가 한 번 지연시키는 구조).
@@ -23,9 +24,16 @@
   - `~/Library/Caches/ms-playwright/` 부재 → Chromium 미설치. 사용자 환경에서 최초 실행 전 `npx playwright install --with-deps chromium` 수행 필요.
   - 본 세션에서는 설치·실행을 건너뛰었고, 대신 `pnpm type-check` / `pnpm test --run` 으로 타입·유닛 회귀만 확인 (114/114 초록 유지).
 - **B-2b CI 연결 완료** — `.github/workflows/skeleton-parity.yml` 추가. `push to main` + `workflow_dispatch` 에서 실행. Ubuntu + pnpm 10.13.1 + Node 20 + Playwright 버전별 `~/.cache/ms-playwright` 캐싱 + `pnpm test:e2e:skeleton-parity`. 실패 시 `playwright-report/` 와 `test-results/` 를 artifact 로 업로드(보존 14일). dev 서버가 backend 를 실제 호출하므로 레포 시크릿 `API_BACKEND_URL` 이 필요하며, 미설정 시 첫 스텝에서 `::error::` 로 즉시 실패하도록 가드했음.
+- **의도적 실패 검증 완료** — 로컬에서 Chromium 설치 후 baseline → red → green 사이클로 게이트가 물린다는 것을 실증:
+  1. Baseline: `pnpm test:e2e:skeleton-parity` 초록(3.5s).
+  2. Red: `subscription-card.skeleton.tsx` 의 headline `Skeleton height={24}` 를 `height={4}` 로 축소 → `listings-card: skeleton 182px vs real 220px (drift 17.3% > 10%)` 로 명확한 메시지와 함께 실패.
+  3. Green: 원복 후 재실행 초록(3.6s).
+- **Spec 정합성 수정** — B-2b 최초 착지분은 한 번도 실행되지 않아 baseline 부터 red 였던 두 가지 버그가 있었음:
+  1. `/listings` outer-wrapper 비교(스켈레톤 6장 vs 실제 20+장) → per-card 비교로 교체.
+  2. `/listings/[id]` skeleton 이 `aria-hidden="true"` subtree 안에 있어 `locator.evaluate`/`waitFor({ state: 'visible' })` 가 무한 대기 → `page.evaluate(sel)` 기반 `readStableHeight` 로 리팩토링. detail 테스트 자체는 위 "제외 (1)" 사유로 삭제.
+  3. Detail 페이지용으로 4407ffa 에서 추가된 `data-section="listing-detail-schedule"`·`"-supply"`·`"-links"` 훅은 소비자 (Playwright 테스트) 가 사라져 제거. 홈용(`home-hero` / `weekly-schedule` / `top-trades`) 은 추후 홈 페리티 작업에서 쓰일 예정이라 유지.
 - **후속 작업 (B-2b 이후)**
   - 홈 `/` 페리티 커버: MSW browser worker 도입 또는 `API_BACKEND_URL` 프록시 레이어에 dev-only delay flag 추가 검토.
-  - 의도적 실패 검증 (`SubscriptionCardSkeleton` 높이를 80px 로 축소 → spec 실패) 은 `e2e/skeleton-parity.spec.ts` 상단 JSDoc 의 "Review guidance" 섹션에 수동 절차로 기록만 하고, 실제로 깨뜨리지는 않았다. CI 워크플로 첫 그린 런 이후 한 번 깨뜨려 레드 빌드 → 복구 를 실증해 게이트 신뢰도를 확보할 것.
 
 ## Context
 

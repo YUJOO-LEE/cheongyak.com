@@ -9,21 +9,39 @@
  *
  * Scope & known limitations (intentional):
  *
- * - `/listings` is covered because it is a Server Component that hydrates
- *   a client-side TanStack Query fetch for `/api/backend/apt-sales`. We
- *   delay that single request with `page.route`, which keeps the
- *   `<SubscriptionListSkeleton>` visible long enough to measure.
- * - `/listings/[id]` is covered via client-side navigation from
- *   `/listings`. Clicking a card triggers Next.js to fetch the RSC
- *   payload for the detail route; delaying that payload surfaces the
- *   route-level `loading.tsx` long enough to measure each detail card.
+ * - `/listings` is covered because the page keeps its own client-side
+ *   skeleton (`SubscriptionListSkeleton`) visible until TanStack Query
+ *   resolves `/api/backend/apt-sales`. We delay that fetch with
+ *   `page.route`, measure the first placeholder card, let the data land,
+ *   then measure the first real `<article>`. Per-card parity is the
+ *   right unit: the skeleton renders a fixed 6 cards while the real
+ *   list renders whatever the backend returns (20+ per page today), so
+ *   outer-wrapper totals could never match — but each card must occupy
+ *   the same box as its placeholder or users feel the shift.
+ * - `/listings/[id]` is NOT covered at runtime. The detail page is a
+ *   pure Server Component that reads from static fixtures
+ *   (`src/mocks/fixtures/subscriptions.ts`) — there is no async work to
+ *   suspend on. Empirically on Next 16 + React 19 this means the
+ *   concurrent router stages the new tree inside `<div hidden>` during
+ *   the RSC payload fetch and atomically unwraps once ready, so
+ *   `loading.tsx` never actually renders visible to the user. We
+ *   verified this with an instrumented run: skeleton `offsetHeight`
+ *   stayed at 0 during the 2s RSC delay and was removed from the DOM
+ *   the moment the real content committed, with no interval where the
+ *   skeleton was both attached and visible. The composition of
+ *   `src/app/listings/[id]/loading.tsx` is still pinned by the RTL
+ *   gate at `src/app/listings/[id]/loading.test.tsx`; height parity is
+ *   not a meaningful signal for a skeleton users never see. If this
+ *   page becomes async (real API fetch instead of fixtures), revisit
+ *   this decision.
  * - `/` (home) is *not* covered here. The home page is a pure Server
  *   Component that does its API fetches server-side, before any
  *   browser-visible request exists for `page.route` to intercept. The
- *   RTL gate in `src/app/loading.test.tsx` still pins the home loader's
- *   composition; pairing height parity on the home route requires
- *   either an MSW browser worker or a dev-server latency flag, both
- *   tracked in `docs/skeleton-parity-test-plan.md` as follow-up.
+ *   RTL gate in `src/app/loading.test.tsx` (and the inline Suspense
+ *   fallback tests) still pins the home loader's composition; pairing
+ *   height parity on the home route requires either an MSW browser
+ *   worker or a dev-server latency flag, both tracked in
+ *   `docs/skeleton-parity-test-plan.md` as follow-up.
  *
  * Flake controls:
  *
@@ -36,20 +54,17 @@
  *
  * Review guidance — how to prove the gate bites:
  *
- *   1. Temporarily reduce `SubscriptionCardSkeleton` height to ~80px
- *      (or swap the `h-*` class on one of the listing-detail skeletons).
+ *   1. Temporarily reduce `SubscriptionCardSkeleton`'s headline or
+ *      metadata-row heights (e.g. swap `height={24}` for `height={4}`
+ *      on the `mb-2` Skeleton in
+ *      `src/features/listings/components/subscription-card.skeleton.tsx`)
+ *      so the placeholder no longer mirrors a real card.
  *   2. `pnpm test:e2e:skeleton-parity` should fail with a clear
- *      "height drift" assertion.
+ *      "listings-card: skeleton Xpx vs real Ypx (drift Z.%> 10%)"
+ *      message.
  *   3. Revert before committing. Do NOT keep the intentional break.
  */
-import { test, expect, type Page, type Locator } from '@playwright/test';
-
-/**
- * Hard-coded so the test is reproducible; matches the first id in
- * `src/mocks/fixtures/subscriptions.ts` and is covered by
- * `generateStaticParams` on the detail route.
- */
-const DETAIL_ID = 'sub-001';
+import { test, expect, type Page } from '@playwright/test';
 
 /** Drift tolerance: 10% as agreed in the plan doc. */
 const TOLERANCE = 0.1;
@@ -58,21 +73,38 @@ const TOLERANCE = 0.1;
 const API_DELAY_MS = 2_000;
 
 /**
- * Poll a locator's rendered height until two consecutive samples agree.
+ * Poll a selector's rendered height until two consecutive samples agree.
  * Returns the settled height. Bails with an informative message on
- * timeout so a dropped locator (selector typo) does not masquerade as a
- * flake.
+ * timeout so a dropped selector (typo, or the DOM node actually missing)
+ * does not masquerade as a flake.
+ *
+ * Implementation note: we use `page.evaluate` with a raw selector
+ * instead of `locator.evaluate(...)` because Playwright's locator
+ * auto-waiting treats every descendant of an `aria-hidden="true"`
+ * subtree as not-visible and hangs `locator.evaluate` waiting for
+ * visibility. `offsetHeight` is a pure layout property, so reading it
+ * via `document.querySelector(sel).offsetHeight` is safe regardless of
+ * visibility heuristics.
  */
-async function readStableHeight(locator: Locator, label: string): Promise<number> {
+async function readStableHeight(
+  page: Page,
+  selector: string,
+  label: string,
+): Promise<number> {
   const start = Date.now();
   let previous = -1;
   while (Date.now() - start < 5_000) {
-    const current = await locator.evaluate((el) => (el as HTMLElement).offsetHeight);
+    const current = await page.evaluate((sel) => {
+      const el = document.querySelector(sel) as HTMLElement | null;
+      return el ? el.offsetHeight : 0;
+    }, selector);
     if (current === previous && current > 0) return current;
     previous = current;
-    await locator.page().waitForTimeout(100);
+    await page.waitForTimeout(100);
   }
-  throw new Error(`readStableHeight(${label}) did not settle within 5s`);
+  throw new Error(
+    `readStableHeight(${label}) did not settle within 5s (selector: ${selector})`,
+  );
 }
 
 /**
@@ -114,7 +146,7 @@ async function withApiDelay(
 }
 
 test.describe('skeleton ↔ real layout parity (CLS gate)', () => {
-  test('/listings card grid matches subscription-list-skeleton', async ({
+  test('/listings first card matches subscription-card-skeleton', async ({
     page,
   }) => {
     await withApiDelay(page, '**/api/backend/apt-sales*', async () => {
@@ -122,102 +154,43 @@ test.describe('skeleton ↔ real layout parity (CLS gate)', () => {
       // skeleton phase to be alive when we measure.
       const navigation = page.goto('/listings');
 
-      const skeleton = page.getByTestId('subscription-list-skeleton');
-      await skeleton.waitFor({ state: 'visible', timeout: 10_000 });
-      const skeletonHeight = await readStableHeight(
-        skeleton,
-        'subscription-list-skeleton',
+      // Compare a single skeleton card to a single real card. The outer
+      // SubscriptionListSkeleton always renders 6 placeholder cards,
+      // while the real list renders whatever the backend returns
+      // (currently 20+ per page), so the outer wrappers can never
+      // share a total height. Per-card parity is the signal that
+      // actually matches real CLS: each placeholder must settle to the
+      // same box the real card will occupy.
+      const listSkeleton = page.getByTestId('subscription-list-skeleton');
+      await listSkeleton.waitFor({ state: 'visible', timeout: 10_000 });
+
+      const skeletonCard = page
+        .getByTestId('subscription-card-skeleton')
+        .first();
+      await skeletonCard.waitFor({ state: 'visible', timeout: 10_000 });
+      const skeletonCardHeight = await readStableHeight(
+        page,
+        '[data-testid="subscription-card-skeleton"]',
+        'subscription-card-skeleton',
       );
 
       // Now let the navigation finish and the real grid render.
       await navigation;
-      await skeleton.waitFor({ state: 'detached', timeout: 10_000 });
+      await listSkeleton.waitFor({ state: 'detached', timeout: 10_000 });
       await page.waitForLoadState('networkidle');
 
-      // The card grid has no explicit data-section hook — it is the live
-      // replacement of the skeleton list, keyed off the card container
-      // which subscription-list-client renders. We match on the same
-      // container role the skeleton emulates: the top-level region.
-      const realGrid = page.locator('[role="list"], main').first();
-      const realHeight = await readStableHeight(realGrid, 'listings-real-grid');
-
-      expectHeightParity('listings-grid', skeletonHeight, realHeight);
-    });
-  });
-
-  test('/listings/[id] detail cards match loading.tsx skeletons', async ({
-    page,
-  }) => {
-    // Land on /listings first so Next.js has the client router hydrated;
-    // client-side navigation is what surfaces `loading.tsx` reliably.
-    await page.goto('/listings');
-    await page.waitForLoadState('networkidle');
-
-    // Delay RSC payload fetches for /listings/[id]. Next emits requests
-    // like `/listings/sub-001?_rsc=<hash>` for App Router client
-    // navigation; the wildcard below matches both the payload and any
-    // prefetch probe.
-    await withApiDelay(page, `**/listings/${DETAIL_ID}*`, async () => {
-      // Use an in-page link click so Next does a soft (client-side)
-      // navigation and renders the route's loading.tsx. Fall back to a
-      // direct `page.goto` if no Link matches — still exercises the
-      // route, just without the streamed skeleton.
-      const link = page.locator(`a[href="/listings/${DETAIL_ID}"]`).first();
-      const hasLink = (await link.count()) > 0;
-      const navigation = hasLink ? link.click() : page.goto(`/listings/${DETAIL_ID}`);
-
-      // Measure each skeleton while the route transition is paused.
-      const scheduleSkel = page.getByTestId('listing-detail-schedule-skeleton');
-      const supplySkel = page.getByTestId('listing-detail-supply-skeleton');
-      const linksSkel = page.getByTestId('listing-detail-links-skeleton');
-
-      await scheduleSkel.waitFor({ state: 'visible', timeout: 10_000 });
-
-      const scheduleSkelH = await readStableHeight(
-        scheduleSkel,
-        'listing-detail-schedule-skeleton',
-      );
-      const supplySkelH = await readStableHeight(
-        supplySkel,
-        'listing-detail-supply-skeleton',
-      );
-      const linksSkelH = await readStableHeight(
-        linksSkel,
-        'listing-detail-links-skeleton',
+      // SubscriptionCard is rendered as `<Card as="article">`, so the
+      // first <article> inside <main> is the first real card. This is
+      // the structural twin of the skeleton card we just measured.
+      const realCard = page.locator('main article').first();
+      await realCard.waitFor({ state: 'visible', timeout: 10_000 });
+      const realCardHeight = await readStableHeight(
+        page,
+        'main article',
+        'subscription-card-real',
       );
 
-      await navigation;
-      await page.waitForLoadState('networkidle');
-
-      // Real sections — matched by the data-section hooks added in the
-      // sibling commit. Card wrappers (p-6 padding included) line up
-      // with the skeletons' h-96 / h-80 / h-40 heights.
-      const scheduleReal = page.locator('[data-section="listing-detail-schedule"]');
-      const supplyReal = page.locator('[data-section="listing-detail-supply"]');
-      const linksReal = page.locator('[data-section="listing-detail-links"]');
-
-      await scheduleReal.waitFor({ state: 'visible', timeout: 10_000 });
-
-      const scheduleRealH = await readStableHeight(
-        scheduleReal,
-        'listing-detail-schedule-real',
-      );
-      const supplyRealH = await readStableHeight(
-        supplyReal,
-        'listing-detail-supply-real',
-      );
-      const linksRealH = await readStableHeight(
-        linksReal,
-        'listing-detail-links-real',
-      );
-
-      expectHeightParity(
-        'listing-detail-schedule',
-        scheduleSkelH,
-        scheduleRealH,
-      );
-      expectHeightParity('listing-detail-supply', supplySkelH, supplyRealH);
-      expectHeightParity('listing-detail-links', linksSkelH, linksRealH);
+      expectHeightParity('listings-card', skeletonCardHeight, realCardHeight);
     });
   });
 });

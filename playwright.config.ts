@@ -27,6 +27,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
+  // 2s artificial API delay + dev-server cold renders + multiple
+  // readStableHeight polls can easily push a single skeleton-parity
+  // case past the 30s default. 60s keeps headroom without hiding
+  // genuine hangs.
+  timeout: 60_000,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: BASE_URL,

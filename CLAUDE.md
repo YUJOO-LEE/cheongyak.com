@@ -262,19 +262,29 @@ vitest 3.
   streaming.
 - **Skeleton parity Playwright gate (Phase B-2b):** `e2e/skeleton-parity.spec.ts`
   boots Chromium against `pnpm dev` (port 715), artificially delays the
-  TanStack Query fetch for `/listings` and the RSC payload for
-  `/listings/[id]`, and asserts every measured skeleton's rendered
-  `offsetHeight` is within 10% of the real section it replaces (matched via
-  `data-section` hooks on HomeHero / WeeklySchedule / TopTrades and the
-  listing detail card wrappers). It is main-branch-only work — opt in via
-  `pnpm test:e2e:skeleton-parity`; the default `pnpm test:e2e` skips it so
-  PR latency stays low. CI wiring lives in
-  `.github/workflows/skeleton-parity.yml`, which runs on `push` to `main`
-  and `workflow_dispatch`; it requires an `API_BACKEND_URL` repo secret
-  because the spec's `page.route` handler delays but does not stub real
-  traffic. Home (`/`) is not yet covered: its API fetches run server-side,
-  so `page.route` cannot lengthen the skeleton phase without an MSW
-  browser worker or a dev-server latency flag — tracked in
+  TanStack Query fetch for `/listings`, and asserts the first
+  `SubscriptionCardSkeleton`'s rendered `offsetHeight` is within 10% of
+  the first real `<article>` it replaces. Per-card parity is the right
+  unit: the skeleton always renders 6 placeholder cards while the real
+  list renders 20+, so outer-wrapper totals could never match, but each
+  card must occupy the same box as its placeholder or users feel the
+  shift. It is main-branch-only work — opt in via
+  `pnpm test:e2e:skeleton-parity`; the default `pnpm test:e2e` skips it
+  so PR latency stays low. CI wiring lives in
+  `.github/workflows/skeleton-parity.yml`, which runs on `push` to
+  `main` and `workflow_dispatch`; it requires an `API_BACKEND_URL` repo
+  secret because the spec's `page.route` handler delays but does not
+  stub real traffic. `/listings/[id]` is *not* covered: the detail page
+  is a pure Server Component reading static fixtures, so on Next 16 +
+  React 19 the concurrent router stages the new tree inside
+  `<div hidden>` and atomically unwraps once ready — `loading.tsx`
+  never actually renders visible, so there is no runtime CLS risk to
+  measure. The RTL gate at
+  `src/app/listings/[id]/loading.test.tsx` still pins the detail
+  loader's composition as a correctness guard. Home (`/`) is also not
+  yet covered: its API fetches run server-side, so `page.route` cannot
+  lengthen the skeleton phase without an MSW browser worker or a
+  dev-server latency flag — tracked in
   `docs/skeleton-parity-test-plan.md` as follow-up.
 
 ---
