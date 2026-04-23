@@ -255,7 +255,11 @@ vitest 3.
   has a sibling `loading.test.tsx` that pins which `*.skeleton.tsx` components
   it renders and in what count. If you change the loader's shape, update the
   test in the same PR — dropping a sibling skeleton or reintroducing a phantom
-  section must fail CI, not slip through review.
+  section must fail CI, not slip through review. Home (`/`) is the exception:
+  it ships no `app/loading.tsx` — its section skeletons live as inline
+  `<Suspense>` fallbacks inside `app/page.tsx` so they don't bleed through as
+  the outer Suspense boundary of `/listings` or any other child route during
+  streaming.
 - **Skeleton parity Playwright gate (Phase B-2b):** `e2e/skeleton-parity.spec.ts`
   boots Chromium against `pnpm dev` (port 715), artificially delays the
   TanStack Query fetch for `/listings` and the RSC payload for

@@ -41,7 +41,7 @@
 
 ### 왜 이것부터?
 - Vitest + Testing Library로 2~3시간 내 완료 가능, 실행 시간 <500ms
-- "라우트 로더가 틀린 스켈레톤을 쓴다"는 가장 흔한 드리프트 패턴 — 예: `featured-subscription.skeleton`을 리팩토링 후 경로를 바꿨는데 `app/loading.tsx`에서 기존 경로만 계속 import하는 경우
+- "라우트 로더가 틀린 스켈레톤을 쓴다"는 가장 흔한 드리프트 패턴 — 예: `featured-subscription.skeleton`을 리팩토링 후 경로를 바꿨는데 `app/listings/loading.tsx`에서 기존 경로만 계속 import하는 경우. 홈(`/`)은 `app/loading.tsx` 를 두지 않고 `app/page.tsx` 가 인라인 `<Suspense>` 로 각 섹션별 fallback 을 소유 — 홈 스켈레톤이 자식 라우트(`/listings` 등)로 새는 현상을 막기 위함.
 
 ### 구체 작업
 
@@ -53,8 +53,8 @@
    - `top-trades.skeleton.tsx` → `data-testid="top-trades-skeleton"`
    - `subscription-list-skeleton.tsx` → 이미 `aria-busy`가 있으나 `data-testid="subscription-list-skeleton"` 추가
 
-2. **라우트 로더 구조 테스트 파일 3개 신규 작성**
-   - `src/app/loading.test.tsx` — 홈 로더가 Hero/Weekly/TopTrades 3개 sibling skeleton을 모두 포함하는지 + 과거의 News/별도 Insights 섹션이 **없는지** (팬텀 재등장 차단)
+2. **라우트 로더 구조 테스트 파일 작성**
+   - 홈(`/`)은 `app/loading.tsx` 가 없고, Hero/Weekly/TopTrades 스켈레톤은 `app/page.tsx` 의 인라인 `<Suspense>` fallback 으로 노출됨 — 라우트 로더 RTL 게이트 대신 각 `*.skeleton.tsx` 컴포넌트 유닛 테스트로 sibling 구성이 지켜지는지 검증 (Phase B-2b Playwright 게이트가 실 환경의 페인트 순서를 이중 확인)
    - `src/app/listings/loading.test.tsx` — FilterBarSkeleton (mobile+desktop) + 6개 SubscriptionCardSkeleton + 페이지네이션 placeholder 렌더링 assert
    - `src/app/listings/[id]/loading.test.tsx` — 3-col 그리드 + Timeline/Supply/Links 각 카드 존재, 사이드바에 두 번째 팬텀 블록 **없음** assert
 

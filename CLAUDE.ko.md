@@ -249,7 +249,10 @@ shared/components/
   는 형제 `loading.test.tsx` 를 두어 어떤 `*.skeleton.tsx` 컴포넌트를 어느
   개수로 렌더링하는지 고정한다. 로더의 형태를 바꾸면 같은 PR 에서 테스트도
   업데이트해야 한다 — 형제 스켈레톤을 빠뜨리거나 이미 사라진 팬텀 섹션을
-  다시 들여오는 변경은 리뷰가 아닌 CI 에서 잡혀야 한다.
+  다시 들여오는 변경은 리뷰가 아닌 CI 에서 잡혀야 한다. 홈(`/`) 은 예외 —
+  `app/loading.tsx` 를 두지 않고 `app/page.tsx` 내부에서 섹션별 `<Suspense>`
+  fallback 으로 스켈레톤을 소유한다. 그래야 스트리밍 중 홈 스켈레톤이
+  `/listings` 등 하위 라우트의 외부 Suspense 경계로 새지 않는다.
 - **스켈레톤 페리티 Playwright 게이트 (Phase B-2b):**
   `e2e/skeleton-parity.spec.ts` 가 `pnpm dev`(포트 715) 위에 Chromium 을
   띄워 `/listings` 의 TanStack Query fetch 와 `/listings/[id]` 의 RSC
