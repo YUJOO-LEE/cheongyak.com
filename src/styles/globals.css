@@ -210,6 +210,7 @@
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-slow: 400ms;
+  --duration-shimmer: 1500ms;
   --easing-default: cubic-bezier(0.4, 0, 0.2, 1);
   --easing-in: cubic-bezier(0.4, 0, 1, 1);
   --easing-out: cubic-bezier(0, 0, 0.2, 1);
@@ -582,18 +583,53 @@ button {
    SKELETON LOADER ANIMATION
    ============================================================ */
 
-@keyframes skeleton-pulse {
-  0%, 100% {
-    background-color: var(--neutral-200);
-  }
-  50% {
-    background-color: var(--neutral-100);
-  }
+@keyframes skeleton-wave {
+  from { background-position: -150% 0; }
+  to   { background-position:  250% 0; }
 }
 
 .skeleton {
-  animation: skeleton-pulse var(--duration-slow) var(--easing-default) infinite;
+  background-color: var(--neutral-200);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--neutral-100) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: skeleton-wave var(--duration-shimmer) ease-in-out infinite;
   border-radius: var(--radius-md);
+}
+
+/* ============================================================
+   APP BOOTSTRAP SPLASH
+   Inline layer rendered by `app/layout.tsx`. Visible from the
+   first HTML paint until React hydration completes; the
+   `<AppReadyMarker />` client component flips `body[data-app-ready]`
+   in `useEffect`, which triggers the fade-out below.
+   ============================================================ */
+
+#app-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background-color: var(--color-bg-page);
+  opacity: 1;
+  transition:
+    opacity var(--duration-normal) var(--easing-out),
+    visibility 0s var(--duration-normal);
+}
+
+body[data-app-ready='true'] #app-splash {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* ============================================================
@@ -827,5 +863,10 @@ button {
   .skeleton {
     animation: none;
     background-color: var(--neutral-200);
+    background-image: none;
+  }
+
+  #app-splash {
+    transition: none;
   }
 }

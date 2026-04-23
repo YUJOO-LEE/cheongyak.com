@@ -422,6 +422,7 @@ fontFamily: {
 | `duration-fast` | 150ms | 마이크로 인터랙션 (호버, 토글) |
 | `duration-normal` | 250ms | 표준 전환 (패널 열기, 탭 전환) |
 | `duration-slow` | 400ms | 복잡한 애니메이션 (모달 진입, 페이지 전환) |
+| `duration-shimmer` | 1500ms | 스켈레톤 로더 웨이브 주기 |
 | `easing-default` | `cubic-bezier(0.4, 0, 0.2, 1)` | 범용 (ease-in-out) |
 | `easing-in` | `cubic-bezier(0.4, 0, 1, 1)` | 뷰포트에서 나가는 요소 |
 | `easing-out` | `cubic-bezier(0, 0, 0.2, 1)` | 뷰포트로 들어오는 요소 |
@@ -429,7 +430,7 @@ fontFamily: {
 ### 모션 규칙
 
 - `prefers-reduced-motion: reduce` 존중 — 비필수 애니메이션 모두 비활성화
-- 스켈레톤 로더는 `duration-slow`와 `easing-default`로 펄스
+- 스켈레톤 로더는 배경색 펄스가 아니라 좌→우 그라데이션 웨이브(`skeleton-wave`)를 `duration-shimmer` + `ease-in-out`로 사용
 - 페이지 전환은 `duration-normal`과 `easing-out` 사용
 - 레이아웃 속성(width, height)은 절대 애니메이션 금지 — `transform`과 `opacity`만 사용
 - 모션은 주로 **에디토리얼 단계** 페이지(홈, 뉴스)에 적용. **실용 단계** 페이지(청약 목록, 상세)는 최소 애니메이션으로 즉시 렌더링
@@ -470,15 +471,34 @@ fontFamily: {
 }
 ```
 
-#### 스켈레톤 로더 펄스
+#### 스켈레톤 로더 웨이브
+
+1.5s 주기로 좌→우로 움직이는 그라데이션 셰이머입니다. "로딩 중"으로 읽히기에 충분히 길고, UI 버그처럼 보이지 않을 만큼 느립니다.
 
 ```css
-@keyframes skeletonPulse {
-  0%, 100% { background-color: var(--neutral-200); }
-  50% { background-color: var(--neutral-100); }
+@keyframes skeleton-wave {
+  from { background-position: -150% 0; }
+  to   { background-position:  250% 0; }
 }
-.skeleton { animation: skeletonPulse var(--duration-slow) var(--easing-default) infinite; }
+.skeleton {
+  background-color: var(--neutral-200);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--neutral-100) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: skeleton-wave var(--duration-shimmer) ease-in-out infinite;
+}
 ```
+
+`prefers-reduced-motion: reduce` 에서는 그라데이션·애니메이션 없이 `neutral-200` 정적 블록으로 축소됩니다.
+
+#### 앱 부트스트랩 스플래시
+
+`app/layout.tsx` 에서 `<div id="app-splash">` 로 인라인 렌더되어, React hydration 이전 첫 HTML 페인트부터 화면을 덮습니다. 클라이언트 `<AppReadyMarker />` 가 `useEffect` 에서 `document.body.dataset.appReady = 'true'` 를 세팅하면 CSS 가 `duration-normal` · `easing-out` 로 페이드아웃합니다. 이 레이어는 라우트별 `loading.tsx` 스켈레톤과 역할이 다릅니다 — 스플래시는 hydration 직전 프레임만 덮고, 스켈레톤은 in-app 네비게이션 · API 로딩을 덮습니다.
 
 ---
 

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { SearchRoot } from './search-root';
+import { AppReadyMarker, AppSplash } from '@/shared/components';
 import { Footer } from '@/shared/components/footer';
 import { OrganizationJsonLd } from '@/shared/components/json-ld';
 import { NuqsProvider, QueryProvider } from '@/shared/components/providers';
@@ -58,9 +59,12 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-dvh flex flex-col bg-bg-page text-text-primary font-sans">
+        <AppSplash />
         <OrganizationJsonLd />
         <NuqsProvider>
           <QueryProvider>
+            <AppReadyMarker />
+
             {/* Desktop top padding for fixed header */}
             <div className="hidden lg:block h-16" />
 

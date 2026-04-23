@@ -367,7 +367,8 @@ interface ApiError {
 - 라우트 경로는 `CLAUDE.md`, `ARCHITECTURE.md`, `PAGES.md` 간에 정확히 일치
 - 색상 토큰 이름과 값은 `DESIGN.md`와 `PAGES.md` 간에 정확히 일치
 - 사용 중인 schema.org 타입은 `src/shared/components/json-ld.tsx`, `CLAUDE.md` §11, `ARCHITECTURE.md` §7, `PAGES.md` SEO Requirements 간에 일치
-- **스켈레톤 쌍 유지:** 레이아웃이 단순하지 않은 피처 컴포넌트는 형제 `*.skeleton.tsx`를 함께 두어 동일한 외곽 셸과 유사한 치수를 렌더해야 합니다. 컴포넌트의 형상이 변하면(섹션 추가·제거, 그리드 컬럼 수 변경, 주요 높이 변경) **같은 PR에서** 형제 스켈레톤도 갱신해야 합니다. 라우트 수준 `loading.tsx`는 DOM을 중복 작성하는 대신 형제 스켈레톤을 조립해 구성합니다. 모든 스켈레톤은 공용 `<Skeleton>` 프리미티브를 사용해야 하며, raw `animate-pulse`는 금지입니다(`prefers-reduced-motion` 존중을 위해).
+- **스켈레톤 쌍 유지:** 레이아웃이 단순하지 않은 피처 컴포넌트는 형제 `*.skeleton.tsx`를 함께 두어 동일한 외곽 셸과 유사한 치수를 렌더해야 합니다. 컴포넌트의 형상이 변하면(섹션 추가·제거, 그리드 컬럼 수 변경, 주요 높이 변경) **같은 PR에서** 형제 스켈레톤도 갱신해야 합니다. 라우트 수준 `loading.tsx`는 DOM을 중복 작성하는 대신 형제 스켈레톤을 조립해 구성합니다. 모든 스켈레톤은 공용 `<Skeleton>` 프리미티브를 사용해야 하며, raw `animate-pulse`는 금지입니다(`prefers-reduced-motion` 존중을 위해). 프리미티브는 `globals.css`의 `--duration-shimmer`에 묶인 `skeleton-wave` 그라데이션으로 애니메이션되며, 과거의 `skeleton-pulse` keyframe은 다시 도입하지 않습니다.
+- **앱 부트스트랩 스플래시 vs 라우트 스켈레톤:** 브랜드 로고 스플래시(`app/layout.tsx`에 배선된 `<AppSplash />` + `<AppReadyMarker />`, `globals.css`의 `#app-splash`)는 hydration 직전의 부트스트랩 프레임만을 덮습니다. 첫 `useEffect` 에서 `body[data-app-ready="true"]` 가 세팅되면서 숨겨지고, 이후 세션 동안 다시 나타나지 않습니다. 라우트 수준 `loading.tsx` 파일은 반드시 페이지 구조형 스켈레톤을 유지해야 하며, 스플래시로 대체하지 않습니다 — in-app 네비게이션과 API 로딩은 스플래시가 사라진 뒤에 발생하기 때문입니다.
 
 ### 번역 동기화
 - 모든 `.ko.md` 파일은 영어 대응 파일과 동일한 섹션 구조를 유지

@@ -20,3 +20,5 @@ export { EmptyState } from './empty-state';
 export type { EmptyStateProps, EmptyStateSize, EmptyStateSurface } from './empty-state';
 
 export { AnimateOnScroll, StaggerChildren } from './animate-on-scroll';
+
+export { AppSplash, AppReadyMarker } from './app-splash';

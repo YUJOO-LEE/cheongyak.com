@@ -420,6 +420,7 @@ Depth through background color shifts, not shadows. Place `color-bg-card` on `co
 | `duration-fast` | 150ms | Micro-interactions (hover, toggle) |
 | `duration-normal` | 250ms | Standard transitions (panel open, tab switch) |
 | `duration-slow` | 400ms | Complex animations (modal enter, page transition) |
+| `duration-shimmer` | 1500ms | Skeleton loader wave cycle |
 | `easing-default` | `cubic-bezier(0.4, 0, 0.2, 1)` | General purpose (ease-in-out) |
 | `easing-in` | `cubic-bezier(0.4, 0, 1, 1)` | Elements exiting the viewport |
 | `easing-out` | `cubic-bezier(0, 0, 0.2, 1)` | Elements entering the viewport |
@@ -427,7 +428,7 @@ Depth through background color shifts, not shadows. Place `color-bg-card` on `co
 ### Motion Rules
 
 - Respect `prefers-reduced-motion: reduce` — disable all non-essential animation
-- Skeleton loaders pulse at `duration-slow` with `easing-default`
+- Skeleton loaders use a left-to-right gradient wave (`skeleton-wave`) at `duration-shimmer` with `ease-in-out`, not a background-color pulse
 - Page transitions use `duration-normal` with `easing-out`
 - Never animate layout properties (width, height) — use `transform` and `opacity` only
 - Apply motion primarily on **Editorial tier** pages (Home, News). **Utilitarian tier** pages (Listings, Detail) use instant rendering with minimal animation
@@ -468,15 +469,34 @@ Replaces the previous "shift to sunken" hover state. Provides a sense of lift, n
 }
 ```
 
-#### Skeleton Loader Pulse
+#### Skeleton Loader Wave
+
+Gradient shimmer (1.5s cycle) that moves left-to-right across a static neutral base. Long enough to read as "loading", slow enough not to feel like a UI bug.
 
 ```css
-@keyframes skeletonPulse {
-  0%, 100% { background-color: var(--neutral-200); }
-  50% { background-color: var(--neutral-100); }
+@keyframes skeleton-wave {
+  from { background-position: -150% 0; }
+  to   { background-position:  250% 0; }
 }
-.skeleton { animation: skeletonPulse var(--duration-slow) var(--easing-default) infinite; }
+.skeleton {
+  background-color: var(--neutral-200);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--neutral-100) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: skeleton-wave var(--duration-shimmer) ease-in-out infinite;
+}
 ```
+
+Under `prefers-reduced-motion: reduce`, the primitive flattens to a static `neutral-200` block (no gradient, no animation).
+
+#### App Bootstrap Splash
+
+Rendered inline by `app/layout.tsx` as `<div id="app-splash">` so it paints on the first HTML frame, before React hydrates. A client-side `<AppReadyMarker />` sets `document.body.dataset.appReady = 'true'` in `useEffect`, and CSS fades the splash out (`duration-normal`, `easing-out`). This layer is distinct from route-level `loading.tsx` skeletons — the splash covers only the pre-hydration frame; skeletons cover in-app navigation and API loading.
 
 ---
 
