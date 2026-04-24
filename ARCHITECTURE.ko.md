@@ -80,7 +80,7 @@ src/
 |---|---|---|
 | **홈 대시보드** | SSR + ISR (60s) | 최신 목록과 뉴스 표시; 신선하면서도 캐시 가능해야 함 |
 | **청약 목록** | Server shell + CSR fetch | 라우트 파일은 await 하지 않는 Server Component 라서 `<Link>` 가 RSC payload 를 즉시 prefetch 할 수 있음. 데이터 fetch 는 TanStack Query 가 소유 (`aptSalesQueryOptions`, staleTime 60s) 하며 `keepPreviousData` 로 필터/페이지 전환 시 스켈레톤 깜빡임 없음. 초기 HTML 에 리스트가 없지만 목록 페이지엔 structured data 가 없어 SEO 영향 없음 (크롤러는 hydration 후 JS 실행 결과를 색인). |
-| **청약 상세** | SSG + ISR (300s) | 개별 청약 정보는 변경 빈도가 낮음; 알려진 ID는 사전 렌더링, 나머지는 ISR로 처리 |
+| **청약 상세** | ISR (revalidate 300s) | 서버 컴포넌트가 `fetchAptSalesDetailSSR(id)` (`/apt-sales/{id}` + `next.revalidate=300`) 를 await. 숫자 PK 라 `generateStaticParams` 를 제거하고 on-demand ISR 만 사용 — 빌드 시 전량 사전 렌더는 비현실적이고, 300s revalidate 로 핫 페이지만 warm 유지. 404 는 `ApiClientError` → `notFound()` 로 처리. |
 | **뉴스 피드** | SSR + ISR (120s) | 자주 업데이트되는 피드; ISR로 신선도와 성능의 균형 |
 | **뉴스 기사** | SSG + ISR (600s) | 게시된 기사는 거의 정적; ISR로 수정사항 반영 |
 

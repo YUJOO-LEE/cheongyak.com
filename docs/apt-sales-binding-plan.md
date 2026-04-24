@@ -262,3 +262,49 @@ Flagging so reviewers can reject:
 Initial parallel front: **#5 (tesla)**, **#7 (linus)**, **#9 (chanel)**, **#13 (jobs)**.
 
 — End of plan.
+
+---
+
+## 10. Phase 9 — `/apt-sales/{id}` 상세 바인딩 (delivered)
+
+배포 완료. 상세 엔드포인트가 5개 섹션 응답(`announcement` + `schedule` + `regulations`, `models`, `competitions`, `winnerScores`, `specialSupplies`)으로 내려와 기존 `SubscriptionDetail` 도메인 모델을 확장했습니다.
+
+### 10.1 도메인 타입
+
+- 기존 `SupplyItemSchema` / `SupplyBreakdownSchema` 제거 — 평형별 `models[]` 가 더 정밀해 카테고리 합산 테이블은 정보 손실을 초래.
+- 신규: `RegulationFlagSchema`, `ModelSupplySchema`, `CompetitionRowSchema`, `WinnerScoreRowSchema`, `SpecialSupplyStatusRowSchema`, `SpecialSupplyBreakdownItemSchema`.
+- `SubscriptionDetailSchema` 에 schedule / regulations / models / competitions / winnerScores / specialSupplyStatus + 부가정보(supplyAddress, businessEntityName, inquiryPhone, moveInMonth) 필드 추가.
+
+### 10.2 매퍼 (`src/features/listings/lib/map-apt-sales-detail.ts`)
+
+- `deriveSchedulePhases(schedule, moveInMonth, today)` — 7단계 phase, 날짜 null 제외, 오늘 대비 past/current/future 판정.
+- `pickActiveRegulations(regs)` — truthy 플래그만 안정적 순서로.
+- `parseSupplyAddress(supplyAddress, sido)` — `AnnouncementSection` 에 시군구/동이 분리돼 있지 않아 원문에서 토큰 파싱. 2-token 시군구(`수원시 영통구`) 대응.
+- `formatPriceManWon(manWon)` — 150000 → "15억", 162500 → "16억 2,500만".
+- 엔트리: `mapAptSalesDetailToSubscription(response, today?)`.
+
+### 10.3 라우트 / 사이트맵
+
+- `src/app/listings/[id]/page.tsx` — `generateStaticParams` 제거, `export const revalidate = 300` on-demand ISR. 서버 컴포넌트가 `fetchAptSalesDetailSSR(numericId)` 호출 후 매퍼 경유. `ApiClientError.status===404` 감지 시 `notFound()`.
+- 섹션: Header → (규제 칩) → 일정 → 공급(평형별 카드) → 경쟁률 → 당첨가점 → 특공 신청현황 → (사이드바) 공식 링크. 뒤 3개는 배열이 비면 섹션 자체 미렌더.
+- `src/app/sitemap.ts` — 레거시 픽스처 대신 `fetchAptSalesList({ page: 0, size: 100 })` 결과로 subscriptionRoutes 생성 (try/catch 로 폴백).
+
+### 10.4 컴포넌트 (전부 sibling skeleton 포함)
+
+- `RegulationChips` / `regulation-chips.skeleton.tsx`
+- `ModelSupplyCards` / `model-supply-cards.skeleton.tsx`
+- `CompetitionTable` / `competition-table.skeleton.tsx`
+- `WinnerScoreTable` / `winner-score-table.skeleton.tsx`
+- `SpecialSupplyStatusTable` / `special-supply-status-table.skeleton.tsx`
+- 삭제: `supply-breakdown.tsx`, `collapsible-section.tsx`.
+- `loading.tsx` 는 위 skeleton 5종 + 헤더/일정/링크 = 9개 testid 를 pin. `loading.test.tsx` 에 canonical order 회귀 테스트 추가.
+
+### 10.5 MSW
+
+- `src/mocks/fixtures/apt-sales-detail.ts` — id 1(Active), 2(Scheduled), 3(Pending with aggregates) 세 레코드.
+- `handlers.ts` 에 `GET /apt-sales/:id` 핸들러 추가. 모르는 id 는 `{ status: 404, code: "LISTING_NOT_FOUND" }` 로 거부.
+
+### 10.6 문서 동기화
+
+- `PAGES.md` / `PAGES.ko.md` §3 — 3.2 스케줄 매핑, 3.3 평형별 카드, 3.4/3.5 deferred, 3.6 링크 출처, 신규 3.7 경쟁률 / 3.8 당첨가점 / 3.9 특별공급 신청현황.
+- `ARCHITECTURE.md` / `ko` §3 Rendering 전략 — "SSG + ISR" → "ISR (revalidate 300s)" 교정.

@@ -227,56 +227,76 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 
 #### 3.2 Schedule Timeline
 
-- Visual vertical timeline showing all phases:
-  1. 모집공고 (Announcement)
-  2. 특별공급 접수 (Special supply application)
-  3. 일반공급 1순위 (General supply 1st priority)
-  4. 일반공급 2순위 (General supply 2nd priority)
-  5. 당첨자 발표 (Winner announcement)
-  6. 계약 기간 (Contract period)
-  7. 입주 예정 (Expected move-in)
-- Each phase shows date(s) and current/past/future state
+- Visual vertical timeline with up to 7 phases. The mapper in
+  `map-apt-sales-detail.ts` folds the backend's `ScheduleSection` +
+  `moveInMonth` into this order, dropping any phase whose date is null
+  so the rail stays dense:
+  1. 모집공고 (`schedule.announcementDate`)
+  2. 특별공급 접수 (`schedule.specialSupply`)
+  3. 일반공급 1순위 (`schedule.firstRankLocal` — `firstRankGyeonggi`/`Other` ignored for the primary bar)
+  4. 일반공급 2순위 (`schedule.secondRankLocal`)
+  5. 당첨자 발표 (`schedule.winnerAnnouncementDate`)
+  6. 계약 기간 (`schedule.contract`)
+  7. 입주 예정 (`announcement.moveInMonth` expanded to `yyyy-MM-01`)
+- Each phase shows date(s) and current/past/future state (today-based)
 - Current phase highlighted with `primary` accent
 - Past phases use `text-low`, future phases use `text-mid`
 
-#### 3.3 Supply Breakdown Table
+#### 3.3 Supply Breakdown — Per-평형 Cards
 
-- **Special Supply (특별공급):**
-  - Categories: 기관추천 (institutional), 다자녀 (multi-child), 신혼부부 (newlywed), 생애최초 (first-time), 노부모부양 (elderly parent care)
-  - Per category: Unit count, size options, income/asset limits if applicable
-- **General Supply (일반공급):**
-  - Priority tiers: 1순위, 2순위
-  - Scoring criteria summary (가점제 vs 추첨제)
-  - Per tier: Unit count by size
-- Table style: No borders, use `surface` background for alternating rows
+- Grid of cards, one per `models[]` entry (평형 단위)
+- Each card shows 공급면적(㎡), 일반공급 세대수, 특별공급 세대수, 특공 세분
+  유형별 세대수(다자녀/신혼부부/생애최초/노부모부양/기관추천/기타/이전기관/청년/신생아 중 값이 있는 것만), 최고 분양가(억/만 포맷)
+- Layout: `bg-bg-sunken` card with no internal borders, 2-column grid on
+  sm+, single column on mobile
+- Aggregated size + price range (min ~ max across models) surfaces in
+  `SubscriptionHeader` so users see overall scope without scrolling
 
-#### 3.4 Eligibility Quick-Check (Optional Enhancement)
+#### 3.4 Eligibility Quick-Check *(deferred)*
 
-- Collapsible section with key eligibility criteria
-- Income limits, asset limits, residency requirements
-- Not a calculator — informational reference only
+- Collapsible eligibility reference — backend endpoint not defined yet.
+  Revisit once the API exposes income/asset/residency rules per listing.
 
-#### 3.5 Related News
+#### 3.5 Related News *(deferred)*
 
-- Up to 5 news articles related to this subscription or its region
-- Compact card format: title, date, category chip
-- Link to full article at `/news/[id]`
+- Related articles are out of scope for the `/apt-sales/{id}` endpoint
+  per the backend spec. A dedicated news-linking endpoint is planned.
 
 #### 3.6 Official Links
 
-- 청약홈 (applyhome.co.kr) direct link
-- Builder official site
-- 모집공고 PDF download (if available)
-- Styled as secondary buttons in a horizontal row
+- 청약홈 link ← `announcement.announcementUrl`
+- Builder official site ← `announcement.homepageUrl`
+- `announcementUrl` in the domain model is reserved for a separate PDF
+  link when the backend adds one; today the announcement URL is the
+  청약홈 deep link itself
+- Styled as secondary buttons stacked in the sidebar
+
+#### 3.7 경쟁률 (Competitions)
+
+- Table of `competitions[]` rows: 주택형 × 순위 × 거주지역
+- Columns: 주택형, 순위, 거주지역, 공급세대, 접수건수, 경쟁률
+- `rateDisplay` surfaces server-formatted values (`"15.00"`, `"(N세대 부족)"`, `"미달"`); `isShortage` true rows highlight with `warning-600`
+- Section hidden entirely when `competitions[]` is empty (집계 전)
+
+#### 3.8 당첨가점 (Winner Scores)
+
+- Table of `winnerScores[]` rows: 주택형 × 거주지역
+- Columns: 주택형, 거주지역, 최저/평균/최고 (uses server-provided `*Display` strings, `-` fallback)
+- Section hidden when `winnerScores[]` is empty
+
+#### 3.9 특별공급 신청현황 (Special Supply Status)
+
+- Table of `specialSupplies[].categories[]` flattened per (주택형 × 유형)
+- Columns: 주택형, 유형, 배정, 해당지역, 기타경기, 기타지역, 합계
+- 기관추천/이전기관 row 들은 지역 컬럼이 `-` (API 보장)
+- Section hidden when `specialSupplyStatus[]` is empty
 
 ### Data Requirements
 
 | Endpoint | Data |
 |---|---|
-| `GET /api/subscriptions/[id]` | Full subscription detail object |
-| `GET /api/subscriptions/[id]/supply` | Supply breakdown by type and tier |
-| `GET /api/subscriptions/[id]/schedule` | Timeline phases with dates |
-| `GET /api/news?subscription=[id]&limit=5` | Related news articles |
+| `GET /apt-sales/{id}` | Full 5-section detail: `announcement` (공고 본체 + `schedule` + `regulations`), `models[]` (평형 기본정보), `competitions[]`, `winnerScores[]`, `specialSupplies[]`. Server-side fetch via `fetchAptSalesDetailSSR(numericId)` with `next.revalidate=300`. 404 flows through `ApiClientError` → `notFound()`. |
+| ~~`GET /api/news?subscription=[id]&limit=5`~~ | *(deferred)* related news endpoint not yet published |
 
 ### Mobile Layout
 

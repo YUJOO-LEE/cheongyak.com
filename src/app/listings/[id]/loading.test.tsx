@@ -1,19 +1,21 @@
 /**
  * Route loader structure regression for `/listings/[id]` (listing detail).
  *
- * The real detail page (`app/listings/[id]/page.tsx`) renders a 3-col
+ * The real detail page (`app/listings/[id]/page.tsx`) now renders a 3-col
  * grid on desktop with:
  *   Main column (col-span-2):
- *     - SubscriptionHeader         (chip + title + description)
- *     - Schedule card              (timeline)
- *     - Supply card                (supply breakdown)
+ *     - SubscriptionHeader            (chip + title + description)
+ *     - RegulationChips               (neutral chip group — only when active)
+ *     - Schedule card                 (7-phase timeline)
+ *     - ModelSupplyCards              (per-평형 cards replacing old table)
+ *     - CompetitionTable              (경쟁률 — only when data present)
+ *     - WinnerScoreTable              (당첨가점)
+ *     - SpecialSupplyStatusTable      (특공 신청현황)
  *   Sidebar (col-span-1):
- *     - OfficialLinks card         (single block)
+ *     - OfficialLinks card            (single block)
  *
- * An earlier revision stacked TWO sidebar blocks (related listings was
- * later removed). If a future refactor brings a second sidebar skeleton
- * back alone — without the real component — users see a phantom block
- * flash and the hydrated page jumps. This test guards that invariant.
+ * This test pins the loader composition so shape changes in the real page
+ * can't drift from the Suspense fallback silently.
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
@@ -25,30 +27,45 @@ describe('app/listings/[id]/loading.tsx', () => {
     cleanup();
   });
 
-  it('renders the main-column skeletons in the order header → schedule → supply', () => {
+  it('renders the main-column skeletons in canonical order', () => {
     render(<SubscriptionDetailLoading />);
 
-    expect(screen.getByTestId('listing-detail-header-skeleton')).toBeTruthy();
-    expect(screen.getByTestId('listing-detail-schedule-skeleton')).toBeTruthy();
-    expect(screen.getByTestId('listing-detail-supply-skeleton')).toBeTruthy();
+    const main = screen.getByTestId('listing-detail-main-col');
+    const order = Array.from(
+      main.querySelectorAll<HTMLElement>('[data-testid$="-skeleton"]'),
+    ).map((el) => el.dataset.testid);
+
+    expect(order).toEqual([
+      'listing-detail-header-skeleton',
+      'regulation-chips-skeleton',
+      'listing-detail-schedule-skeleton',
+      'model-supply-cards-skeleton',
+      'competition-table-skeleton',
+      'winner-score-table-skeleton',
+      'special-supply-status-table-skeleton',
+    ]);
   });
 
-  it('renders exactly one sidebar card (links) — no phantom second block', () => {
-    const { container } = render(<SubscriptionDetailLoading />);
+  it('renders exactly one sidebar card (links) — no phantom blocks', () => {
+    render(<SubscriptionDetailLoading />);
 
     const sidebar = screen.getByTestId('listing-detail-sidebar-col');
-    const sidebarSkeletons = sidebar.querySelectorAll('[data-testid$="-skeleton"]');
+    const sidebarSkeletons = sidebar.querySelectorAll(
+      '[data-testid$="-skeleton"]',
+    );
 
     expect(sidebarSkeletons).toHaveLength(1);
-    expect(sidebar.querySelector('[data-testid="listing-detail-links-skeleton"]')).not.toBeNull();
+    expect(
+      sidebar.querySelector('[data-testid="listing-detail-links-skeleton"]'),
+    ).not.toBeNull();
+  });
 
-    // Hedge: overall loader has 4 labelled skeletons total (3 main + 1 sidebar),
-    // which lets the test fail cleanly if the main column sprouts an extra band
-    // or the sidebar grows a new card.
+  it('pins the overall skeleton-testid count so phantom bands fail loudly', () => {
+    const { container } = render(<SubscriptionDetailLoading />);
+    // 7 content sections in main + 1 in sidebar + 1 outer wrapper = 9
     expect(
       container.querySelectorAll('[data-testid$="-skeleton"]'),
-    ).toHaveLength(5);
-    //            ^--- 4 content + 1 outer listing-detail-skeleton wrapper
+    ).toHaveLength(9);
   });
 
   it('uses the 3-col responsive grid that matches the real page shape', () => {

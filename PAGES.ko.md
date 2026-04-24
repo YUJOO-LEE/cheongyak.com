@@ -229,56 +229,69 @@
 
 #### 3.2 일정 타임라인
 
-- 모든 단계를 보여주는 세로 타임라인:
-  1. 모집공고
-  2. 특별공급 접수
-  3. 일반공급 1순위
-  4. 일반공급 2순위
-  5. 당첨자 발표
-  6. 계약 기간
-  7. 입주 예정
-- 각 단계에 날짜와 현재/과거/미래 상태 표시
+- 최대 7단계 세로 타임라인. `map-apt-sales-detail.ts` 매퍼가 백엔드의
+  `ScheduleSection` + `moveInMonth` 를 아래 순서로 접고, 날짜가 null 인
+  단계는 제외하여 빈 줄이 생기지 않도록 합니다:
+  1. 모집공고 (`schedule.announcementDate`)
+  2. 특별공급 접수 (`schedule.specialSupply`)
+  3. 일반공급 1순위 (`schedule.firstRankLocal` — `firstRankGyeonggi` / `Other` 는 주 타임라인에선 생략)
+  4. 일반공급 2순위 (`schedule.secondRankLocal`)
+  5. 당첨자 발표 (`schedule.winnerAnnouncementDate`)
+  6. 계약 기간 (`schedule.contract`)
+  7. 입주 예정 (`announcement.moveInMonth` 을 `yyyy-MM-01` 로 확장)
+- 각 단계에 날짜와 current/past/future 상태 표시 (오늘 기준)
 - 현재 단계는 `primary` 강조색으로 하이라이트
 - 지난 단계는 `text-low`, 향후 단계는 `text-mid` 사용
 
-#### 3.3 공급 내역 표
+#### 3.3 공급 내역 — 평형별 카드
 
-- **특별공급:**
-  - 유형: 기관추천, 다자녀, 신혼부부, 생애최초, 노부모부양
-  - 유형별: 세대수, 면적 옵션, 해당 시 소득/자산 기준
-- **일반공급:**
-  - 순위 단계: 1순위, 2순위
-  - 선정 방식 요약 (가점제 vs 추첨제)
-  - 순위별: 면적별 세대수
-- 표 스타일: 테두리 없음, 교대 행에 `surface` 배경 사용
+- `models[]` 엔트리 1개 = 카드 1장 (평형 단위)
+- 카드 내용: 공급면적(㎡), 일반공급 세대수, 특별공급 세대수, 특공 세분
+  유형별 세대수(다자녀/신혼부부/생애최초/노부모부양/기관추천/기타/이전기관/청년/신생아 중 값이 있는 것만), 최고 분양가(억/만 포맷)
+- 레이아웃: `bg-bg-sunken` 카드(내부 테두리 없음), sm+ 에서 2열 그리드, 모바일은 1열
+- 헤더의 면적/가격 범위는 models 전체의 min~max 를 집약해 스크롤 없이도 전체 스펙 파악
 
-#### 3.4 자격 요건 간편 확인 (선택적 기능)
+#### 3.4 자격 요건 간편 확인 *(보류)*
 
-- 접을 수 있는 섹션에 주요 자격 기준 표시
-- 소득 기준, 자산 기준, 거주 요건
-- 계산기가 아닌 참고 정보 제공 목적
+- 해당 백엔드 엔드포인트가 아직 없어 보류. 소득/자산/거주 요건이 노출되면 재개합니다.
 
-#### 3.5 관련 뉴스
+#### 3.5 관련 뉴스 *(보류)*
 
-- 해당 청약 또는 해당 지역 관련 뉴스 기사 최대 5개
-- 간결한 카드 형식: 제목, 날짜, 카테고리 칩
-- `/news/[id]`의 전체 기사로 링크
+- `/apt-sales/{id}` 응답 범위 밖입니다. 뉴스 연계 전용 엔드포인트 배포 이후 재개.
 
 #### 3.6 공식 링크
 
-- 청약홈 (applyhome.co.kr) 바로가기
-- 시공사 공식 사이트
-- 모집공고 PDF 다운로드 (있는 경우)
-- 가로 행의 보조 버튼 스타일
+- 청약홈 링크 ← `announcement.announcementUrl`
+- 시공사 공식 사이트 ← `announcement.homepageUrl`
+- 도메인 모델의 `announcementUrl` 은 별도 PDF 링크가 생기면 할당할 자리 — 오늘은 청약홈 딥링크 자체가 announcementUrl
+- 사이드바에 세로 스택된 보조 버튼 스타일
+
+#### 3.7 경쟁률 (Competitions)
+
+- `competitions[]` 행: 주택형 × 순위 × 거주지역
+- 컬럼: 주택형, 순위, 거주지역, 공급세대, 접수건수, 경쟁률
+- `rateDisplay` 는 서버가 포맷한 값 (`"15.00"`, `"(N세대 부족)"`, `"미달"`) 을 그대로 노출; `isShortage` true 행은 `warning-600` 으로 강조
+- `competitions[]` 가 비어있으면 (집계 전) 섹션 자체를 렌더하지 않음
+
+#### 3.8 당첨가점 (Winner Scores)
+
+- `winnerScores[]` 행: 주택형 × 거주지역
+- 컬럼: 주택형, 거주지역, 최저/평균/최고 (서버가 내려준 `*Display` 문자열, 없으면 `-`)
+- 빈 배열이면 섹션 숨김
+
+#### 3.9 특별공급 신청현황 (Special Supply Status)
+
+- `specialSupplies[].categories[]` 를 (주택형 × 유형) 단위로 flatten
+- 컬럼: 주택형, 유형, 배정, 해당지역, 기타경기, 기타지역, 합계
+- 기관추천/이전기관 행의 지역 컬럼은 `-` (API 보장)
+- 빈 배열이면 섹션 숨김
 
 ### 데이터 요구사항
 
 | 엔드포인트 | 데이터 |
 |---|---|
-| `GET /api/subscriptions/[id]` | 청약 상세 전체 객체 |
-| `GET /api/subscriptions/[id]/supply` | 유형 및 순위별 공급 내역 |
-| `GET /api/subscriptions/[id]/schedule` | 날짜별 타임라인 단계 |
-| `GET /api/news?subscription=[id]&limit=5` | 관련 뉴스 기사 |
+| `GET /apt-sales/{id}` | 5개 섹션 상세 응답: `announcement` (공고 본체 + `schedule` + `regulations`), `models[]` (평형 기본정보), `competitions[]`, `winnerScores[]`, `specialSupplies[]`. 서버 컴포넌트에서 `fetchAptSalesDetailSSR(numericId)` (`next.revalidate=300`) 로 호출. 404 는 `ApiClientError` → `notFound()` 로 흐름. |
+| ~~`GET /api/news?subscription=[id]&limit=5`~~ | *(보류)* 관련 뉴스 엔드포인트 미공개 |
 
 ### 모바일 레이아웃
 

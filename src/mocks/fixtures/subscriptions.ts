@@ -1,4 +1,4 @@
-import type { Subscription, SubscriptionDetail } from '@/shared/types/api';
+import type { Subscription } from '@/shared/types/api';
 
 export const subscriptions: Subscription[] = [
   {
@@ -129,32 +129,5 @@ export const subscriptions: Subscription[] = [
   },
 ];
 
-export const subscriptionDetail: SubscriptionDetail = {
-  ...subscriptions[0],
-  builderUrl: 'https://www.raemian.co.kr',
-  announcementUrl: 'https://www.applyhome.co.kr/ai/aia/selectAPTLttotPblancDetail.do',
-  applyHomeUrl: 'https://www.applyhome.co.kr',
-  schedule: [
-    { phase: 'announcement', label: '모집공고', startDate: '2026-03-25', state: 'past' },
-    { phase: 'special_supply', label: '특별공급 접수', startDate: '2026-04-06', state: 'past' },
-    { phase: 'general_1st', label: '일반공급 1순위', startDate: '2026-04-07', state: 'current' },
-    { phase: 'general_2nd', label: '일반공급 2순위', startDate: '2026-04-08', state: 'future' },
-    { phase: 'winner', label: '당첨자 발표', startDate: '2026-04-15', state: 'future' },
-    { phase: 'contract', label: '계약 기간', startDate: '2026-04-25', endDate: '2026-04-27', state: 'future' },
-    { phase: 'move_in', label: '입주 예정', startDate: '2028-06-01', state: 'future' },
-  ],
-  supply: {
-    special: [
-      { category: '기관추천', units: 150, sizes: ['59㎡', '84㎡'] },
-      { category: '다자녀', units: 299, sizes: ['84㎡', '114㎡'] },
-      { category: '신혼부부', units: 449, sizes: ['59㎡', '84㎡'] },
-      { category: '생애최초', units: 299, sizes: ['59㎡', '84㎡'] },
-      { category: '노부모부양', units: 150, sizes: ['114㎡', '191㎡'] },
-    ],
-    general: [
-      { category: '1순위 가점제', units: 1044, sizes: ['59㎡', '84㎡', '114㎡'] },
-      { category: '1순위 추첨제', units: 449, sizes: ['59㎡', '84㎡'] },
-      { category: '2순위', units: 150, sizes: ['59㎡'] },
-    ],
-  },
-};
+// subscriptionDetail: legacy detail fixture removed after `/apt-sales/{id}`
+// binding landed. Use `src/mocks/fixtures/apt-sales-detail.ts` instead.

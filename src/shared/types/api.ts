@@ -75,26 +75,93 @@ export const SchedulePhaseSchema = z.object({
 });
 export type SchedulePhase = z.infer<typeof SchedulePhaseSchema>;
 
-export const SupplyItemSchema = z.object({
-  category: z.string(),
-  units: z.number(),
-  sizes: z.array(z.string()).optional(),
-  note: z.string().optional(),
-});
-export type SupplyItem = z.infer<typeof SupplyItemSchema>;
+// 활성 규제 플래그 키 (백엔드 RegulationSection boolean 필드명과 동일)
+export const RegulationFlagSchema = z.enum([
+  'speculativeArea',
+  'adjustmentArea',
+  'priceCeiling',
+  'redevelopment',
+  'publicHousingDistrict',
+  'largeScaleDevelopment',
+  'metropolitanPublicHousing',
+  'publicHousingSpecialLaw',
+]);
+export type RegulationFlag = z.infer<typeof RegulationFlagSchema>;
 
-export const SupplyBreakdownSchema = z.object({
-  special: z.array(SupplyItemSchema),
-  general: z.array(SupplyItemSchema),
+// 특공 세분 유형 — SpecialDetailSection 의 non-null 필드를 한국어 라벨로 집약
+export const SpecialSupplyBreakdownItemSchema = z.object({
+  category: z.string(), // 예: '신혼부부', '다자녀'
+  count: z.number(),
 });
-export type SupplyBreakdown = z.infer<typeof SupplyBreakdownSchema>;
+export type SpecialSupplyBreakdownItem = z.infer<
+  typeof SpecialSupplyBreakdownItemSchema
+>;
+
+export const ModelSupplySchema = z.object({
+  modelNo: z.string(),
+  houseType: z.string().optional(),
+  supplyArea: z.number().optional(),
+  generalCount: z.number(),
+  specialCount: z.number(),
+  specialBreakdown: z.array(SpecialSupplyBreakdownItemSchema),
+  /** 만원 단위 — UI 표시는 formatter 통과 */
+  topAmount: z.number().optional(),
+});
+export type ModelSupply = z.infer<typeof ModelSupplySchema>;
+
+export const CompetitionRowSchema = z.object({
+  houseType: z.string(),
+  rank: z.number().optional(),
+  residence: z.string().optional(),
+  supplyCount: z.number().optional(),
+  requestCount: z.number().optional(),
+  /** "15.00" | "(N세대 부족)" | "미달" | undefined(집계 전) */
+  rateDisplay: z.string().optional(),
+  isShortage: z.boolean(),
+});
+export type CompetitionRow = z.infer<typeof CompetitionRowSchema>;
+
+export const WinnerScoreRowSchema = z.object({
+  houseType: z.string(),
+  residence: z.string().optional(),
+  lowestDisplay: z.string(),
+  highestDisplay: z.string(),
+  averageDisplay: z.string(),
+});
+export type WinnerScoreRow = z.infer<typeof WinnerScoreRowSchema>;
+
+export const SpecialSupplyStatusRowSchema = z.object({
+  houseType: z.string(),
+  /** 8종 고정 카테고리 한국어 원문 */
+  categoryName: z.string(),
+  supplyCount: z.number().optional(),
+  localAreaCount: z.number().optional(),
+  metropolitanCount: z.number().optional(),
+  otherAreaCount: z.number().optional(),
+  totalCount: z.number().optional(),
+});
+export type SpecialSupplyStatusRow = z.infer<
+  typeof SpecialSupplyStatusRowSchema
+>;
 
 export const SubscriptionDetailSchema = SubscriptionSchema.extend({
+  // 공식 링크
   builderUrl: z.string().optional(),
   announcementUrl: z.string().optional(),
   applyHomeUrl: z.string().optional(),
+  // 부가 정보
+  supplyAddress: z.string().optional(),
+  businessEntityName: z.string().optional(),
+  inquiryPhone: z.string().optional(),
+  /** yyyy-MM */
+  moveInMonth: z.string().optional(),
+  // 섹션 데이터
   schedule: z.array(SchedulePhaseSchema),
-  supply: SupplyBreakdownSchema,
+  regulations: z.array(RegulationFlagSchema),
+  models: z.array(ModelSupplySchema),
+  competitions: z.array(CompetitionRowSchema),
+  winnerScores: z.array(WinnerScoreRowSchema),
+  specialSupplyStatus: z.array(SpecialSupplyStatusRowSchema),
 });
 export type SubscriptionDetail = z.infer<typeof SubscriptionDetailSchema>;
 

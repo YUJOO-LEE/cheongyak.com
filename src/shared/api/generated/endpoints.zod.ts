@@ -24,11 +24,24 @@ export const getAptSalesListQueryRequestSizeMax = 100;
 
 export const GetAptSalesListQueryParams = zod.object({
   "request": zod.object({
-  "status": zod.array(zod.enum(['SUBSCRIPTION_SCHEDULED', 'SUBSCRIPTION_ACTIVE', 'RESULT_PENDING', 'RESULT_TODAY', 'SUBSCRIPTION_COMPLETED']).nullable().describe('\n            청약 상태 필터 (다중 선택, OR 결합). 각 값의 판정 기준:\n            - SUBSCRIPTION_SCHEDULED: 청약 시작일이 오늘보다 미래\n            - SUBSCRIPTION_ACTIVE: 오늘이 접수 기간 내 (start <= today <= end)\n            - RESULT_TODAY: 당첨자 발표일이 오늘\n            - RESULT_PENDING: 당첨자 발표일이 오늘보다 미래\n            - SUBSCRIPTION_COMPLETED: 위 전부 해당 없음 (접수 종료 후 등)\n        ')).nullish().describe('\n            청약 상태 필터 (다중 선택, OR 결합). 각 값의 판정 기준:\n            - SUBSCRIPTION_SCHEDULED: 청약 시작일이 오늘보다 미래\n            - SUBSCRIPTION_ACTIVE: 오늘이 접수 기간 내 (start <= today <= end)\n            - RESULT_TODAY: 당첨자 발표일이 오늘\n            - RESULT_PENDING: 당첨자 발표일이 오늘보다 미래\n            - SUBSCRIPTION_COMPLETED: 위 전부 해당 없음 (접수 종료 후 등)\n        '),
+  "status": zod.array(zod.enum(['SUBSCRIPTION_SCHEDULED', 'SUBSCRIPTION_ACTIVE', 'RESULT_PENDING', 'RESULT_TODAY', 'SUBSCRIPTION_COMPLETED']).nullable().describe('청약 상태 필터 (다중 선택, OR 결합). 각 값의 판정 기준:\n- SUBSCRIPTION_SCHEDULED: 청약 시작일이 오늘보다 미래\n- SUBSCRIPTION_ACTIVE: 오늘이 접수 기간 내 (start <= today <= end)\n- RESULT_TODAY: 당첨자 발표일이 오늘\n- RESULT_PENDING: 당첨자 발표일이 오늘보다 미래\n- SUBSCRIPTION_COMPLETED: 위 전부 해당 없음 (접수 종료 후 등)')).nullish().describe('청약 상태 필터 (다중 선택, OR 결합). 각 값의 판정 기준:\n- SUBSCRIPTION_SCHEDULED: 청약 시작일이 오늘보다 미래\n- SUBSCRIPTION_ACTIVE: 오늘이 접수 기간 내 (start <= today <= end)\n- RESULT_TODAY: 당첨자 발표일이 오늘\n- RESULT_PENDING: 당첨자 발표일이 오늘보다 미래\n- SUBSCRIPTION_COMPLETED: 위 전부 해당 없음 (접수 종료 후 등)'),
   "houseDetailType": zod.array(zod.enum(['PRIVATE', 'NATIONAL']).nullable().describe('APT 세부 유형 필터 (다중 선택). PRIVATE=민영\/민간, NATIONAL=국민\/공공')).nullish().describe('APT 세부 유형 필터 (다중 선택). PRIVATE=민영\/민간, NATIONAL=국민\/공공'),
   "regionCode": zod.array(zod.enum(['SEOUL', 'GANGWON', 'DAEJEON', 'CHUNGNAM', 'SEJONG', 'CHUNGBUK', 'INCHEON', 'GYEONGGI', 'GWANGJU', 'JEONNAM', 'JEONBUK', 'BUSAN', 'GYEONGNAM', 'ULSAN', 'JEJU', 'DAEGU', 'GYEONGBUK']).nullable().describe('공급지역(시도) 필터 (다중 선택). 17개 시도 enum')).nullish().describe('공급지역(시도) 필터 (다중 선택). 17개 시도 enum'),
   "keyword": zod.string().min(getAptSalesListQueryRequestKeywordMin).max(getAptSalesListQueryRequestKeywordMax).nullish().describe('단지명 부분 일치 검색 (최대 50자)'),
   "page": zod.number().min(getAptSalesListQueryRequestPageMin).default(getAptSalesListQueryRequestPageDefault).describe('0-based 페이지 번호 (0 이상)'),
   "size": zod.number().min(1).max(getAptSalesListQueryRequestSizeMax).default(getAptSalesListQueryRequestSizeDefault).describe('페이지 크기 (1~100)')
 })
+})
+
+
+/**
+ * APT 분양 공고 단건 상세. 최상위 5개 섹션을 평행으로 제공: `announcement`(공고 본체 + schedule + regulations), `models`(평형 기본정보), `competitions`(경쟁률), `winnerScores`(당첨가점), `specialSupplies`(특공현황).
+
+각 집계 섹션에는 `houseType` 이 포함되어 프론트가 필요 시 `groupBy(houseType)` 로 평형 단위로 묶을 수 있음. 집계 데이터가 없으면(접수 전/미집계 공고) 해당 배열은 빈 배열 `[]`.
+
+뉴스/실거래가는 본 엔드포인트 범위 밖 (추후 별도 엔드포인트 예정). `{id}` 가 존재하지 않으면 404 NOT_FOUND.
+ * @summary APT 청약 공고 상세
+ */
+export const GetAptSalesDetailParams = zod.object({
+  "id": zod.number().describe('공고 PK (내부 식별자)')
 })

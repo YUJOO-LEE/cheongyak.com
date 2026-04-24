@@ -14,14 +14,12 @@ import type { AptSalesListRequestStatusItem } from './aptSalesListRequestStatusI
  */
 export interface AptSalesListRequest {
   /**
-     *
-              청약 상태 필터 (다중 선택, OR 결합). 각 값의 판정 기준:
-              - SUBSCRIPTION_SCHEDULED: 청약 시작일이 오늘보다 미래
-              - SUBSCRIPTION_ACTIVE: 오늘이 접수 기간 내 (start <= today <= end)
-              - RESULT_TODAY: 당첨자 발표일이 오늘
-              - RESULT_PENDING: 당첨자 발표일이 오늘보다 미래
-              - SUBSCRIPTION_COMPLETED: 위 전부 해당 없음 (접수 종료 후 등)
-
+     * 청약 상태 필터 (다중 선택, OR 결합). 각 값의 판정 기준:
+  - SUBSCRIPTION_SCHEDULED: 청약 시작일이 오늘보다 미래
+  - SUBSCRIPTION_ACTIVE: 오늘이 접수 기간 내 (start <= today <= end)
+  - RESULT_TODAY: 당첨자 발표일이 오늘
+  - RESULT_PENDING: 당첨자 발표일이 오늘보다 미래
+  - SUBSCRIPTION_COMPLETED: 위 전부 해당 없음 (접수 종료 후 등)
      * @nullable
      */
   status?: AptSalesListRequestStatusItem[] | null;

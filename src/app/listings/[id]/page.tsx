@@ -1,32 +1,59 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { SubscriptionHeader } from '@/features/listings/components/subscription-header';
-import { ScheduleTimeline } from '@/features/listings/components/schedule-timeline';
-import { SupplyBreakdown } from '@/features/listings/components/supply-breakdown';
-import { OfficialLinks } from '@/features/listings/components/official-links';
-import { BreadcrumbListJsonLd, SubscriptionJsonLd } from '@/shared/components/json-ld';
-import { subscriptionDetail, subscriptions } from '@/mocks/fixtures/subscriptions';
-import type { SubscriptionDetail } from '@/shared/types/api';
+import {
+  CompetitionTable,
+  ModelSupplyCards,
+  OfficialLinks,
+  RegulationChips,
+  ScheduleTimeline,
+  SpecialSupplyStatusTable,
+  SubscriptionHeader,
+  WinnerScoreTable,
+} from '@/features/listings/components';
+import { fetchAptSalesDetailSSR } from '@/features/listings/lib/apt-sales-detail-query';
+import { mapAptSalesDetailToSubscription } from '@/features/listings/lib/map-apt-sales-detail';
+import { ApiClientError } from '@/shared/lib/api-client';
+import {
+  BreadcrumbListJsonLd,
+  SubscriptionJsonLd,
+} from '@/shared/components/json-ld';
 import { SITE_URL, buildPageMetadata } from '@/shared/lib/seo';
+import type { SubscriptionDetail } from '@/shared/types/api';
+
+export const revalidate = 300;
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-function getSubscription(id: string): SubscriptionDetail | null {
-  if (id === subscriptionDetail.id) return subscriptionDetail;
-  const sub = subscriptions.find((s) => s.id === id);
-  if (!sub) return null;
-  return { ...subscriptionDetail, ...sub };
+function parseId(raw: string): number | null {
+  const n = Number(raw);
+  return Number.isFinite(n) && Number.isInteger(n) && n > 0 ? n : null;
 }
 
-export async function generateStaticParams() {
-  return subscriptions.map((s) => ({ id: s.id }));
+async function loadDetail(id: number): Promise<SubscriptionDetail | null> {
+  try {
+    const envelope = await fetchAptSalesDetailSSR(id);
+    return mapAptSalesDetailToSubscription(envelope.data.data);
+  } catch (err) {
+    if (err instanceof ApiClientError && err.status === 404) return null;
+    throw err;
+  }
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const sub = getSubscription(id);
+  const numericId = parseId(id);
+  if (numericId === null) {
+    return buildPageMetadata({
+      title: '청약 정보를 찾을 수 없습니다',
+      path: `/listings/${id}`,
+    });
+  }
+
+  const sub = await loadDetail(numericId);
   if (!sub) {
     return buildPageMetadata({
       title: '청약 정보를 찾을 수 없습니다',
@@ -42,7 +69,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description,
     path: `/listings/${sub.id}`,
     ogType: 'article',
-    ogImage: `${SITE_URL}/og?title=${encodeURIComponent(sub.name)}&subtitle=${encodeURIComponent(`${sub.location.sido} ${sub.location.gugun}`)}`,
+    ogImage: `${SITE_URL}/og?title=${encodeURIComponent(sub.name)}&subtitle=${encodeURIComponent(
+      `${sub.location.sido} ${sub.location.gugun}`,
+    )}`,
     keywords: [
       sub.name,
       `${sub.name} 입주자모집공고`,
@@ -57,9 +86,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function SubscriptionDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const subscription = getSubscription(id);
+  const numericId = parseId(id);
+  if (numericId === null) notFound();
 
+  const subscription = await loadDetail(numericId);
   if (!subscription) notFound();
+
+  const hasCompetitions = subscription.competitions.length > 0;
+  const hasWinnerScores = subscription.winnerScores.length > 0;
+  const hasSpecialStatus = subscription.specialSupplyStatus.length > 0;
 
   return (
     <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-10">
@@ -67,21 +102,27 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
         name={subscription.name}
         location={`${subscription.location.sido} ${subscription.location.gugun}`}
         builder={subscription.builder}
-        url={`${SITE_URL}/listings/${id}`}
+        url={`${SITE_URL}/listings/${subscription.id}`}
       />
       <BreadcrumbListJsonLd
         items={[
           { name: '홈', url: '/' },
           { name: '청약 목록', url: '/listings' },
-          { name: subscription.name, url: `/listings/${id}` },
+          { name: subscription.name, url: `/listings/${subscription.id}` },
         ]}
       />
       <div className="lg:grid lg:grid-cols-3 lg:gap-10">
         {/* Main content */}
         <div className="lg:col-span-2">
-          <section className="mb-8">
+          <section className="mb-6">
             <SubscriptionHeader subscription={subscription} />
           </section>
+
+          {subscription.regulations.length > 0 && (
+            <section className="mb-8">
+              <RegulationChips regulations={subscription.regulations} />
+            </section>
+          )}
 
           <section className="mb-8">
             <h2 className="text-headline-lg text-text-primary mb-4">
@@ -96,10 +137,37 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
             <h2 className="text-headline-lg text-text-primary mb-4">
               공급 내역
             </h2>
-            <div className="bg-bg-card rounded-lg p-6">
-              <SupplyBreakdown supply={subscription.supply} />
-            </div>
+            <ModelSupplyCards models={subscription.models} />
           </section>
+
+          {hasCompetitions && (
+            <section className="mb-8">
+              <h2 className="text-headline-lg text-text-primary mb-4">
+                경쟁률
+              </h2>
+              <CompetitionTable rows={subscription.competitions} />
+            </section>
+          )}
+
+          {hasWinnerScores && (
+            <section className="mb-8">
+              <h2 className="text-headline-lg text-text-primary mb-4">
+                당첨가점
+              </h2>
+              <WinnerScoreTable rows={subscription.winnerScores} />
+            </section>
+          )}
+
+          {hasSpecialStatus && (
+            <section className="mb-8">
+              <h2 className="text-headline-lg text-text-primary mb-4">
+                특별공급 신청현황
+              </h2>
+              <SpecialSupplyStatusTable
+                rows={subscription.specialSupplyStatus}
+              />
+            </section>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -115,7 +183,6 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
                 announcementUrl={subscription.announcementUrl}
               />
             </section>
-
           </div>
         </div>
       </div>

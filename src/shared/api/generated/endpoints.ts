@@ -25,6 +25,7 @@ import type {
 
 import type {
   GetAptSalesListParams,
+  MainApiResponseAptSalesDetailResponse,
   MainApiResponseAptSalesListResponse,
   MainApiResponseFeaturedResponse,
   MainApiResponseListTopTradeResponse,
@@ -877,6 +878,179 @@ export function useGetAptSalesListSuspense<TData = Awaited<ReturnType<typeof get
  ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetAptSalesListSuspenseQueryOptions(params,options)
+
+  const query = useSuspenseQuery(queryOptions, queryClient) as  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * APT 분양 공고 단건 상세. 최상위 5개 섹션을 평행으로 제공: `announcement`(공고 본체 + schedule + regulations), `models`(평형 기본정보), `competitions`(경쟁률), `winnerScores`(당첨가점), `specialSupplies`(특공현황).
+
+각 집계 섹션에는 `houseType` 이 포함되어 프론트가 필요 시 `groupBy(houseType)` 로 평형 단위로 묶을 수 있음. 집계 데이터가 없으면(접수 전/미집계 공고) 해당 배열은 빈 배열 `[]`.
+
+뉴스/실거래가는 본 엔드포인트 범위 밖 (추후 별도 엔드포인트 예정). `{id}` 가 존재하지 않으면 404 NOT_FOUND.
+ * @summary APT 청약 공고 상세
+ */
+export type getAptSalesDetailResponse200 = {
+  data: MainApiResponseAptSalesDetailResponse
+  status: 200
+}
+
+export type getAptSalesDetailResponseSuccess = (getAptSalesDetailResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getAptSalesDetailResponse = (getAptSalesDetailResponseSuccess)
+
+export const getGetAptSalesDetailUrl = (id: number,) => {
+
+
+
+
+  return `/apt-sales/${id}`
+}
+
+export const getAptSalesDetail = async (id: number, options?: RequestInit): Promise<getAptSalesDetailResponse> => {
+
+  return apiClientMutator<getAptSalesDetailResponse>(getGetAptSalesDetailUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAptSalesDetailQueryKey = (id: number,) => {
+    return [
+    `/apt-sales/${id}`
+    ] as const;
+    }
+
+
+export const getGetAptSalesDetailQueryOptions = <TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAptSalesDetailQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAptSalesDetail>>> = ({ signal }) => getAptSalesDetail(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id),  staleTime: 60000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAptSalesDetailQueryResult = NonNullable<Awaited<ReturnType<typeof getAptSalesDetail>>>
+export type GetAptSalesDetailQueryError = unknown
+
+
+export function useGetAptSalesDetail<TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAptSalesDetail>>,
+          TError,
+          Awaited<ReturnType<typeof getAptSalesDetail>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAptSalesDetail<TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAptSalesDetail>>,
+          TError,
+          Awaited<ReturnType<typeof getAptSalesDetail>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAptSalesDetail<TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary APT 청약 공고 상세
+ */
+
+export function useGetAptSalesDetail<TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAptSalesDetailQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+export const getGetAptSalesDetailSuspenseQueryOptions = <TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(id: number, options?: { query?:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAptSalesDetailQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAptSalesDetail>>> = ({ signal }) => getAptSalesDetail(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn,   staleTime: 60000,  ...queryOptions} as UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAptSalesDetailSuspenseQueryResult = NonNullable<Awaited<ReturnType<typeof getAptSalesDetail>>>
+export type GetAptSalesDetailSuspenseQueryError = unknown
+
+
+export function useGetAptSalesDetailSuspense<TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(
+ id: number, options: { query:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAptSalesDetailSuspense<TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAptSalesDetailSuspense<TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary APT 청약 공고 상세
+ */
+
+export function useGetAptSalesDetailSuspense<TData = Awaited<ReturnType<typeof getAptSalesDetail>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+ ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAptSalesDetailSuspenseQueryOptions(id,options)
 
   const query = useSuspenseQuery(queryOptions, queryClient) as  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

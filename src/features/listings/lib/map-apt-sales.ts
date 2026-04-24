@@ -9,7 +9,6 @@
  * See `docs/apt-sales-binding-plan.md` §5 for the full enum policy.
  */
 import type { Item } from '@/shared/api/generated/schemas/item';
-import type { ItemHouseDetailType } from '@/shared/api/generated/schemas/itemHouseDetailType';
 import type { ItemRegionCode } from '@/shared/api/generated/schemas/itemRegionCode';
 import type { ItemStatus } from '@/shared/api/generated/schemas/itemStatus';
 import type { Subscription, SubscriptionStatus, SubscriptionType } from '@/shared/types/api';
@@ -86,7 +85,7 @@ export function mapApiStatusToDomain(apiStatus: ItemStatus): SubscriptionStatus 
 }
 
 export function mapApiDetailTypeToDomain(
-  apiType: ItemHouseDetailType | undefined,
+  apiType: 'PRIVATE' | 'NATIONAL' | null | undefined,
 ): SubscriptionType {
   if (!apiType) return 'private';
   return DETAIL_TYPE_MAP[apiType];
@@ -125,7 +124,7 @@ export function mapItemToSubscription(item: Item): Subscription {
   };
 }
 
-function formatSizeRange(
+export function formatSizeRange(
   min: number | null | undefined,
   max: number | null | undefined,
 ): string {
@@ -136,7 +135,7 @@ function formatSizeRange(
   return formatArea(min ?? max ?? 0);
 }
 
-function formatArea(value: number): string {
+export function formatArea(value: number): string {
   const rounded = Number.isInteger(value) ? value : Number(value.toFixed(1));
   return `${rounded}㎡`;
 }

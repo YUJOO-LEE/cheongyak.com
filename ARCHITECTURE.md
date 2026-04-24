@@ -78,7 +78,7 @@ src/
 |---|---|---|
 | **Home Dashboard** | SSR + ISR (60s) | Shows latest listings and news; must be fresh but cacheable |
 | **Listings** | Server shell + CSR fetch | Route file is a non-awaiting Server Component so `<Link>` can prefetch the shell; TanStack Query owns the data fetch (`aptSalesQueryOptions`, staleTime 60s) with `keepPreviousData` for flicker-free filter/page changes. Initial HTML carries no list data — Googlebot executes JS on hydration; the list page has no structured data, so no SEO regression. |
-| **Listing Detail** | SSG + ISR (300s) | Individual listing content changes infrequently; pre-render known IDs, ISR for long tail |
+| **Listing Detail** | ISR (revalidate 300s) | Server Component awaits `fetchAptSalesDetailSSR(id)` (which wraps `/apt-sales/{id}` with `next.revalidate=300`). No `generateStaticParams` — numeric PKs make pre-rendering every listing impractical, and ISR + 300s revalidation keeps hot pages warm without a build-time blow-up. 404s from the backend flow through `ApiClientError` → `notFound()`. |
 | **News Feed** | SSR + ISR (120s) | Frequently updated feed; ISR balances freshness with performance |
 | **News Article** | SSG + ISR (600s) | Published articles are near-static; ISR handles edits |
 

@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
-import { subscriptions, subscriptionDetail } from './fixtures/subscriptions';
+import { subscriptions } from './fixtures/subscriptions';
 import { aptSalesItems } from './fixtures/apt-sales';
+import { aptSalesDetailFixtures } from './fixtures/apt-sales-detail';
 import type { Item } from '@/shared/api/generated/schemas/item';
 import type { ItemHouseDetailType } from '@/shared/api/generated/schemas/itemHouseDetailType';
 import type { ItemRegionCode } from '@/shared/api/generated/schemas/itemRegionCode';
@@ -156,43 +157,28 @@ export const handlers = [
     });
   }),
 
-  // Subscription list (paginated)
-  http.get(`${API_BASE}/subscriptions`, ({ request }) => {
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') || '1');
-    const perPage = 20;
-    const status = url.searchParams.get('status');
-    const region = url.searchParams.get('region');
+  // ─── /apt-sales/:id — detail binding.
+  // Response envelope matches `MainApiResponseAptSalesDetailResponse`:
+  //   { data: AptSalesDetailResponse }
+  // 404 on unknown id, shape matches `ApiError` so `apiClientMutator`
+  // parses it cleanly into `ApiClientError(status: 404)`.
+  http.get(`${API_BASE}/apt-sales/:id`, ({ params }) => {
+    const numericId = Number(params.id);
+    const fixture = Number.isFinite(numericId)
+      ? aptSalesDetailFixtures[numericId]
+      : undefined;
 
-    let filtered = [...subscriptions];
-    if (status) filtered = filtered.filter((s) => s.status === status);
-    if (region) filtered = filtered.filter((s) => s.location.sido === region);
-
-    const total = filtered.length;
-    const items = filtered.slice((page - 1) * perPage, page * perPage);
-
-    return HttpResponse.json({
-      items,
-      total,
-      page,
-      totalPages: Math.ceil(total / perPage),
-    });
-  }),
-
-  // Subscription detail
-  http.get(`${API_BASE}/subscriptions/:id`, ({ params }) => {
-    const { id } = params;
-    if (id === subscriptionDetail.id) {
-      return HttpResponse.json(subscriptionDetail);
-    }
-    const sub = subscriptions.find((s) => s.id === id);
-    if (!sub) {
+    if (!fixture) {
       return HttpResponse.json(
-        { status: 404, code: 'LISTING_NOT_FOUND', message: '해당 청약 정보를 찾을 수 없습니다.' },
+        {
+          status: 404,
+          code: 'LISTING_NOT_FOUND',
+          message: '해당 청약 정보를 찾을 수 없습니다.',
+        },
         { status: 404 },
       );
     }
-    return HttpResponse.json({ ...subscriptionDetail, ...sub });
+    return HttpResponse.json({ data: fixture });
   }),
 
   // Search
