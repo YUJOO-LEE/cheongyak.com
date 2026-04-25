@@ -6,11 +6,16 @@ import {
 } from '@/shared/lib/api-guard';
 
 /**
+ * Next 16 renamed the `middleware.ts` file convention to `proxy.ts`
+ * with a matching `proxy()` export — same execution model, less
+ * confusion vs. the unrelated `next/middleware` API surface. We
+ * picked up the rename when the build flagged the deprecation.
+ *
  * `/api/backend/*` is a public proxy to the upstream listings backend
  * (`next.config.ts` rewrites it server-side). Without a guard, anyone
  * can hit it directly with `curl` or a scraper, drive up our function
  * invocations + data-transfer bill, and re-publish our shaped output
- * under their own brand. This middleware adds two cheap, no-extra-cost
+ * under their own brand. This file adds two cheap, no-extra-cost
  * defenses:
  *
  *   1. Origin / Referer allowlist — blocks naïve cross-origin browser
@@ -25,8 +30,8 @@ import {
  * with the real client IP, so reading it here is safe.
  *
  * Server-side fetches (RSC, sitemap, ISR revalidation) call the backend
- * directly via `API_BACKEND_URL` and never traverse this middleware,
- * so SSR data flow is unaffected.
+ * directly via `API_BACKEND_URL` and never traverse this proxy, so
+ * SSR data flow is unaffected.
  */
 
 const limiter = new RateLimiter({ windowMs: 60_000, limit: 60 });
@@ -39,7 +44,7 @@ function getClientIp(req: NextRequest): string {
   return 'unknown';
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const origin = req.headers.get('origin');
   const referer = req.headers.get('referer');
 
