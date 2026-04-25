@@ -83,6 +83,7 @@ src/
 | **청약 상세** | ISR (revalidate 300s) | 서버 컴포넌트가 `fetchAptSalesDetailSSR(id)` (`/apt-sales/{id}` + `next.revalidate=300`) 를 await. 숫자 PK 라 `generateStaticParams` 를 제거하고 on-demand ISR 만 사용 — 빌드 시 전량 사전 렌더는 비현실적이고, 300s revalidate 로 핫 페이지만 warm 유지. 404 는 `ApiClientError` → `notFound()` 로 처리. |
 | **뉴스 피드** | SSR + ISR (120s) | 자주 업데이트되는 피드; ISR로 신선도와 성능의 균형 |
 | **뉴스 기사** | SSG + ISR (600s) | 게시된 기사는 거의 정적; ISR로 수정사항 반영 |
+| **소개** | SSG (정적) | `/about`은 서비스 정체성을 소개하는 페이지 — 내용 변경이 드물고 코드에 커밋되므로 빌드 타임 사전 렌더로 충분 |
 
 **통합 검색:** 별도 라우트 없이 오버레이 컴포넌트로 구현. 네비게이션 아이콘 또는 `⌘K`로 실행. 오버레이 내부는 CSR.
 

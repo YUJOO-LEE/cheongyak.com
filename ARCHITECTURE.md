@@ -81,6 +81,7 @@ src/
 | **Listing Detail** | ISR (revalidate 300s) | Server Component awaits `fetchAptSalesDetailSSR(id)` (which wraps `/apt-sales/{id}` with `next.revalidate=300`). No `generateStaticParams` — numeric PKs make pre-rendering every listing impractical, and ISR + 300s revalidation keeps hot pages warm without a build-time blow-up. 404s from the backend flow through `ApiClientError` → `notFound()`. |
 | **News Feed** | SSR + ISR (120s) | Frequently updated feed; ISR balances freshness with performance |
 | **News Article** | SSG + ISR (600s) | Published articles are near-static; ISR handles edits |
+| **About** | SSG (static) | `/about` is a marketing/identity page — content changes are rare and committed in code, so build-time prerender is enough |
 
 **Global Search:** Overlay component (no dedicated route) triggered by navigation icon or `⌘K`. CSR within the overlay.
 
