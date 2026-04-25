@@ -342,7 +342,7 @@ interface ApiError {
 ### SEO (classical search)
 - Every route uses `buildPageMetadata()` from `src/shared/lib/seo.ts` — enforces canonical, OG, Twitter, and Korean-language meta descriptions consistently
 - Root layout sets `metadataBase`, default OG, and injects `OrganizationJsonLd` site-wide
-- JSON-LD: `Organization` + `WebSite` site-wide, `RealEstateListing` + `BreadcrumbList` on listing detail (SearchAction is held back until `/listings` binds a `q` parameter — declaring it without a working endpoint disables Google Sitelinks Search Box)
+- JSON-LD: `Organization` + `WebSite` site-wide, `ItemList` of `RealEstateListing` on `/listings` (`ListingsItemListJsonLd`), `RealEstateListing` + `BreadcrumbList` on listing detail (SearchAction is held back until `/listings` binds a `q` parameter — declaring it without a working endpoint disables Google Sitelinks Search Box)
 - Dynamic OG images via `/og` edge route (`next/og` `ImageResponse`) — pass `?title=` and `?subtitle=` to customize
 - Dynamic `sitemap.ts` with all public URLs (static + subscription detail); `/trades` included even during coming-soon phase
 - `robots.ts` allows all paths (fully public site)

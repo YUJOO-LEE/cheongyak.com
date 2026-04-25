@@ -94,6 +94,55 @@ export function SubscriptionJsonLd({
   );
 }
 
+/**
+ * `ItemList` of `RealEstateListing` entries for `/listings`.
+ *
+ * Embedding the visible card data as schema.org markup gives both
+ * classical search and AI-overview crawlers structured access to the
+ * page's main content — they no longer have to scrape the DOM. Tied to
+ * the SSR cutover: the markup ships in the initial HTML so it's
+ * crawler-discoverable without JS execution.
+ */
+export function ListingsItemListJsonLd({
+  items,
+}: {
+  items: Array<{
+    name: string;
+    location: string;
+    builder: string;
+    url: string;
+    datePosted: string;
+  }>;
+}) {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: items.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'RealEstateListing',
+            name: item.name,
+            url: item.url,
+            datePosted: item.datePosted,
+            description: `${item.name} — ${item.location} ${item.builder} 아파트 청약 정보`,
+            provider: {
+              '@type': 'Organization',
+              name: item.builder,
+            },
+            contentLocation: {
+              '@type': 'Place',
+              name: item.location,
+            },
+          },
+        })),
+      }}
+    />
+  );
+}
+
 export function NewsArticleJsonLd({
   title,
   description,

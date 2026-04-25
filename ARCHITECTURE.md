@@ -193,7 +193,7 @@ interface ApiError {
 |---|---|---|
 | Site-wide | `Organization` | Name, URL, logo, description (injected in root layout) |
 | Home | `WebSite` | Site name + inLanguage. SearchAction is deferred until `/listings` binds `?q=` |
-| Listings | `RealEstateListing` (per item, future) | Name, location, price range, datePosted |
+| Listings | `ItemList` of `RealEstateListing` (`ListingsItemListJsonLd`) | One entry per visible card — name, url, datePosted, builder, contentLocation. SSR-rendered into the initial HTML so crawlers don't need JS to read the page's main content. |
 | Listing detail | `RealEstateListing` + `BreadcrumbList` | Full property details, navigation path |
 | Trades | `Dataset` + `Place` (planned when data lands) | Aggregate trade statistics by region |
 
