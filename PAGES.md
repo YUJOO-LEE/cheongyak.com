@@ -506,7 +506,7 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 | Route | Page | SSR | Auth |
 |---|---|---|---|
 | `/` | Home Dashboard | Yes (ISR) | Public |
-| `/listings` | Listings | Shell only (CSR fetch) | Public |
+| `/listings` | Listings | Yes (SSR + ISR 60s) | Public |
 | `/listings/[id]` | Listing Detail | Yes (SSG + ISR) | Public |
 | `/news` | News Feed | Yes (ISR) | Public |
 | `/news/[id]` | News Article Detail | Yes (SSG + ISR) | Public |

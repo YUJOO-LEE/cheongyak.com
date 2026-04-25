@@ -77,7 +77,7 @@ src/
 | Page | Strategy | Rationale |
 |---|---|---|
 | **Home Dashboard** | SSR + ISR (60s) | Shows latest listings and news; must be fresh but cacheable |
-| **Listings** | Server shell + CSR fetch | Route file is a non-awaiting Server Component so `<Link>` can prefetch the shell; TanStack Query owns the data fetch (`aptSalesQueryOptions`, staleTime 60s) with `keepPreviousData` for flicker-free filter/page changes. Initial HTML carries no list data — Googlebot executes JS on hydration; the list page has no structured data, so no SEO regression. |
+| **Listings** | SSR + ISR (60s) | `async` Server Component awaits `fetchAptSalesListSSR(request)` and passes the mapped result set to `SubscriptionListClient` as props. ISR keys cache by URL — the popular default (page=1, no filters) and any repeated filter combo land on a hot cache; cold combinations pay one fresh backend hit. Initial HTML carries the full card grid for SEO/GEO crawlers. Filter / page interactions write to the URL via nuqs with `shallow: false, scroll: true`, re-running the Server Component and scrolling the user to the top of the new result list. |
 | **Listing Detail** | ISR (revalidate 300s) | Server Component awaits `fetchAptSalesDetailSSR(id)` (which wraps `/apt-sales/{id}` with `next.revalidate=300`). No `generateStaticParams` — numeric PKs make pre-rendering every listing impractical, and ISR + 300s revalidation keeps hot pages warm without a build-time blow-up. 404s from the backend flow through `ApiClientError` → `notFound()`. |
 | **News Feed** | SSR + ISR (120s) | Frequently updated feed; ISR balances freshness with performance |
 | **News Article** | SSG + ISR (600s) | Published articles are near-static; ISR handles edits |
@@ -102,7 +102,7 @@ All pages use React Server Components by default. Client Components (`"use clien
 
 **Principle:** Prefer server-side data fetching in Server Components. Use TanStack Query only for client-interactive patterns (filter updates, polling). Keep Zustand stores small and feature-scoped. Three stores maximum.
 
-**nuqs integration:** `NuqsAdapter` is mounted in `src/app/layout.tsx` around `QueryProvider`. `/listings` filters (`status`, `type`, `page`) are bound to URL query params via `useQueryState`, so navigation, reload, and link-sharing preserve the filtered view. Changing any filter resets `page` to 1 via a single centralized effect — change handlers do not touch pagination directly.
+**nuqs integration:** `NuqsAdapter` is mounted in `src/app/layout.tsx` around `QueryProvider`. `/listings` filters (`status`, `type`, `region`, `page`) are bound to URL query params via `useQueryStates`, so navigation, reload, and link-sharing preserve the filtered view. The hook is configured with `shallow: false` (any change re-runs the Server Component for a fresh result set) and `scroll: true` (filter / page changes scroll to the top of the new list). All four params share one atomic setter — every filter change writes the new value plus `page: 1` in a single URL push, preventing a double render.
 
 **FilterBar slot API:** `FilterBar` in `src/features/listings/components/filter-bar/` is a shell with three props (`activeCount`, `onReset`, `children`) plus two compound slots (`FilterBar.DesktopBar`, `FilterBar.Sheet`). Each slot accepts any `FilterField.*` composition — `Inline` (desktop chip row), `Stacked` (sheet vertical group), and `Range` (Phase 6 slider). Adding a new filter means adding a `FilterField` instance inside each slot; the shell itself does not change. This keeps the shell under the 5-prop cap from §6 Component Conventions even as the filter surface grows.
 
@@ -155,10 +155,10 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 3. Generated fetch functions route through `apiClientMutator` in `src/shared/lib/api-client.ts`, centralizing base URL, headers, and `ApiClientError` normalization.
 4. CI runs `pnpm codegen:check` — fails if the spec changed but the generated files weren't re-committed.
 
-### Client Data Flow (e.g. `/listings` → `/apt-sales`)
-1. The route file (`src/app/listings/page.tsx`) is a bare Server Component — no `async`, no prefetch, no `HydrationBoundary`. This keeps the RSC payload instant so `<Link>` prefetching works and `loading.tsx` doesn't hold the user through a backend round-trip.
-2. `SubscriptionListClient` reads the active filters from the URL via nuqs, builds an `AptSalesListRequest` with `toAptSalesRequest`, and calls `useQuery({ ...aptSalesQueryOptions(request), placeholderData: keepPreviousData })`. The hook's internal `SubscriptionListSkeleton` covers the first-paint fetch; `keepPreviousData` keeps old results visible on filter/page changes so the skeleton never flashes.
-3. The query has `staleTime: 60_000`, so same-session repeat visits (e.g. 홈 → `/listings` → back → `/listings`) paint instantly from the TanStack cache.
+### SSR Data Flow (e.g. `/listings` → `/apt-sales`)
+1. The route file (`src/app/listings/page.tsx`) is an `async` Server Component with `export const revalidate = 60`. It awaits `searchParams`, parses them with `parseListingsSearchParams` from `src/features/listings/lib/listings-search-params.ts`, and calls `fetchAptSalesListSSR(request)` which forwards `next: { revalidate: 60 }` to the underlying fetch — Next ISR keys the cache by URL, so popular entries (page=1 with no filters) stay hot while rare filter combinations pay one fresh backend hit.
+2. The Server Component maps `Item[]` → `Subscription[]` with `mapItemToSubscription`, computes `totalPages`, and passes them as props into `SubscriptionListClient`. The route's `loading.tsx` covers the user-visible wait on cache miss; on cache hit Next streams the cached HTML with no loader frame.
+3. `SubscriptionListClient` is a `'use client'` shell: it owns nothing but the URL-bound filter state (via `useQueryStates(filtersSchema, { shallow: false, scroll: true })`) and the mobile-sheet draft buffer. `shallow: false` makes any filter / page change re-run the Server Component (so the result reflects the new URL), and `scroll: true` brings the user to the top of the new result list — required UX since filter / page changes represent a fresh result set.
 4. Feature-local wrappers (`src/features/listings/lib/apt-sales-query.ts`) exist because orval's generated param shape is `{ request: AptSalesListRequest }`; the wrapper owns URL serialization (flat `status[]`, `regionCode[]`) so the generated types stay the source of truth without fighting the serializer.
 
 ### Error Handling Pattern
@@ -221,7 +221,7 @@ interface ApiError {
 |---|---|---|
 | **LCP** | < 2.5s | Server-render above-fold content; preload hero images; avoid client-side data fetching for initial view |
 | **INP** | < 200ms | Minimize main-thread work; use `startTransition` for non-urgent updates; debounce filter inputs |
-| **CLS** | < 0.1 | Explicit `width`/`height` on all images; skeleton placeholders match final layout (sibling `*.skeleton.tsx` + route `loading.tsx`, pinned by `loading.test.tsx` RTL gate on every PR and by the main-only Playwright parity gate `e2e/skeleton-parity.spec.ts` — `/listings` uses per-card parity via `page.route` and `/` uses `src/instrumentation.ts` to fixture + delay `/main/*` server fetches for Hero + TopTrades — wired into CI via `.github/workflows/skeleton-parity.yml` which runs on `push` to `main` + `workflow_dispatch` and needs an `API_BACKEND_URL` repo secret for the /listings arm — see `docs/skeleton-parity-test-plan.md`); no layout-shifting font swap |
+| **CLS** | < 0.1 | Explicit `width`/`height` on all images; skeleton placeholders match final layout (sibling `*.skeleton.tsx` + route `loading.tsx`, pinned by `loading.test.tsx` RTL gate on every PR and by the main-only Playwright parity gate `e2e/skeleton-parity.spec.ts` — both `/listings` (per-card parity) and `/` (Hero + TopTrades) use `src/instrumentation.ts` to fixture + delay server fetches (`/apt-sales` for listings, `/main/*` for home) so the route's `loading.tsx` stays visible long enough to measure — wired into CI via `.github/workflows/skeleton-parity.yml` which runs on `push` to `main` + `workflow_dispatch`, needing an `API_BACKEND_URL` repo secret for the build — see `docs/skeleton-parity-test-plan.md`); no layout-shifting font swap |
 
 ### Bundle Budget
 | Budget | Target |

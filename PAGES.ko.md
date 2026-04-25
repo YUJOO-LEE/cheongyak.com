@@ -493,7 +493,7 @@
 | 라우트 | 페이지 | SSR | 인증 |
 |---|---|---|---|
 | `/` | 홈 대시보드 | Yes (ISR) | 공개 |
-| `/listings` | 청약 목록 | 셸만 (CSR fetch) | 공개 |
+| `/listings` | 청약 목록 | Yes (SSR + ISR 60s) | 공개 |
 | `/listings/[id]` | 청약 상세 | Yes (SSG + ISR) | 공개 |
 | `/news` | 뉴스 피드 | Yes (ISR) | 공개 |
 | `/news/[id]` | 뉴스 기사 상세 | Yes (SSG + ISR) | 공개 |

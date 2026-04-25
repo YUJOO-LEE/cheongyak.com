@@ -4,7 +4,11 @@ import { SubscriptionCardSkeleton } from '@/features/listings/components/subscri
 
 export default function SubscriptionsLoading() {
   return (
-    <div className="mx-auto max-w-300 pt-3 pb-6 lg:py-10" aria-hidden="true">
+    <div
+      className="mx-auto max-w-300 pt-3 pb-6 lg:py-10"
+      aria-hidden="true"
+      data-testid="listings-loading"
+    >
       <div className="lg:px-8">
         <FilterBarSkeleton />
         <div className="px-4 lg:px-0">

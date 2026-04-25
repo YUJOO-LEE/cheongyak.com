@@ -59,9 +59,26 @@ export async function fetchAptSalesList(
 }
 
 /**
- * Cache key is the normalized request object. The server-side prefetch
- * and the client-side `useSuspenseQuery` read from the same key as
- * long as they both start from `parseListingsSearchParams`.
+ * Server-side entry point with Next ISR defaults.
+ * 60s mirrors `ARCHITECTURE.md` §3 rendering table for `/listings` —
+ * the URL+filter combo is the cache key, so cold filter combinations
+ * pay a fresh backend hit, but the popular default (page=1, no
+ * filters) and any repeated combo lands on a hot cache.
+ */
+export function fetchAptSalesListSSR(request: AptSalesListRequest) {
+  // Next augments RequestInit with `next` at runtime but the lib type
+  // doesn't include it on the cross-type we accept here, so cast at
+  // the call site (mirrors `src/app/sitemap.ts`).
+  return fetchAptSalesList(request, {
+    next: { revalidate: 60 },
+  } as RequestInit);
+}
+
+/**
+ * Client-side query options. Kept for any future client-driven refresh
+ * (e.g. background revalidation). The route currently fetches in the
+ * Server Component so this is unused on `/listings` — keep it lean and
+ * remove if no callers materialize.
  */
 export function aptSalesQueryOptions(request: AptSalesListRequest) {
   return queryOptions({

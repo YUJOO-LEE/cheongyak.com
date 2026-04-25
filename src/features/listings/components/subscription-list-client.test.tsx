@@ -1,89 +1,22 @@
 /**
  * Regression tests for SubscriptionListClient.
  *
- * After the Phase 7 API binding, the component fetches from
- * `/apt-sales` via a Suspense query instead of receiving a prop.
- * These tests spin up MSW, let the query resolve, and assert on the
- * rendered DOM. The reference math suites (filter / pagination) stay
- * as lightweight unit checks against the same mental model.
+ * After the Phase 2.0 SSR cutover the component receives its result set
+ * as props from the Server Component (`src/app/listings/page.tsx`) and
+ * owns only the URL-bound filter state. These tests render the
+ * component with stub data and assert on the resulting DOM.
  */
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-} from 'vitest';
-import { cleanup, screen, waitFor } from '@testing-library/react';
-import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
+import { afterEach, describe, expect, it } from 'vitest';
+import { cleanup, screen } from '@testing-library/react';
 import { SubscriptionListClient } from './subscription-list-client';
 import { renderWithNuqs as render } from '@/test/render';
-import { handlers } from '@/mocks/handlers';
-import type { Item } from '@/shared/api/generated/schemas/item';
 import type { Subscription } from '@/shared/types/api';
 
-const server = setupServer(...handlers);
-
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
-  server.resetHandlers();
   cleanup();
 });
-afterAll(() => server.close());
 
-// Mirrors the browser-side base in `src/shared/lib/api-client.ts`. happy-dom
-// resolves relative URLs against its own origin, but MSW matches on pathname
-// so any origin works here.
-const API_BASE = 'http://localhost:3000/api/backend';
 const ITEMS_PER_PAGE = 20;
-
-function makeItem(
-  id: number,
-  status: Item['status'],
-  detailType: Item['houseDetailType'] = 'PRIVATE',
-  overrides: Partial<Item> = {},
-): Item {
-  return {
-    id,
-    houseName: `청약 ${id}`,
-    status,
-    houseDetailType: detailType,
-    regionCode: 'SEOUL',
-    regionName: '서울특별시',
-    sigunguName: '강남구',
-    dongName: '역삼동',
-    constructorName: '테스트건설',
-    subscriptionStartDate: '2026-04-10',
-    subscriptionEndDate: '2026-04-12',
-    totalSupplyHousehold: 100,
-    minSupplyArea: 59,
-    maxSupplyArea: 59,
-    ...overrides,
-  };
-}
-
-function mockAptSales(items: Item[]) {
-  server.use(
-    http.get(`${API_BASE}/apt-sales`, () => {
-      return HttpResponse.json({
-        data: {
-          totalCount: items.length,
-          page: 0,
-          size: ITEMS_PER_PAGE,
-          items,
-        },
-      });
-    }),
-  );
-}
-
-/* ─────────────────────────────────────────────────────────── */
-/* Reference filter/pagination logic (mirrors component body). */
-/* These are pure math checks on the same mental model the     */
-/* component uses — no rendering.                              */
-/* ─────────────────────────────────────────────────────────── */
 
 function makeSub(
   id: string,
@@ -103,6 +36,12 @@ function makeSub(
     sizeRange: '59㎡',
   };
 }
+
+/* ─────────────────────────────────────────────────────────── */
+/* Reference filter/pagination logic (mirrors component body). */
+/* These are pure math checks on the same mental model the     */
+/* component uses — no rendering.                              */
+/* ─────────────────────────────────────────────────────────── */
 
 function applyFilter(
   subs: Subscription[],
@@ -162,47 +101,60 @@ describe('SubscriptionListClient · pagination math (reference)', () => {
 });
 
 /* ─────────────────────────────────────────────────────────── */
-/* API-bound rendering — populated, empty, and listings page   */
+/* Props-bound rendering — populated, empty, and listings page */
 /* should never ship a keyword input (spec §4.1).              */
 /* ─────────────────────────────────────────────────────────── */
 
-describe('SubscriptionListClient · API-bound rendering', () => {
-  it('renders the "총 N건" count and one card per item returned by /apt-sales', async () => {
-    mockAptSales([
-      makeItem(1, 'SUBSCRIPTION_ACTIVE'),
-      makeItem(2, 'SUBSCRIPTION_COMPLETED'),
-      makeItem(3, 'SUBSCRIPTION_SCHEDULED'),
-    ]);
+describe('SubscriptionListClient · props-bound rendering', () => {
+  it('renders the "총 N건" count and one card per subscription prop', () => {
+    const subs: Subscription[] = [
+      makeSub('1', 'accepting'),
+      makeSub('2', 'closed'),
+      makeSub('3', 'upcoming'),
+    ];
 
-    render(<SubscriptionListClient />);
+    render(
+      <SubscriptionListClient
+        subscriptions={subs}
+        totalCount={subs.length}
+        totalPages={1}
+        currentPage={1}
+      />,
+    );
 
-    await waitFor(() => {
-      expect(screen.getByText('총 3건')).toBeInTheDocument();
-    });
+    expect(screen.getByText('총 3건')).toBeInTheDocument();
     expect(screen.getAllByRole('article')).toHaveLength(3);
   });
 
-  it('renders the empty-state CTA when /apt-sales returns an empty list', async () => {
-    mockAptSales([]);
+  it('renders the empty-state CTA when an empty list is supplied', () => {
+    render(
+      <SubscriptionListClient
+        subscriptions={[]}
+        totalCount={0}
+        totalPages={1}
+        currentPage={1}
+      />,
+    );
 
-    render(<SubscriptionListClient />);
-
-    await waitFor(() => {
-      expect(
-        screen.getByText('조건에 맞는 청약 정보가 없습니다.'),
-      ).toBeInTheDocument();
-    });
-    expect(screen.getByRole('button', { name: '필터 초기화' })).toBeInTheDocument();
+    expect(
+      screen.getByText('조건에 맞는 청약 정보가 없습니다.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '필터 초기화' }),
+    ).toBeInTheDocument();
   });
 
-  it('does not render a listings-scoped keyword input (global SearchOverlay owns search)', async () => {
-    mockAptSales([makeItem(1, 'SUBSCRIPTION_ACTIVE')]);
+  it('does not render a listings-scoped keyword input (global SearchOverlay owns search)', () => {
+    const { container } = render(
+      <SubscriptionListClient
+        subscriptions={[makeSub('1', 'accepting')]}
+        totalCount={1}
+        totalPages={1}
+        currentPage={1}
+      />,
+    );
 
-    const { container } = render(<SubscriptionListClient />);
-
-    await waitFor(() => {
-      expect(screen.getByText('총 1건')).toBeInTheDocument();
-    });
+    expect(screen.getByText('총 1건')).toBeInTheDocument();
     expect(container.querySelector('input[type="search"]')).toBeNull();
     expect(screen.queryByPlaceholderText('단지명 검색')).toBeNull();
   });
