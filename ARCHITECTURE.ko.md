@@ -195,7 +195,7 @@ interface ApiError {
 |---|---|---|
 | 전역 | `Organization` | 이름, URL, 로고, 설명 (root layout에 주입) |
 | 홈 | `WebSite` | 사이트 이름 + inLanguage. SearchAction은 `/listings`가 `?q=` 바인딩 후 재도입 |
-| 목록 | `RealEstateListing` (항목별, 추후) | 이름, 위치, 가격 범위, datePosted |
+| 목록 | `ItemList` of `RealEstateListing` (`ListingsItemListJsonLd`) | 카드별 한 항목씩 — 이름, url, datePosted, builder, contentLocation. 초기 SSR HTML 에 임베드돼 크롤러가 JS 없이도 본문 콘텐츠를 읽을 수 있음. |
 | 청약 상세 | `RealEstateListing` + `BreadcrumbList` | 전체 매물 정보, 탐색 경로 |
 | 실거래가 | `Dataset` + `Place` (데이터 연동 시 계획) | 지역별 거래 통계 |
 

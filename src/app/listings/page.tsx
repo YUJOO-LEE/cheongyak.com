@@ -6,7 +6,8 @@ import {
   toAptSalesRequest,
 } from '@/features/listings/lib/listings-search-params';
 import { mapItemToSubscription } from '@/features/listings/lib/map-apt-sales';
-import { buildPageMetadata } from '@/shared/lib/seo';
+import { ListingsItemListJsonLd } from '@/shared/components/json-ld';
+import { SITE_URL, buildPageMetadata } from '@/shared/lib/seo';
 
 export const revalidate = 60;
 
@@ -55,6 +56,15 @@ export default async function SubscriptionsPage({ searchParams }: PageProps) {
   return (
     <div className="mx-auto max-w-300 pt-3 pb-6 lg:py-10">
       <h1 className="sr-only">청약 목록</h1>
+      <ListingsItemListJsonLd
+        items={subscriptions.map((sub) => ({
+          name: sub.name,
+          location: `${sub.location.sido} ${sub.location.gugun}`,
+          builder: sub.builder,
+          url: `${SITE_URL}/listings/${sub.id}`,
+          datePosted: sub.applicationStart,
+        }))}
+      />
       <div className="lg:px-8">
         <SubscriptionListClient
           subscriptions={subscriptions}

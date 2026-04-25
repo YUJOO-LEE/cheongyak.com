@@ -539,5 +539,5 @@
 - 청약 상세: `{아파트명} 청약 일정 및 정보 | 청약닷컴`
 - Coming-soon 상태의 `/trades`: `실거래가 | 청약닷컴` (브랜드 쿼리 포착을 위해 색인 유지)
 - 모든 페이지에 Open Graph 및 Twitter Card 메타 태그 적용. 기본 OG 이미지는 `/og` edge 라우트가 렌더링하고, 페이지별로 `?title=`/`?subtitle=` 쿼리로 override
-- 구조화 데이터 (JSON-LD): 전역 `Organization` + `WebSite`, 상세 페이지에 `RealEstateListing` + `BreadcrumbList` (SearchAction은 listings가 `?q=` 바인딩 후 재도입)
+- 구조화 데이터 (JSON-LD): 전역 `Organization` + `WebSite`, `/listings` 에 `ItemList` of `RealEstateListing` (`ListingsItemListJsonLd`), 상세 페이지에 `RealEstateListing` + `BreadcrumbList` (SearchAction은 listings가 `?q=` 바인딩 후 재도입)
 - GEO: `public/llms.txt`가 AI 검색 엔진을 위한 인용 친화 요약을 제공

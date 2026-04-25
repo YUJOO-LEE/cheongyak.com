@@ -552,5 +552,5 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 - Subscription detail: `{아파트명} 청약 일정 및 정보 | 청약닷컴`
 - Coming-soon `/trades`: `실거래가 | 청약닷컴` (remains indexable to capture brand queries)
 - Open Graph and Twitter Card meta tags on all pages; default OG image rendered by `/og` edge route and overridable per page via `?title=`/`?subtitle=`
-- Structured data (JSON-LD): site-wide `Organization` + `WebSite`; per-listing `RealEstateListing` + `BreadcrumbList` on detail pages. (SearchAction is held back until listings binds `?q=`.)
+- Structured data (JSON-LD): site-wide `Organization` + `WebSite`; `/listings` ships an `ItemList` of `RealEstateListing` (`ListingsItemListJsonLd`); detail pages add `RealEstateListing` + `BreadcrumbList`. (SearchAction is held back until listings binds `?q=`.)
 - GEO: `public/llms.txt` provides a citation-friendly summary for AI search engines

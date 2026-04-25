@@ -336,7 +336,7 @@ interface ApiError {
 ### SEO (전통 검색)
 - 모든 라우트는 `src/shared/lib/seo.ts`의 `buildPageMetadata()`를 사용 — canonical, OG, Twitter, 한국어 meta description을 일관되게 적용
 - Root layout에서 `metadataBase`·기본 OG 설정, `OrganizationJsonLd`를 전역 주입
-- JSON-LD: 전역 `Organization` + `WebSite`, 상세 페이지는 `RealEstateListing` + `BreadcrumbList` (SearchAction은 `/listings`가 `q` 파라미터를 실제로 바인딩하기 전까지 의도적으로 제외 — 미작동 URL 선언 시 Google Sitelinks Search Box가 비활성화됨)
+- JSON-LD: 전역 `Organization` + `WebSite`, `/listings` 는 `ItemList` of `RealEstateListing` (`ListingsItemListJsonLd`), 상세 페이지는 `RealEstateListing` + `BreadcrumbList` (SearchAction은 `/listings`가 `q` 파라미터를 실제로 바인딩하기 전까지 의도적으로 제외 — 미작동 URL 선언 시 Google Sitelinks Search Box가 비활성화됨)
 - `/og` edge 라우트(`next/og` `ImageResponse`)로 OG 이미지 동적 생성 — `?title=`·`?subtitle=` 쿼리로 커스터마이즈
 - 동적 `sitemap.ts`에서 모든 공개 URL 포함 (static + 청약 상세). `/trades`는 coming-soon 단계에서도 포함
 - `robots.ts`에서 모든 경로 허용 (완전 공개 사이트)
