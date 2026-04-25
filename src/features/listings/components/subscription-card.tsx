@@ -17,7 +17,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
           <TypeChip type={subscription.type} />
         </div>
 
-        <h3 className="text-headline-sm text-text-primary mb-2 line-clamp-1">
+        <h3 className="text-headline-sm text-text-primary mb-2 line-clamp-2">
           {subscription.name}
         </h3>
 
