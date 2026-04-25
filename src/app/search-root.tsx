@@ -1,5 +1,13 @@
 'use client';
 
+/**
+ * @deprecated Beta-launch deferral.
+ * NOT mounted in app/layout.tsx — see TODO(beta-deferred) markers there
+ * and in src/shared/components/navigation/navigation.tsx for the full set
+ * of restoration points. Re-mount this component once the backend search
+ * endpoint ships. Tracking: docs/beta-launch-deferred-features.md#search
+ */
+
 import { useCallback, useState } from 'react';
 import { Navigation } from '@/shared/components/navigation';
 import { SearchOverlay } from '@/features/search/components/search-overlay';
@@ -16,7 +24,9 @@ import { useKeyboardShortcut } from '@/shared/hooks/use-keyboard-shortcut';
 export function SearchRoot() {
   const [open, setOpen] = useState(false);
 
-  const openSearch = useCallback(() => setOpen(true), []);
+  // TODO(beta-deferred): openSearch unused while Navigation no longer accepts
+  // onSearchOpen. Restore alongside the prop in navigation.tsx.
+  // const openSearch = useCallback(() => setOpen(true), []);
   const closeSearch = useCallback(() => setOpen(false), []);
 
   useKeyboardShortcut('k', () => setOpen((prev) => !prev), {
@@ -25,7 +35,9 @@ export function SearchRoot() {
 
   return (
     <>
-      <Navigation onSearchOpen={openSearch} />
+      {/* TODO(beta-deferred): once Navigation accepts onSearchOpen again,
+          restore: <Navigation onSearchOpen={openSearch} /> */}
+      <Navigation />
       <SearchOverlay open={open} onClose={closeSearch} />
     </>
   );

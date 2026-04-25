@@ -119,7 +119,7 @@ src/
 | `/news` | News Feed | Category-tabbed article feed (정책/시장동향/분석/공지) |
 | `/news/[id]` | News Article | Full article with related listings |
 
-**Global Search:** Overlay triggered by navigation search icon or `⌘K` shortcut. Cross-content search (listings + news) with recent search history.
+**Global Search:** Overlay triggered by navigation search icon or `⌘K` shortcut. Cross-content search (listings + news) with recent search history. _Deferred for beta — see `docs/beta-launch-deferred-features.md#search`._
 
 **Full specifications:** See `PAGES.md` for detailed sections, data requirements, mobile layouts, and acceptance criteria.
 

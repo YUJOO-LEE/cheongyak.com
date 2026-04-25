@@ -3,10 +3,18 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Home, Building2, TrendingUp, Search } from 'lucide-react';
+// TODO(beta-deferred): `Search` icon import removed while search UI is hidden.
+// Restore by re-adding `Search` to this named-import list.
+// See docs/beta-launch-deferred-features.md#search
+import { Home, Building2, TrendingUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-interface NavigationProps {
+// TODO(beta-deferred): NavigationProps + onSearchOpen prop preserved for the
+// future restoration. The runtime signature no longer accepts props because
+// the search trigger UI is hidden — restore `Navigation({ onSearchOpen }: NavigationProps = {})`
+// when the search overlay is brought back.
+// See docs/beta-launch-deferred-features.md#search
+export interface NavigationProps {
   onSearchOpen?: () => void;
 }
 
@@ -22,10 +30,11 @@ const navItems: NavItem[] = [
   { href: '/trades', label: '실거래가', icon: TrendingUp },
 ];
 
-export function Navigation({ onSearchOpen }: NavigationProps = {}) {
+export function Navigation() {
   const pathname = usePathname();
 
-  const handleSearchClick = onSearchOpen ?? (() => undefined);
+  // TODO(beta-deferred): handleSearchClick removed while search UI is hidden.
+  // const handleSearchClick = onSearchOpen ?? (() => undefined);
 
   function isActive(href: string) {
     if (href === '/') return pathname === '/';
@@ -61,6 +70,9 @@ export function Navigation({ onSearchOpen }: NavigationProps = {}) {
             ))}
           </nav>
 
+          {/* TODO(beta-deferred): desktop search trigger button — restore when
+              BE search endpoint is ready.
+              See docs/beta-launch-deferred-features.md#search
           <button
             onClick={handleSearchClick}
             className="p-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-hover active:scale-95 transition-all duration-fast ease-default cursor-pointer"
@@ -68,6 +80,7 @@ export function Navigation({ onSearchOpen }: NavigationProps = {}) {
           >
             <Search size={24} />
           </button>
+          */}
         </div>
       </header>
 
@@ -141,7 +154,9 @@ export function Navigation({ onSearchOpen }: NavigationProps = {}) {
             );
           })}
 
-          {/* Search button — same capsule pattern */}
+          {/* TODO(beta-deferred): mobile search trigger button — restore when
+              BE search endpoint is ready.
+              See docs/beta-launch-deferred-features.md#search
           <button
             onClick={handleSearchClick}
             className="flex flex-col items-center justify-center gap-0.5 min-w-14 transition-colors duration-fast ease-default text-text-secondary cursor-pointer"
@@ -152,6 +167,7 @@ export function Navigation({ onSearchOpen }: NavigationProps = {}) {
             </span>
             <span className="text-caption">검색</span>
           </button>
+          */}
         </div>
       </nav>
     </>

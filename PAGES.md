@@ -22,6 +22,8 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 ### Global Search (Overlay)
 
+> **Status:** Deferred for beta. UI hidden, code preserved. Restoration tracked in `docs/beta-launch-deferred-features.md#search`.
+
 - **Trigger:** Navigation search icon click or `⌘K` (`Ctrl+K`) keyboard shortcut
 - **Scope:** Searches across listings (name, location, builder) and news (title, body)
 - **UI:** Full-screen modal overlay with backdrop, centered panel (max 640px)
@@ -509,7 +511,7 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 | `/news` | News Feed | Yes (ISR) | Public |
 | `/news/[id]` | News Article Detail | Yes (SSG + ISR) | Public |
 
-**Global Search** is an overlay component (no route) — triggered by `⌘K` or search icon.
+**Global Search** is an overlay component (no route) — triggered by `⌘K` or search icon. _UI deferred for beta — see `docs/beta-launch-deferred-features.md#search`._
 
 - **ISR:** Incremental Static Regeneration (revalidation intervals vary per route — see ARCHITECTURE.md)
 - **SSR:** Server-Side Rendering (real-time data)

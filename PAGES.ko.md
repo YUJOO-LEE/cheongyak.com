@@ -24,6 +24,8 @@
 
 ### 통합 검색 (오버레이)
 
+> **상태:** 베타 단계 비공개. UI 숨김 처리, 코드는 보존. 복원 절차는 `docs/beta-launch-deferred-features.md#search` 참고.
+
 - **실행:** 네비게이션 검색 아이콘 클릭 또는 `⌘K` (`Ctrl+K`) 단축키
 - **범위:** 청약 (이름, 위치, 시공사) 및 뉴스 (제목, 본문) 전체 검색
 - **UI:** 전체 화면 모달 오버레이 (배경 딤), 중앙 패널 (최대 640px)
@@ -496,7 +498,7 @@
 | `/news` | 뉴스 피드 | Yes (ISR) | 공개 |
 | `/news/[id]` | 뉴스 기사 상세 | Yes (SSG + ISR) | 공개 |
 
-**통합 검색**은 오버레이 컴포넌트 (라우트 없음) — `⌘K` 또는 검색 아이콘으로 실행.
+**통합 검색**은 오버레이 컴포넌트 (라우트 없음) — `⌘K` 또는 검색 아이콘으로 실행. _베타 단계 UI 숨김 — `docs/beta-launch-deferred-features.md#search` 참고._
 
 - **ISR:** Incremental Static Regeneration (라우트별 재검증 주기 상이 — ARCHITECTURE.md 참조)
 - **SSR:** Server-Side Rendering (실시간 데이터)

@@ -31,6 +31,24 @@ function parseId(raw: string): number | null {
   return Number.isFinite(n) && Number.isInteger(n) && n > 0 ? n : null;
 }
 
+function formatApplicationPeriod(startISO: string, endISO: string): string {
+  const start = new Date(startISO);
+  const end = new Date(endISO);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return '';
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const y1 = start.getFullYear();
+  const m1 = pad(start.getMonth() + 1);
+  const d1 = pad(start.getDate());
+  const y2 = end.getFullYear();
+  const m2 = pad(end.getMonth() + 1);
+  const d2 = pad(end.getDate());
+
+  if (y1 === y2 && m1 === m2) return `${y1}.${m1}.${d1}–${d2}`;
+  if (y1 === y2) return `${y1}.${m1}.${d1}–${m2}.${d2}`;
+  return `${y1}.${m1}.${d1}–${y2}.${m2}.${d2}`;
+}
+
 async function loadDetail(id: number): Promise<SubscriptionDetail | null> {
   try {
     const envelope = await fetchAptSalesDetailSSR(id);
@@ -63,15 +81,21 @@ export async function generateMetadata({
 
   const title = `${sub.name} 청약 일정 및 정보`;
   const description = `${sub.name} — ${sub.location.sido} ${sub.location.gugun} ${sub.builder} 아파트 청약 일정, 공급 내역, 분양 안내를 한눈에 정리했습니다. 최종 청약 조건은 공식 입주자모집공고를 기준으로 확인하세요.`;
+  const period = formatApplicationPeriod(sub.applicationStart, sub.applicationEnd);
+
+  const ogParams = new URLSearchParams({
+    title: sub.name,
+    subtitle: `${sub.location.sido} ${sub.location.gugun}`,
+    status: sub.status,
+    period,
+  });
 
   return buildPageMetadata({
     title,
     description,
     path: `/listings/${sub.id}`,
     ogType: 'article',
-    ogImage: `${SITE_URL}/og?title=${encodeURIComponent(sub.name)}&subtitle=${encodeURIComponent(
-      `${sub.location.sido} ${sub.location.gugun}`,
-    )}`,
+    ogImage: `${SITE_URL}/og?${ogParams.toString()}`,
     keywords: [
       sub.name,
       `${sub.name} 입주자모집공고`,
