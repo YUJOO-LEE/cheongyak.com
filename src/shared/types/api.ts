@@ -16,6 +16,7 @@
  *   the mapper absorbs the rename so domain types stay stable.
  */
 import { z } from 'zod';
+import { ApiWeeklyPhaseSchema, type ApiWeeklyPhase } from './main-api';
 
 // ============================================================
 // Status
@@ -74,6 +75,34 @@ export const SchedulePhaseSchema = z.object({
   state: z.enum(['past', 'current', 'future']),
 });
 export type SchedulePhase = z.infer<typeof SchedulePhaseSchema>;
+
+// 주간 일정 응답에 새로 추가된 단계 라벨. 백엔드가 한국어 enum을 그대로
+// 내려보내므로 도메인과 wire 레이어가 동일한 값을 공유한다 — 전송 모델
+// 정의(`main-api.ts`)에서 빌려온다.
+export const WeeklyPhaseSchema = ApiWeeklyPhaseSchema;
+export type WeeklyPhase = ApiWeeklyPhase;
+
+export const DayOfWeekSchema = z.enum([
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
+]);
+export type DayOfWeek = z.infer<typeof DayOfWeekSchema>;
+
+export interface WeeklySubscription extends Subscription {
+  phases: WeeklyPhase[];
+}
+
+export interface WeeklyScheduleDay {
+  /** yyyy-MM-dd */
+  date: string;
+  dayOfWeek: DayOfWeek;
+  items: WeeklySubscription[];
+}
 
 // 활성 규제 플래그 키 (백엔드 RegulationSection boolean 필드명과 동일)
 export const RegulationFlagSchema = z.enum([

@@ -22,8 +22,10 @@ const typeConfigs: Record<SubscriptionType, { label: string; bg: string; text: s
   },
 };
 
+// text-caption(weight 400) 만으로는 sm 칩이 너무 얇게 보여 font-semibold 로 보강.
+// StatusChip 과 동일한 보정. TODO: [DESIGN_TOKEN_NEEDED] text-label-sm.
 const sizeStyles: Record<ChipSize, string> = {
-  sm: 'px-1.5 py-0.5 text-caption',
+  sm: 'px-1.5 py-0.5 text-caption font-semibold',
   md: 'px-2 py-1 text-label-md',
 };
 

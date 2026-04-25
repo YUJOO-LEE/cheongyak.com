@@ -55,11 +55,13 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 #### 1.2 This Week's Schedule Timeline
 
-- Horizontal swipeable card carousel (mobile) / grid row (desktop)
-- Each card: Apartment name, location summary, application date range, status chip
-- Status chips use `success` for "접수중" (accepting), `warning` for "마감임박" (closing soon), `info` for "접수예정" (upcoming)
-- Cards sorted by application start date ascending
-- Empty state: "이번 주 예정된 청약이 없습니다" with link to full listing
+- Horizontal swipeable card carousel (mobile) / 5-column grid (desktop)
+- Day column labels come from the server response (`days[].date`, `days[].dayOfWeek`); the client only derives the "오늘" marker by comparing the server date with the user's current date
+- Each card: Apartment name, location summary, application date range, **phase chips**
+- Phase chips use the announcement's `status` for color/icon (`accepting` 초록 / `upcoming` 인포 / `pending` 워닝 …) but the **label is the phase string** from `phases[]` (`'특별공급' | '일반공급 1순위' | '일반공급 2순위' | '당첨자 발표'`). When `phases.length > 1`, render one chip per phase.
+- Listed announcements are exactly what the server returns per day — no client-side status filter (server already restricts the day's items to the active set)
+- Mobile day selector shows `N건` per day; days with `0건` keep the same card background as other days but the count text is greyed out
+- Empty state: "예정된 청약이 없어요" with link to full listing when the entire week is empty
 
 #### 1.3 Market Insight Cards
 
@@ -88,7 +90,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 | Endpoint | Data |
 |---|---|
 | `GET /main/featured` | Single featured subscription object (공급면적 기준) |
-| `GET /main/weekly-schedule` | Mon–Fri schedule with announcements per day |
+| `GET /main/weekly-schedule` | Mon–Fri schedule with announcements per day. Each announcement carries `phases: WeeklyPhase[]` (`'특별공급' | '일반공급 1순위' | '일반공급 2순위' | '당첨자 발표'`) — at least one entry per the spec. |
 | `GET /main/stats` | Monthly competition/supply stats + popular region |
 | `GET /main/top-trades` | Top 5 recent apartment trades by deal amount (전용면적 기준) |
 | `GET /api/news/latest?limit=3` | Latest 3 news articles |

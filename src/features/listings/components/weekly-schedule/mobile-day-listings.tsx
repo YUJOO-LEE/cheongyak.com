@@ -1,12 +1,10 @@
 import Link from 'next/link';
-import { CalendarOff } from 'lucide-react';
-import { StatusChip } from '@/shared/components';
-import { formatDateRange } from '@/shared/lib/format';
-import type { Subscription } from '@/shared/types/api';
-import { SubscriptionInfo } from './subscription-info';
+import { CalendarOff, MapPin } from 'lucide-react';
+import { StatusChip, TypeChip } from '@/shared/components';
+import type { WeeklySubscription } from '@/shared/types/api';
 
 interface MobileDayListingsProps {
-  subscriptions: Subscription[];
+  subscriptions: WeeklySubscription[];
 }
 
 export function MobileDayListings({ subscriptions }: MobileDayListingsProps) {
@@ -21,33 +19,34 @@ export function MobileDayListings({ subscriptions }: MobileDayListingsProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      {subscriptions.map((sub, i) => (
-        <Link
-          key={sub.id}
-          href={`/listings/${sub.id}`}
-          className="block bg-bg-card rounded-xl p-4 active:bg-bg-active transition-all duration-normal ease-default animate-fade-in-up"
-          style={{ animationDelay: `${i * 50}ms` }}
-        >
-          <div className="flex items-center justify-between mb-2.5">
-            <StatusChip status={sub.status} />
-            <span className="text-caption text-text-tertiary">
-              {formatDateRange(sub.applicationStart, sub.applicationEnd)}
-            </span>
-          </div>
+      {subscriptions.map((sub, i) => {
+        const region = [sub.location.gugun, sub.location.dong].filter(Boolean).join(' ');
 
-          <h3 className="text-headline-sm text-text-primary mb-2.5">
-            {sub.name}
-          </h3>
+        return (
+          <Link
+            key={sub.id}
+            href={`/listings/${sub.id}`}
+            className="block bg-bg-card rounded-xl p-4 active:bg-bg-active transition-all duration-normal ease-default animate-fade-in-up"
+            style={{ animationDelay: `${i * 50}ms` }}
+          >
+            <div className="flex flex-wrap gap-1 mb-2.5">
+              {sub.phases.map((phase) => (
+                <StatusChip key={phase} status={sub.status} label={phase} size="sm" />
+              ))}
+              <TypeChip type={sub.type} size="sm" />
+            </div>
 
-          <div className="flex flex-col gap-1 mb-3">
-            <SubscriptionInfo sub={sub} />
-          </div>
+            <h3 className="text-headline-sm text-text-primary mb-2">{sub.name}</h3>
 
-          <p className="text-caption text-text-tertiary">
-            {sub.totalUnits.toLocaleString()}세대 · {sub.sizeRange}
-          </p>
-        </Link>
-      ))}
+            {region && (
+              <div className="flex items-center gap-1.5 text-body-sm text-text-secondary">
+                <MapPin size={14} aria-hidden="true" className="text-text-tertiary shrink-0" />
+                <span className="truncate">{region}</span>
+              </div>
+            )}
+          </Link>
+        );
+      })}
     </div>
   );
 }

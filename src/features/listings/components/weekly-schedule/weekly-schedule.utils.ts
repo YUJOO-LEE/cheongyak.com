@@ -1,49 +1,47 @@
-import type { Subscription } from '@/shared/types/api';
+import type { DayOfWeek, WeeklyScheduleDay } from '@/shared/types/api';
 
 export interface DayInfo {
   shortLabel: string;
-  date: Date;
+  /** "M.D" 형식 (예: "4.15") */
   dateStr: string;
   isToday: boolean;
   isPast: boolean;
 }
 
-export function getWeekdays(): DayInfo[] {
-  const now = new Date();
-  const dayOfWeek = now.getDay();
-  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-  const monday = new Date(now);
-  if (isWeekend) {
-    const daysUntilMonday = dayOfWeek === 0 ? 1 : 2;
-    monday.setDate(now.getDate() + daysUntilMonday);
-  } else {
-    monday.setDate(now.getDate() - (dayOfWeek - 1));
-  }
-  const shortNames = ['월', '화', '수', '목', '금'];
+const DAY_OF_WEEK_LABEL: Record<DayOfWeek, string> = {
+  MONDAY: '월',
+  TUESDAY: '화',
+  WEDNESDAY: '수',
+  THURSDAY: '목',
+  FRIDAY: '금',
+  SATURDAY: '토',
+  SUNDAY: '일',
+};
 
-  return Array.from({ length: 5 }, (_, i) => {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + i);
-    return {
-      shortLabel: shortNames[i]!,
-      date,
-      dateStr: `${date.getMonth() + 1}.${date.getDate()}`,
-      isToday: date.toDateString() === now.toDateString(),
-      isPast: date < new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-    };
-  });
-}
+// 서버 day(date + dayOfWeek) 와 클라이언트 현재 시각을 받아 UI 표시용
+// 파생 정보(요일 라벨, M.D 문자열, 오늘/과거 여부)를 만든다.
+// 오늘/과거 비교는 사용자 환경 시각이 기준이라 서버에서 내려줄 수 없다.
+export function deriveDayInfo(day: WeeklyScheduleDay, now: Date): DayInfo {
+  const [yStr, mStr, dStr] = day.date.split('-');
+  const year = Number(yStr);
+  const month = Number(mStr);
+  const dayNum = Number(dStr);
+  const dateStr = `${month}.${dayNum}`;
 
-// 서버 /main/weekly-schedule 은 주간에 속한 모든 상태(마감 포함) 를 내려주므로
-// 이번 주 "진행 중" 일정만 보여주기 위해 accepting/result_today 만 통과시킨다.
-const ACTIVE_STATUSES = new Set<Subscription['status']>(['accepting', 'result_today']);
+  const todayY = now.getFullYear();
+  const todayM = now.getMonth() + 1;
+  const todayD = now.getDate();
 
-export function getSubsForDate(subs: Subscription[], date: Date): Subscription[] {
-  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  return subs.filter(
-    (s) =>
-      ACTIVE_STATUSES.has(s.status) &&
-      dateStr >= s.applicationStart &&
-      dateStr <= s.applicationEnd,
-  );
+  const isToday = year === todayY && month === todayM && dayNum === todayD;
+  const isPast =
+    year < todayY ||
+    (year === todayY && month < todayM) ||
+    (year === todayY && month === todayM && dayNum < todayD);
+
+  return {
+    shortLabel: DAY_OF_WEEK_LABEL[day.dayOfWeek],
+    dateStr,
+    isToday,
+    isPast,
+  };
 }

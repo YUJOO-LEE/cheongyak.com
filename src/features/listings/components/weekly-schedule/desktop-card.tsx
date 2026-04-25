@@ -1,15 +1,17 @@
 import Link from 'next/link';
-import { StatusChip } from '@/shared/components';
-import type { Subscription } from '@/shared/types/api';
-import { SubscriptionInfo } from './subscription-info';
+import { MapPin } from 'lucide-react';
+import { StatusChip, TypeChip } from '@/shared/components';
+import type { WeeklySubscription } from '@/shared/types/api';
 
 interface DesktopCardProps {
-  subscription: Subscription;
+  subscription: WeeklySubscription;
   isPast: boolean;
   isToday: boolean;
 }
 
 export function DesktopCard({ subscription: sub, isPast, isToday }: DesktopCardProps) {
+  const region = [sub.location.gugun, sub.location.dong].filter(Boolean).join(' ');
+
   return (
     <Link
       href={`/listings/${sub.id}`}
@@ -22,16 +24,21 @@ export function DesktopCard({ subscription: sub, isPast, isToday }: DesktopCardP
         isPast ? 'opacity-80 hover:opacity-100' : '',
       ].join(' ')}
     >
-      <StatusChip status={sub.status} className="mb-2" />
+      <div className="flex flex-wrap gap-1 mb-2">
+        {sub.phases.map((phase) => (
+          <StatusChip key={phase} status={sub.status} label={phase} size="sm" />
+        ))}
+        <TypeChip type={sub.type} size="sm" />
+      </div>
       <p className="text-body-md font-medium text-text-primary line-clamp-2 mb-2">
         {sub.name}
       </p>
-      <div className="flex flex-col gap-1 mb-2">
-        <SubscriptionInfo sub={sub} compact />
-      </div>
-      <p className="text-caption text-text-tertiary">
-        {sub.totalUnits.toLocaleString()}세대 · {sub.sizeRange}
-      </p>
+      {region && (
+        <div className="flex items-center gap-1.5 text-caption text-text-secondary">
+          <MapPin size={12} aria-hidden="true" className="text-text-tertiary shrink-0" />
+          <span className="truncate">{region}</span>
+        </div>
+      )}
     </Link>
   );
 }

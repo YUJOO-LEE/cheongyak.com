@@ -13,13 +13,18 @@ import {
   mapFeaturedToSubscription,
   mapStatsToInsights,
   mapTopTradeResponseToTopTrade,
-  mapWeeklyScheduleToSubscriptions,
+  mapWeeklyScheduleToDays,
   parseFeaturedEnvelope,
   parseStatsEnvelope,
   parseTopTradesEnvelope,
   parseWeeklyScheduleEnvelope,
 } from '@/features/listings/lib/map-main-api';
-import type { MarketInsight, Subscription, TopTrade } from '@/shared/types/api';
+import type {
+  MarketInsight,
+  Subscription,
+  TopTrade,
+  WeeklyScheduleDay,
+} from '@/shared/types/api';
 
 export const revalidate = 60;
 
@@ -129,20 +134,23 @@ async function WeeklyScheduleSection() {
     console.warn(`[home] /main/weekly-schedule rejected: ${reasonMessage(e)}`);
   }
 
-  const subscriptions: Subscription[] = weeklyRaw
+  const days: WeeklyScheduleDay[] = weeklyRaw
     ? tryRun(
-        () => mapWeeklyScheduleToSubscriptions(parseWeeklyScheduleEnvelope(weeklyRaw)),
+        () => mapWeeklyScheduleToDays(parseWeeklyScheduleEnvelope(weeklyRaw)),
         'home/weekly-schedule mapping',
       ) ?? []
     : [];
 
-  const isWeekend = [0, 6].includes(new Date().getDay());
+  // 서버가 내려준 첫 번째 day 의 date 가 오늘 이후면 "다음 주" 라벨, 그렇지
+  // 않으면 "이번 주". 주말 휴리스틱 대신 응답 자체를 기준으로 삼는다.
+  const todayIso = isoDate(new Date());
+  const isNextWeek = days.length > 0 ? days[0]!.date > todayIso : false;
 
   return (
     <section className="mb-12">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-headline-lg text-text-primary">
-          {isWeekend ? '다음 주 청약 일정' : '이번 주 청약 일정'}
+          {isNextWeek ? '다음 주 청약 일정' : '이번 주 청약 일정'}
         </h2>
         <Link
           href="/listings"
@@ -151,9 +159,16 @@ async function WeeklyScheduleSection() {
           전체 보기
         </Link>
       </div>
-      <WeeklySchedule subscriptions={subscriptions} />
+      <WeeklySchedule days={days} />
     </section>
   );
+}
+
+function isoDate(d: Date): string {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 async function TopTradesSection() {

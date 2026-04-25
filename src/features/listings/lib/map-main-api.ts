@@ -19,6 +19,8 @@ import type {
   SubscriptionStatus,
   SubscriptionType,
   TopTrade,
+  WeeklyScheduleDay,
+  WeeklySubscription,
 } from '@/shared/types/api';
 
 // ============================================================
@@ -140,7 +142,7 @@ export function mapFeaturedToSubscription(raw: MainFeaturedResponse): Subscripti
 function mapWeeklyAnnouncementToSubscription(
   ann: MainWeeklyAnnouncement,
   date: string,
-): Subscription {
+): WeeklySubscription {
   return {
     id: String(ann.id),
     name: ann.houseName,
@@ -157,6 +159,7 @@ function mapWeeklyAnnouncementToSubscription(
     applicationEnd: date,
     totalUnits: ann.totalSupplyHousehold ?? 0,
     sizeRange: formatAreaRange(ann.minSupplyArea, ann.maxSupplyArea),
+    phases: ann.phases,
   };
 }
 
@@ -185,17 +188,20 @@ export function mapTopTradeResponseToTopTrade(dto: TopTradeResponse): TopTrade {
   };
 }
 
-// 같은 공고가 여러 day 에 중복 포함되어 내려온다는 서버 동작에 의존한다
-// (/main/weekly-schedule 응답에서 실측 확인). 각 day.announcements 를
-// day.date 로 stamping 해 flat 한 Subscription[] 으로 펼친다.
-export function mapWeeklyScheduleToSubscriptions(
+// 서버가 내려준 days[] 그룹을 그대로 보존한 채 각 announcement 를
+// WeeklySubscription 으로 변환한다. 같은 공고가 여러 날짜에 등장하는 경우
+// (특별공급/일반공급 1순위 등 단계가 분리된 케이스)도 서버가 day 별로
+// 중복 노출하므로 클라이언트 측 추가 그룹핑은 필요 없다.
+export function mapWeeklyScheduleToDays(
   raw: MainWeeklyScheduleResponse,
-): Subscription[] {
-  return raw.days.flatMap((day) =>
-    day.announcements.map((ann) =>
+): WeeklyScheduleDay[] {
+  return raw.days.map((day) => ({
+    date: day.date,
+    dayOfWeek: day.dayOfWeek,
+    items: day.announcements.map((ann) =>
       mapWeeklyAnnouncementToSubscription(ann, day.date),
     ),
-  );
+  }));
 }
 
 // ============================================================
