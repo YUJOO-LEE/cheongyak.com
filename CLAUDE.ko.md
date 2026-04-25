@@ -378,6 +378,15 @@ interface ApiError {
 
 환경 변수만 사용할 것. 모든 커밋 전에 시크릿이 포함되지 않았는지 확인.
 
+### 백엔드 프록시 가드
+
+`src/middleware.ts` 가 `/api/backend/:path*` 를 매칭해 백엔드 rewrite 에 대한 스크래핑/비용 폭증 공격에 대비한 두 가지 무비용 방어를 적용:
+
+1. **Origin/Referer 화이트리스트** — `Origin` 또는 `Referer` 가 `cheongyak.com`, Vercel preview, localhost 로 해석되는 요청만 통과. 그 외(`curl` 등 referer 없는 직접 호출 포함)는 403. 헤더 위조로 우회 가능 — 1차 필터일 뿐 강한 게이트가 아님.
+2. **IP 단위 rate limit** — 고정 윈도우 카운터(60 req / 60s), `X-Forwarded-For`(Vercel edge 에서 실제 클라이언트 IP 로 다시 채워줌) 기반. 카운터는 인스턴스 메모리 — Fluid Compute 가 인스턴스를 재사용해 윈도우가 의미 있게 작동하지만, 신규 인스턴스는 카운터가 비어 있음(실효 상한 = `limit × 인스턴스 수`). 트래픽이 더 늘면 Upstash/Redis 같은 공유 저장소로 교체.
+
+순수 헬퍼와 테스트는 `src/shared/lib/api-guard.ts` / `api-guard.test.ts` 에 있음. 서버 측 fetch (RSC, sitemap, ISR revalidation) 는 `API_BACKEND_URL` 로 백엔드를 직접 호출하므로 middleware 를 거치지 않음.
+
 ---
 
 ## 14. 교차 검증 규칙 (필수)
