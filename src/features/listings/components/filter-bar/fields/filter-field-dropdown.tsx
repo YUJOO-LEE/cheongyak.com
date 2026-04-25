@@ -128,7 +128,7 @@ function DropdownPanel<TValue extends string>({
         </button>
       </div>
 
-      <div className="max-h-80 overflow-y-auto overflow-x-hidden px-3 pb-3 space-y-3">
+      <div className="lg:max-h-80 lg:overflow-y-auto overflow-x-hidden px-3 pb-3 space-y-3">
         {groups.map((group) => (
           <section key={group.label}>
             <p className="mb-1.5 px-1 text-label-md text-text-secondary">{group.label}</p>

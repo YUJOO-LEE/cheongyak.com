@@ -248,9 +248,9 @@ function Sheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`absolute bottom-0 left-0 right-0 bg-bg-page/80 backdrop-blur-glass rounded-t-xl shadow-sheet-top p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up-sheet ${closing ? 'sheet-closing' : ''}`}
+        className={`absolute bottom-0 left-0 right-0 max-h-[calc(100dvh-2.5rem)] flex flex-col bg-bg-page/80 backdrop-blur-glass rounded-t-xl shadow-sheet-top animate-slide-up-sheet ${closing ? 'sheet-closing' : ''}`}
       >
-        <div className="flex items-center justify-between mb-6">
+        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-3">
           <h2 id={titleId} className="text-headline-sm">
             필터
           </h2>
@@ -265,9 +265,9 @@ function Sheet({
           </button>
         </div>
 
-        <div className="flex flex-col gap-6 mb-6">{children}</div>
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 flex flex-col gap-6">{children}</div>
 
-        <div className="flex gap-3">
+        <div className="shrink-0 flex gap-3 px-6 pt-3 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
           {resetCount > 0 && (
             <Button
               variant="secondary"
