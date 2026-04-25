@@ -24,7 +24,7 @@ export function Pagination({
   }
 
   return (
-    <nav aria-label="페이지 탐색" className={['flex items-center justify-center gap-1', className].join(' ')}>
+    <nav aria-label="페이지 탐색" className={['flex items-center justify-center gap-0.5 sm:gap-1', className].join(' ')}>
       <PaginationLink
         href={currentPage > 1 ? pageHref(currentPage - 1) : undefined}
         disabled={currentPage <= 1}
@@ -80,7 +80,7 @@ function PaginationLink({
 }: PaginationLinkProps) {
   const baseClass = [
     'inline-flex items-center justify-center',
-    'min-w-10 h-10 rounded-md',
+    'min-w-8 h-8 sm:min-w-10 sm:h-10 rounded-md',
     'text-body-md transition-all duration-fast ease-default',
   ].join(' ');
 

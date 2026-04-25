@@ -71,9 +71,14 @@ export function Navigation({ onSearchOpen }: NavigationProps = {}) {
         </div>
       </header>
 
-      {/* Mobile: Bottom nav bar */}
+      {/* Mobile: Bottom nav bar.
+          clip-path keeps the upward soft shadow visible (top: -24px) while
+          cutting off the same shadow's horizontal blur leakage. Without the
+          side clip, Chrome DevTools mobile emulation surfaces the painted-
+          but-out-of-bounds region as a transient horizontal scrollbar at
+          narrow widths during scroll. */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky bg-bg-page/55 backdrop-blur-glass shadow-[0_-0.5px_0_rgba(15,23,42,0.06),0_-4px_16px_rgba(15,23,42,0.05)] pb-[env(safe-area-inset-bottom)]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky bg-bg-page/55 backdrop-blur-glass shadow-[0_-0.5px_0_rgba(15,23,42,0.06),0_-4px_16px_rgba(15,23,42,0.05)] pb-[env(safe-area-inset-bottom)] [clip-path:inset(-24px_0_0_0)]"
         aria-label="주요 탐색"
       >
         <div className="flex items-center justify-center h-16 gap-4">
