@@ -6,8 +6,7 @@ import { CalendarOff } from 'lucide-react';
 import { EmptyState } from '@/shared/components';
 import type { WeeklyScheduleDay } from '@/shared/types/api';
 import { deriveDayInfo } from './weekly-schedule.utils';
-import { DesktopCard } from './desktop-card';
-import { MobileDayListings } from './mobile-day-listings';
+import { WeeklyCard } from './weekly-card';
 
 interface WeeklyScheduleProps {
   days: WeeklyScheduleDay[];
@@ -100,7 +99,18 @@ export function WeeklySchedule({ days }: WeeklyScheduleProps) {
         </div>
 
         {/* Selected day's listings */}
-        <MobileDayListings subscriptions={selected.day.items} />
+        {selected.day.items.length === 0 ? (
+          <div className="bg-bg-sunken rounded-xl p-8 text-center">
+            <CalendarOff size={24} className="mx-auto text-text-tertiary mb-2" aria-hidden="true" />
+            <p className="text-body-md text-text-tertiary">예정된 청약이 없어요</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {selected.day.items.map((sub, i) => (
+              <WeeklyCard key={sub.id} subscription={sub} index={i} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ═══════ Desktop: flat columns, cards only ═══════ */}
@@ -156,7 +166,12 @@ export function WeeklySchedule({ days }: WeeklyScheduleProps) {
               ) : (
                 <div className="flex flex-col gap-2">
                   {daySubs.map((sub) => (
-                    <DesktopCard key={`${day.date}-${sub.id}`} subscription={sub} isPast={info.isPast} isToday={info.isToday} />
+                    <WeeklyCard
+                      key={`${day.date}-${sub.id}`}
+                      subscription={sub}
+                      isPast={info.isPast}
+                      isToday={info.isToday}
+                    />
                   ))}
                 </div>
               )}

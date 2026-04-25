@@ -82,7 +82,8 @@ export function HomeHero({ featured, insights }: HomeHeroProps) {
             <StatusChip status={featured.status} size="sm" />
             <TypeChip type={featured.type} size="sm" />
           </div>
-          <p className="text-caption text-text-on-dark-subtle">
+          {/* 위클리 카드 주소(text-body-sm = 12px)와 동일 사이즈. 타이틀/세대수와 동일한 on-dark 흰색. */}
+          <p className="text-body-sm text-text-on-dark">
             {featured.location.sido} {featured.location.gugun}
             {featured.location.dong && ` ${featured.location.dong}`}
             {' · '}
