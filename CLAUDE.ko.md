@@ -378,6 +378,10 @@ interface ApiError {
 
 환경 변수만 사용할 것. 모든 커밋 전에 시크릿이 포함되지 않았는지 확인.
 
+### 표준 응답 헤더
+
+`next.config.ts` 의 `headers()` 가 모든 라우트 응답에 보수적 보안 기본값을 적용: `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` 로 카메라/마이크/위치 + FLoC 비활성, 2년짜리 `Strict-Transport-Security` (`includeSubDomains; preload`). CSP 는 의도적으로 보류 — Vercel Analytics + Speed Insights 가 자체 스크립트/connect 엔드포인트를 주입하므로 너무 strict 한 정책은 조용히 깨뜨림. CSP 는 별도 작업으로 `report-only` 롤아웃부터 시작.
+
 ### 백엔드 프록시 가드
 
 `src/middleware.ts` 가 `/api/backend/:path*` 를 매칭해 백엔드 rewrite 에 대한 스크래핑/비용 폭증 공격에 대비한 두 가지 무비용 방어를 적용:

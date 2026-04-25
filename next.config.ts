@@ -10,6 +10,42 @@ import type { NextConfig } from 'next';
  */
 const BACKEND_URL = process.env.API_BACKEND_URL;
 
+/**
+ * Standard security headers applied to every response. Picked
+ * conservatively so we don't accidentally break Vercel Analytics /
+ * Speed Insights / OG image generation:
+ *
+ * - `X-Content-Type-Options: nosniff` — stops the browser from
+ *   second-guessing our `Content-Type` (defends MIME-sniffing XSS).
+ * - `X-Frame-Options: SAMEORIGIN` — refuse to render in third-party
+ *   iframes (clickjacking defense).
+ * - `Referrer-Policy: strict-origin-when-cross-origin` — leak only
+ *   the origin (not the path) when navigating off-site.
+ * - `Permissions-Policy: …` — explicitly opt out of powerful browser
+ *   APIs we never use, plus FLoC (`interest-cohort`).
+ * - `Strict-Transport-Security` — pin HTTPS for 2 years on this
+ *   hostname and subdomains; `preload` qualifies us for the
+ *   browser-shipped HSTS preload list once we submit.
+ *
+ * Deliberately not adding a Content-Security-Policy yet: Vercel
+ * Analytics + Speed Insights inject their own scripts/connect
+ * endpoints, and a too-strict CSP would silently break them. CSP
+ * lands as its own task with a `report-only` rollout first.
+ */
+const SECURITY_HEADERS = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+  },
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=63072000; includeSubDomains; preload',
+  },
+];
+
 const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -25,6 +61,14 @@ const nextConfig: NextConfig = {
       {
         source: '/api/backend/:path*',
         destination: `${BACKEND_URL}/:path*`,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: SECURITY_HEADERS,
       },
     ];
   },

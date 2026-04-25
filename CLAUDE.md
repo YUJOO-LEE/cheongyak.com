@@ -384,6 +384,10 @@ All secrets via Vercel dashboard — **never in code or commits**.
 
 Use environment variables exclusively. Before every commit, verify no secrets are present.
 
+### Standard response headers
+
+`next.config.ts` `headers()` adds the conservative security baseline to every route: `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` opting out of camera/mic/geolocation + FLoC, and a 2-year `Strict-Transport-Security` with `includeSubDomains; preload`. CSP is intentionally deferred — Vercel Analytics and Speed Insights inject scripts/connect endpoints that a strict policy would silently break, so CSP lands as its own task with a `report-only` rollout first.
+
 ### Backend proxy guard
 
 `src/middleware.ts` matches `/api/backend/:path*` and applies two zero-cost defenses against scraping / cost-spike attacks against the backend rewrite:
