@@ -384,6 +384,15 @@ All secrets via Vercel dashboard — **never in code or commits**.
 
 Use environment variables exclusively. Before every commit, verify no secrets are present.
 
+### Backend proxy guard
+
+`src/middleware.ts` matches `/api/backend/:path*` and applies two zero-cost defenses against scraping / cost-spike attacks against the backend rewrite:
+
+1. **Origin/Referer allowlist** — accepts requests whose `Origin` or `Referer` resolves to `cheongyak.com`, a Vercel preview, or localhost. Rejects (403) anything else (incl. naïve `curl` calls without a referer). Header-spoofing bypasses this — it's a first-pass filter, not a hard gate.
+2. **Per-IP rate limit** — fixed-window counter (60 req / 60s) keyed on `X-Forwarded-For` (Vercel rewrites this to the real client IP at its edge). Counters live in instance memory; with Fluid Compute reusing instances the window is meaningful, but new instances start clean (effective ceiling = `limit × instances`). Swap to Upstash/Redis when traffic warrants tighter bounds.
+
+Pure helpers + tests live in `src/shared/lib/api-guard.ts` / `api-guard.test.ts`. Server-side fetches (RSC, sitemap, ISR revalidation) bypass middleware because they call the backend directly via `API_BACKEND_URL`.
+
 ---
 
 ## 14. Cross-Validation Rules (MANDATORY)
