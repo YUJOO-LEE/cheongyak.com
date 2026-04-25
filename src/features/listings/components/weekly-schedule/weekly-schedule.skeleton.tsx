@@ -33,15 +33,11 @@ export function WeeklyScheduleSkeleton() {
           {Array.from({ length: 2 }, (_, i) => (
             <div key={i} className="bg-bg-card rounded-xl p-4">
               <div className="flex items-center justify-between mb-2.5">
-                <Skeleton className="rounded-full" width={56} height={20} />
+                <Skeleton className="rounded-full" width={48} height={18} />
                 <Skeleton width={96} height={12} />
               </div>
-              <Skeleton className="mb-2.5" width="70%" height={22} />
-              <div className="flex flex-col gap-1 mb-3">
-                <Skeleton width="60%" height={16} />
-                <Skeleton width="40%" height={16} />
-              </div>
-              <Skeleton width={120} height={12} />
+              <Skeleton className="mb-2" width="70%" height={22} />
+              <Skeleton width="50%" height={16} />
             </div>
           ))}
         </div>
@@ -64,15 +60,12 @@ export function WeeklyScheduleSkeleton() {
                 <div key={row} className="rounded-lg bg-bg-card p-3">
                   <Skeleton
                     className="rounded-full mb-2"
-                    width={56}
-                    height={20}
+                    width={48}
+                    height={18}
                   />
-                  <Skeleton className="mb-2" width="80%" height={16} />
-                  <div className="flex flex-col gap-1 mb-2">
-                    <Skeleton width="70%" height={14} />
-                    <Skeleton width="55%" height={14} />
-                  </div>
-                  <Skeleton width="50%" height={12} />
+                  <Skeleton className="mb-1" width="90%" height={16} />
+                  <Skeleton className="mb-2" width="60%" height={16} />
+                  <Skeleton width="55%" height={12} />
                 </div>
               ))}
             </div>

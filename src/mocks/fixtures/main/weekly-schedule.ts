@@ -18,6 +18,7 @@ const hillstate: MainWeeklyAnnouncement = {
   totalSupplyHousehold: 1247,
   minSupplyArea: 84,
   maxSupplyArea: 114,
+  phases: ['특별공급'],
 };
 
 const xi: MainWeeklyAnnouncement = {
@@ -31,6 +32,8 @@ const xi: MainWeeklyAnnouncement = {
   totalSupplyHousehold: 880,
   minSupplyArea: 59,
   maxSupplyArea: 98,
+  // 다중 phase 케이스 — 다중 칩 렌더 검증용
+  phases: ['일반공급 1순위', '일반공급 2순위'],
 };
 
 const prugio: MainWeeklyAnnouncement = {
@@ -44,6 +47,7 @@ const prugio: MainWeeklyAnnouncement = {
   totalSupplyHousehold: 520,
   minSupplyArea: 59,
   maxSupplyArea: 84,
+  phases: ['당첨자 발표'],
 };
 
 export const mainWeeklySchedule: MainWeeklyScheduleResponse = {

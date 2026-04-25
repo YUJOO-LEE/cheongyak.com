@@ -91,6 +91,17 @@ export type MainStatsResponse = z.infer<typeof MainStatsResponseSchema>;
 // GET /main/weekly-schedule
 // ============================================================
 
+// 같은 공고가 같은 날 동시에 여러 단계를 갖는 경우 phases 배열로 표현된다
+// (서버 OpenAPI: AnnouncementSummary.phases). enum 값은 백엔드가 한국어 라벨을
+// 그대로 내려보내며, 도메인 모델도 동일한 값을 그대로 사용한다.
+export const ApiWeeklyPhaseSchema = z.enum([
+  '특별공급',
+  '일반공급 1순위',
+  '일반공급 2순위',
+  '당첨자 발표',
+]);
+export type ApiWeeklyPhase = z.infer<typeof ApiWeeklyPhaseSchema>;
+
 export const MainWeeklyAnnouncementSchema = z.object({
   id: z.number(),
   houseName: z.string(),
@@ -102,6 +113,7 @@ export const MainWeeklyAnnouncementSchema = z.object({
   totalSupplyHousehold: z.number().nullable(),
   minSupplyArea: z.number().nullable(),
   maxSupplyArea: z.number().nullable(),
+  phases: z.array(ApiWeeklyPhaseSchema),
 });
 export type MainWeeklyAnnouncement = z.infer<typeof MainWeeklyAnnouncementSchema>;
 
