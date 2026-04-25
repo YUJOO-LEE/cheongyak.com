@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from 'next';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 // TODO(beta-deferred): SearchRoot mount disabled — see docs/beta-launch-deferred-features.md#search
 // import { SearchRoot } from './search-root';
 import { Navigation } from '@/shared/components/navigation';
@@ -85,6 +87,8 @@ export default function RootLayout({
             <div className="lg:hidden h-16" />
           </QueryProvider>
         </NuqsProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
