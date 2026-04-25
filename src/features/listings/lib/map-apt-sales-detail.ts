@@ -366,10 +366,12 @@ export function mapAptSalesDetailToSubscription(
     totalUnits: announcement.totalSupplyHouseholdCount ?? 0,
     sizeRange: formatSizeRange(minArea, maxArea),
     priceRange: formatPriceRange(minPrice, maxPrice),
-    // Official links
+    // Official links — API에는 시행사 홈페이지(homepageUrl)와 모집공고문
+    // (announcementUrl) 두 필드만 존재. 청약홈 신청 URL은 별도 필드가 없어
+    // applyHomeUrl 은 undefined 로 둡니다(차후 청약홈 deeplink 룰 도입 예정).
     builderUrl: announcement.homepageUrl ?? undefined,
-    applyHomeUrl: announcement.announcementUrl ?? undefined,
-    announcementUrl: undefined,
+    applyHomeUrl: undefined,
+    announcementUrl: announcement.announcementUrl ?? undefined,
     // Extra info
     supplyAddress: announcement.supplyAddress ?? undefined,
     businessEntityName: announcement.businessEntityName ?? undefined,
@@ -391,3 +393,19 @@ export function mapAptSalesDetailToSubscription(
 
 // `formatArea` re-export 로 새 섹션 컴포넌트들이 동일 포맷터를 공유하도록 노출.
 export { formatArea };
+
+const HOUSE_TYPE_PATTERN = /^0*(\d+)(?:\.\d+)?([A-Za-z]*)$/;
+
+/**
+ * 주택형 라벨 정규화 — `059.9400A` → `59A`, `084.99B` → `84B`, `074` → `74`.
+ * 소수점 이하 숫자는 평면도 분류용 내부값이라 사용자 화면에서는 정수+서픽스만
+ * 노출하면 충분합니다. 패턴이 깨진 입력은 원문 그대로 반환합니다.
+ */
+export function formatHouseType(raw: string | null | undefined): string {
+  if (raw == null) return '';
+  const trimmed = raw.trim();
+  if (trimmed === '') return '';
+  const match = trimmed.match(HOUSE_TYPE_PATTERN);
+  if (!match) return trimmed;
+  return `${match[1]}${match[2]}`;
+}

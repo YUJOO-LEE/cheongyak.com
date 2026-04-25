@@ -1,5 +1,8 @@
 import { formatArea } from '@/features/listings/lib/map-apt-sales';
-import { formatPriceManWon } from '@/features/listings/lib/map-apt-sales-detail';
+import {
+  formatHouseType,
+  formatPriceManWon,
+} from '@/features/listings/lib/map-apt-sales-detail';
 import type { ModelSupply } from '@/shared/types/api';
 
 interface ModelSupplyCardsProps {
@@ -26,17 +29,12 @@ export function ModelSupplyCards({ models }: ModelSupplyCardsProps) {
       {models.map((model) => (
         <li
           key={model.modelNo}
-          className="bg-bg-sunken rounded-md p-5 flex flex-col gap-4"
+          className="bg-bg-card rounded-md p-5 flex flex-col gap-4"
         >
           <header className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-label-md text-text-tertiary">
-                모델 {model.modelNo}
-              </p>
-              <p className="text-headline-sm text-text-primary font-semibold">
-                {model.houseType ?? '주택형 미정'}
-              </p>
-            </div>
+            <p className="text-headline-sm text-text-primary font-semibold">
+              {model.houseType ? formatHouseType(model.houseType) : '주택형 미정'}
+            </p>
             {typeof model.supplyArea === 'number' && (
               <span className="shrink-0 text-body-sm text-text-secondary">
                 {formatArea(model.supplyArea)}
@@ -58,7 +56,7 @@ export function ModelSupplyCards({ models }: ModelSupplyCardsProps) {
                 {model.specialBreakdown.map((item) => (
                   <li
                     key={item.category}
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-bg-card text-caption text-text-secondary"
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-bg-sunken text-caption text-text-secondary"
                   >
                     <span>{item.category}</span>
                     <span className="text-text-primary font-medium">
@@ -71,7 +69,7 @@ export function ModelSupplyCards({ models }: ModelSupplyCardsProps) {
           )}
 
           {typeof model.topAmount === 'number' && (
-            <footer className="flex items-baseline justify-between border-t border-border-divider pt-3">
+            <footer className="mt-auto flex items-baseline justify-between border-t border-border-divider pt-3">
               <span className="text-label-md text-text-tertiary">
                 최고 분양가
               </span>

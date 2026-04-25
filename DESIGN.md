@@ -239,6 +239,8 @@ All implementations must reference semantic tokens, not raw scales.
 | `color-interactive-hover` | `brand-primary-600` | Hover state |
 | `color-interactive-active` | `brand-primary-700` | Pressed state |
 | `color-interactive-disabled` | `neutral-300` | Disabled interactive elements |
+| `color-button-secondary` | `neutral-200` | Secondary button surface (sits on `bg-page` and needs higher contrast than `bg-sunken` to read as a tappable affordance) |
+| `color-button-secondary-hover` | `neutral-300` | Secondary button hover state |
 
 #### Status
 

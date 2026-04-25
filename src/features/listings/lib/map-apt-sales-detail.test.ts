@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { AptSalesDetailResponse } from '@/shared/api/generated/schemas/aptSalesDetailResponse';
 import {
   deriveSchedulePhases,
+  formatHouseType,
   mapAptSalesDetailToSubscription,
   parseSupplyAddress,
   pickActiveRegulations,
@@ -292,7 +293,10 @@ describe('mapAptSalesDetailToSubscription', () => {
     expect(domain.sizeRange).toBe('59.9㎡ ~ 84.9㎡');
     expect(domain.priceRange).toBe('12억 ~ 20억');
     expect(domain.builderUrl).toBe('https://example.com/raemian');
-    expect(domain.applyHomeUrl).toBe('https://apply.example.com/1');
+    // API에는 청약홈 신청 URL 필드가 없으므로 applyHomeUrl 은 항상 undefined,
+    // 모집공고문 URL 은 announcementUrl 로 노출됩니다.
+    expect(domain.applyHomeUrl).toBeUndefined();
+    expect(domain.announcementUrl).toBe('https://apply.example.com/1');
     expect(domain.moveInMonth).toBe('2028-06');
     expect(domain.inquiryPhone).toBe('02-2222-3333');
     expect(domain.regulations).toEqual(['speculativeArea', 'priceCeiling']);
@@ -312,5 +316,30 @@ describe('mapAptSalesDetailToSubscription', () => {
     });
     // 타임라인이 비어있지 않고 phase 개수가 예상대로인지
     expect(domain.schedule.length).toBeGreaterThanOrEqual(6);
+  });
+});
+
+describe('formatHouseType', () => {
+  it('strips leading zeros, decimal portion, keeps suffix', () => {
+    expect(formatHouseType('059.9400A')).toBe('59A');
+    expect(formatHouseType('084.9345A')).toBe('84A');
+    expect(formatHouseType('084.99B')).toBe('84B');
+    expect(formatHouseType('59.1112A')).toBe('59A');
+  });
+
+  it('handles plain integer types without suffix', () => {
+    expect(formatHouseType('074')).toBe('74');
+    expect(formatHouseType('59')).toBe('59');
+  });
+
+  it('returns input as-is when pattern does not match', () => {
+    expect(formatHouseType('전용 84')).toBe('전용 84');
+    expect(formatHouseType('TYPE-A')).toBe('TYPE-A');
+  });
+
+  it('returns empty string for nullish or blank input', () => {
+    expect(formatHouseType(null)).toBe('');
+    expect(formatHouseType(undefined)).toBe('');
+    expect(formatHouseType('   ')).toBe('');
   });
 });

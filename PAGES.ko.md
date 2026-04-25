@@ -221,9 +221,12 @@
 #### 3.1 단지 개요 헤더
 
 - 아파트명 (디스플레이 헤딩)
-- 지도 핀 아이콘이 있는 위치 정보
-- 시공사명 및 시공사 사이트 링크 (외부)
-- 주요 통계 행: 총 세대수, 면적 범위, 예상 분양가 범위
+- 위치 정보 (시도/구군/동); `supplyAddress` 가 있으면 위치 라인 아래에
+  보조 텍스트로 노출
+- 시공사명 (`constructorName`); `businessEntityName` 이 시공사와 다르면
+  `사업주체 …` 보조 라인 추가
+- 주요 통계 행: 총 세대수, 면적 범위, 예상 분양가 범위, 접수기간,
+  그리고 `moveInMonth` 가 있으면 입주예정 (`YYYY년 M월` 포맷)
 - 상태 칩 (대형)
 - 작성자 또는 편집자 정보 표시 금지
 
@@ -242,13 +245,26 @@
 - 각 단계에 날짜와 current/past/future 상태 표시 (오늘 기준)
 - 현재 단계는 `primary` 강조색으로 하이라이트
 - 지난 단계는 `text-low`, 향후 단계는 `text-mid` 사용
+- dot 간 세로 연결선은 비-마지막 아이템마다 `top-3`에서 `-bottom-0.5`
+  까지 그려 다음 dot 에 정확히 닿게 한다(이전 구현은 `bottom-0`이라
+  중간에 끊김). 마지막 dot 아래로는 선이 흐르지 않음.
+- 섹션은 `bg-bg-card rounded-lg p-6` 카드로 감싸 단일 primary 블록으로
+  읽히게 한다. 공급내역/경쟁률/당첨가점/특공 섹션은 자체 내부 컨테이너
+  (카드 또는 `rounded-lg` 테이블)가 이미 surface 역할을 하므로 페이지
+  캔버스 위에 평탄하게 흘린다.
 
 #### 3.3 공급 내역 — 평형별 카드
 
 - `models[]` 엔트리 1개 = 카드 1장 (평형 단위)
+- 카드 헤더는 `formatHouseType` 으로 정규화한 주택형(`059.9400A → 59A`)
+  만 노출 — 내부 식별자인 `modelNo` 는 더 이상 사용자에게 보여주지 않음
 - 카드 내용: 공급면적(㎡), 일반공급 세대수, 특별공급 세대수, 특공 세분
   유형별 세대수(다자녀/신혼부부/생애최초/노부모부양/기관추천/기타/이전기관/청년/신생아 중 값이 있는 것만), 최고 분양가(억/만 포맷)
-- 레이아웃: `bg-bg-sunken` 카드(내부 테두리 없음), sm+ 에서 2열 그리드, 모바일은 1열
+- 레이아웃: `bg-bg-card` (흰) 카드를 페이지 `bg-bg-page` 캔버스 위에
+  직접 배치. surface tier 차이만으로 lift 표현(DESIGN.md §8 의 ambient
+  shadow 는 floating 요소 전용 룰을 준수해 카드에는 그림자를 두지 않음).
+  sm+ 2열 그리드, 모바일 1열
+- 카드 내부 특공 세분 칩은 `bg-bg-sunken` (카드 표면 위 inset 패턴)
 - 헤더의 면적/가격 범위는 models 전체의 min~max 를 집약해 스크롤 없이도 전체 스펙 파악
 
 #### 3.4 자격 요건 간편 확인 *(보류)*
@@ -261,15 +277,31 @@
 
 #### 3.6 공식 링크
 
-- 청약홈 링크 ← `announcement.announcementUrl`
+- 모집공고 링크 ← `announcement.announcementUrl` (해당 API 필드 자체가
+  모집공고문 URL — 이전 코드는 이를 청약홈으로 잘못 매핑했음)
 - 시공사 공식 사이트 ← `announcement.homepageUrl`
-- 도메인 모델의 `announcementUrl` 은 별도 PDF 링크가 생기면 할당할 자리 — 오늘은 청약홈 딥링크 자체가 announcementUrl
-- 사이드바에 세로 스택된 보조 버튼 스타일
+- 청약홈 신청 링크 ← *(보류)* API 에 청약홈 전용 딥링크 필드가 없어
+  `applyHomeUrl` 은 딥링크 룰 도입 전까지 `undefined` 로 둠
+- 문의 전화 ← `announcement.inquiryPhone` 을 `tel:` 링크 카드로 노출
+  (라벨에 표시 번호 포함)
+- 순서는 고정: **모집공고**가 항상 사이드바 1번(최상단). 2번 = 청약홈
+  신청(가능할 때), 3번 = 시행사, 4번 = 문의. 시각 primary 는 가용성에
+  따름 — `applyHomeUrl`이 undefined 인 현재는 1번 자리 모집공고가
+  primary(brand-primary) 버튼. 향후 청약홈 딥링크가 도입되면 청약홈이
+  2번 자리에 들어와 primary 색을 가져가고 모집공고는 1번 자리에서
+  secondary 로 내려간다. §11.2 "view 당 primary 하나" 룰 유지.
 
 #### 3.7 경쟁률 (Competitions)
 
 - `competitions[]` 행: 주택형 × 순위 × 거주지역
 - 컬럼: 주택형, 순위, 거주지역, 공급세대, 접수건수, 경쟁률
+- 주택형은 `formatHouseType` 정규화 표기(`059.9400A → 59A`),
+  같은 주택형 연속 행은 첫 행에 `rowSpan` 으로 펼쳐 평형별 그룹으로 읽힘
+- 행 구분은 **그룹 단위 zebra**: 같은 주택형 그룹 내 모든 행은 같은
+  배경(`bg-bg-card` 또는 `bg-bg-page`)을 공유하고, 그룹 사이에서만
+  배경이 교차한다. 평형 경계가 어떤 구분선도 없이 인지된다(DESIGN.md
+  §11.5 No-Line 룰을 어기지 않으면서 zebra만으로 그룹화 표현). 외부
+  래퍼는 `rounded-lg overflow-hidden`, 헤더는 `bg-bg-sunken`.
 - `rateDisplay` 는 서버가 포맷한 값 (`"15.00"`, `"(N세대 부족)"`, `"미달"`) 을 그대로 노출; `isShortage` true 행은 `warning-600` 으로 강조
 - `competitions[]` 가 비어있으면 (집계 전) 섹션 자체를 렌더하지 않음
 
@@ -277,12 +309,17 @@
 
 - `winnerScores[]` 행: 주택형 × 거주지역
 - 컬럼: 주택형, 거주지역, 최저/평균/최고 (서버가 내려준 `*Display` 문자열, 없으면 `-`)
+- §3.7 와 동일 형식: `formatHouseType` + 평형별 `rowSpan` 그룹핑 +
+  zebra row striping + `rounded-lg` 외부 래퍼
 - 빈 배열이면 섹션 숨김
 
 #### 3.9 특별공급 신청현황 (Special Supply Status)
 
 - `specialSupplies[].categories[]` 를 (주택형 × 유형) 단위로 flatten
 - 컬럼: 주택형, 유형, 배정, 해당지역, 기타경기, 기타지역, 합계
+- §3.7 와 동일(formatHouseType + rowSpan + zebra)에 더해, 주택형 컬럼은
+  `position: sticky left-0 z-10` 로 좌측 고정하고 행 zebra 배경을
+  그대로 받아 모바일 가로 스크롤 시에도 행 정체성이 유지
 - 기관추천/이전기관 행의 지역 컬럼은 `-` (API 보장)
 - 빈 배열이면 섹션 숨김
 

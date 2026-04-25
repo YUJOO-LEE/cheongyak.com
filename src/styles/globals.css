@@ -132,6 +132,11 @@
   --color-bg-active: var(--neutral-300);
   --color-bg-disabled: var(--neutral-100);
 
+  /* Secondary button surface (sits on bg-page, needs higher contrast than
+     bg-sunken so the button reads as a tappable affordance) */
+  --color-button-secondary: var(--neutral-200);
+  --color-button-secondary-hover: var(--neutral-300);
+
   /* Inverse context (dark/brand backgrounds) */
   --color-bg-inverse: var(--neutral-900);
   --color-bg-inverse-subtle: rgba(255, 255, 255, 0.10);
@@ -391,6 +396,9 @@
   --color-bg-hover: var(--color-bg-hover);
   --color-bg-active: var(--color-bg-active);
   --color-bg-disabled: var(--color-bg-disabled);
+
+  --color-button-secondary: var(--color-button-secondary);
+  --color-button-secondary-hover: var(--color-button-secondary-hover);
 
   --color-bg-inverse: var(--color-bg-inverse);
   --color-bg-inverse-subtle: var(--color-bg-inverse-subtle);

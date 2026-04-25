@@ -219,9 +219,13 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 #### 3.1 Unit Overview Header
 
 - Apartment name (display heading)
-- Location with map pin icon
-- Builder name and link to builder site (external)
-- Key stats row: Total units, size range, estimated price range
+- Location (sido/gugun/dong); when `supplyAddress` is present it renders
+  as a tertiary subline under the location pair
+- Builder (`constructorName`); when `businessEntityName` differs from
+  builder it renders as a `사업주체 …` subline
+- Key stats row: Total units, size range, estimated price range,
+  접수기간, and 입주예정 (when `moveInMonth` is present, formatted
+  as `YYYY년 M월`)
 - Status chip (large)
 - No author or editor information displayed
 
@@ -241,14 +245,29 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 - Each phase shows date(s) and current/past/future state (today-based)
 - Current phase highlighted with `primary` accent
 - Past phases use `text-low`, future phases use `text-mid`
+- The vertical connector between dots draws from `top-3` to `-bottom-0.5`
+  on each non-last item so the line reaches the next dot exactly (no
+  hanging gap below the dot, no overflow past the last dot)
+- Section is wrapped in a `bg-bg-card rounded-lg p-6` card surface so
+  the timeline reads as a single primary block; the per-평형 / 경쟁률 /
+  당첨가점 / 특공 sections stay flat on the page canvas (their own
+  internal containers — cards or `rounded-lg` table — already provide
+  sufficient surface)
 
 #### 3.3 Supply Breakdown — Per-평형 Cards
 
 - Grid of cards, one per `models[]` entry (평형 단위)
+- Each card header shows the 주택형 normalized via `formatHouseType`
+  (`059.9400A → 59A`) — internal `modelNo` is no longer surfaced as a
+  user-facing label
 - Each card shows 공급면적(㎡), 일반공급 세대수, 특별공급 세대수, 특공 세분
   유형별 세대수(다자녀/신혼부부/생애최초/노부모부양/기관추천/기타/이전기관/청년/신생아 중 값이 있는 것만), 최고 분양가(억/만 포맷)
-- Layout: `bg-bg-sunken` card with no internal borders, 2-column grid on
+- Layout: `bg-bg-card` (white) card directly on the page's `bg-bg-page`
+  canvas — surface tier shift only, no ambient shadow (DESIGN.md §8
+  reserves ambient shadows for floating elements). 2-column grid on
   sm+, single column on mobile
+- Inner 특공 세분 chips use `bg-bg-sunken` (defined inset on a card
+  surface)
 - Aggregated size + price range (min ~ max across models) surfaces in
   `SubscriptionHeader` so users see overall scope without scrolling
 
@@ -264,17 +283,37 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 
 #### 3.6 Official Links
 
-- 청약홈 link ← `announcement.announcementUrl`
+- 모집공고 link ← `announcement.announcementUrl` (the API field is the
+  announcement document URL — earlier code mis-mapped it to 청약홈)
 - Builder official site ← `announcement.homepageUrl`
-- `announcementUrl` in the domain model is reserved for a separate PDF
-  link when the backend adds one; today the announcement URL is the
-  청약홈 deep link itself
-- Styled as secondary buttons stacked in the sidebar
+- 청약홈 신청 link ← *(deferred)* the API has no dedicated 청약홈 deep
+  link field; `applyHomeUrl` stays `undefined` until a deeplink rule
+  ships
+- 문의 전화 ← `announcement.inquiryPhone` rendered as a `tel:` link card
+  (label includes the displayed number)
+- Order is fixed: **모집공고** sits in slot 1 (top of the sidebar) at
+  all times. Slot 2 = 청약홈 신청 (when available), slot 3 = 시행사,
+  slot 4 = 문의. Visual primary follows availability: while
+  `applyHomeUrl` is undefined the slot-1 모집공고 link is the primary
+  (brand-primary) button. When a 청약홈 deeplink rule ships,
+  applyHomeUrl renders in slot 2 and takes over the primary color;
+  모집공고 stays in slot 1 as secondary. The §11.2 "one primary per
+  view" rule is preserved — only one button is brand-primary at a
+  time.
 
 #### 3.7 경쟁률 (Competitions)
 
 - Table of `competitions[]` rows: 주택형 × 순위 × 거주지역
 - Columns: 주택형, 순위, 거주지역, 공급세대, 접수건수, 경쟁률
+- 주택형 displayed via `formatHouseType` (e.g. `059.9400A → 59A`) and
+  same-주택형 consecutive rows merge into one `rowSpan` cell so the
+  table reads as 평형별 그룹
+- Row striping uses **group-level zebra**: every row inside the same
+  주택형 group shares one fill (`bg-bg-card` or `bg-bg-page`), and the
+  fill alternates between groups. This makes the 평형 boundary
+  legible without adding any divider lines (zebra is the only visual
+  cue, per DESIGN.md §11.5 No-Line). The table rounds with
+  `rounded-lg overflow-hidden` and the header keeps `bg-bg-sunken`.
 - `rateDisplay` surfaces server-formatted values (`"15.00"`, `"(N세대 부족)"`, `"미달"`); `isShortage` true rows highlight with `warning-600`
 - Section hidden entirely when `competitions[]` is empty (집계 전)
 
@@ -282,12 +321,17 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 
 - Table of `winnerScores[]` rows: 주택형 × 거주지역
 - Columns: 주택형, 거주지역, 최저/평균/최고 (uses server-provided `*Display` strings, `-` fallback)
+- Same shape as §3.7: `formatHouseType` + 평형별 `rowSpan` grouping +
+  zebra row striping + `rounded-lg` outer wrap
 - Section hidden when `winnerScores[]` is empty
 
 #### 3.9 특별공급 신청현황 (Special Supply Status)
 
 - Table of `specialSupplies[].categories[]` flattened per (주택형 × 유형)
 - Columns: 주택형, 유형, 배정, 해당지역, 기타경기, 기타지역, 합계
+- Same shape as §3.7 (formatHouseType + rowSpan + zebra) plus: the
+  주택형 column is `position: sticky left-0 z-10` and inherits the row
+  zebra fill so horizontal scroll on mobile keeps row identity visible
 - 기관추천/이전기관 row 들은 지역 컬럼이 `-` (API 보장)
 - Section hidden when `specialSupplyStatus[]` is empty
 

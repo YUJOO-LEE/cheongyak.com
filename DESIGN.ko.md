@@ -241,6 +241,8 @@
 | `color-interactive-hover` | `brand-primary-600` | 호버 상태 |
 | `color-interactive-active` | `brand-primary-700` | 누름 상태 |
 | `color-interactive-disabled` | `neutral-300` | 비활성 인터랙티브 요소 |
+| `color-button-secondary` | `neutral-200` | 세컨더리 버튼 표면 (페이지 캔버스 `bg-page` 위에서 `bg-sunken` 보다 명확한 대비가 필요한 탭 가능 요소) |
+| `color-button-secondary-hover` | `neutral-300` | 세컨더리 버튼 호버 상태 |
 
 #### 상태
 

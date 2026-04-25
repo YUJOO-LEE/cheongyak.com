@@ -3,7 +3,7 @@ import { Skeleton } from '@/shared/components';
 export function SpecialSupplyStatusTableSkeleton() {
   return (
     <div
-      className="rounded-md overflow-x-auto"
+      className="rounded-md overflow-hidden"
       data-testid="special-supply-status-table-skeleton"
     >
       <div className="bg-bg-sunken px-4 py-3 flex gap-4 min-w-150">

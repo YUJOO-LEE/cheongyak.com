@@ -124,49 +124,34 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
             </section>
           )}
 
-          <section className="mb-8">
-            <h2 className="text-headline-lg text-text-primary mb-4">
-              청약 일정
-            </h2>
+          <DetailSection title="청약 일정">
             <div className="bg-bg-card rounded-lg p-6">
               <ScheduleTimeline phases={subscription.schedule} />
             </div>
-          </section>
+          </DetailSection>
 
-          <section className="mb-8">
-            <h2 className="text-headline-lg text-text-primary mb-4">
-              공급 내역
-            </h2>
+          <DetailSection title="공급 내역">
             <ModelSupplyCards models={subscription.models} />
-          </section>
+          </DetailSection>
 
           {hasCompetitions && (
-            <section className="mb-8">
-              <h2 className="text-headline-lg text-text-primary mb-4">
-                경쟁률
-              </h2>
+            <DetailSection title="경쟁률">
               <CompetitionTable rows={subscription.competitions} />
-            </section>
+            </DetailSection>
           )}
 
           {hasWinnerScores && (
-            <section className="mb-8">
-              <h2 className="text-headline-lg text-text-primary mb-4">
-                당첨가점
-              </h2>
+            <DetailSection title="당첨가점">
               <WinnerScoreTable rows={subscription.winnerScores} />
-            </section>
+            </DetailSection>
           )}
 
           {hasSpecialStatus && (
-            <section className="mb-8">
-              <h2 className="text-headline-lg text-text-primary mb-4">
-                특별공급 신청현황
-              </h2>
+            <DetailSection title="특별공급 신청현황">
               <SpecialSupplyStatusTable
                 rows={subscription.specialSupplyStatus}
               />
-            </section>
+            </DetailSection>
           )}
         </div>
 
@@ -181,11 +166,27 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
                 applyHomeUrl={subscription.applyHomeUrl}
                 builderUrl={subscription.builderUrl}
                 announcementUrl={subscription.announcementUrl}
+                inquiryPhone={subscription.inquiryPhone}
               />
             </section>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function DetailSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="mb-8">
+      <h2 className="text-headline-lg text-text-primary mb-4">{title}</h2>
+      {children}
+    </section>
   );
 }
