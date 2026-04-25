@@ -302,6 +302,7 @@ shared/components/
 - 포커스: 2px solid `brand-primary-500` 링에 2px 오프셋, `:focus-visible`에서만 표시
 - 터치 대상: 최소 44x44px
 - 키보드: 전체 내비게이션 지원, 논리적 탭 순서, 라우트 변경 시 포커스 관리
+- Skip link: `src/app/layout.tsx` 의 첫 포커스 가능 요소 (`href="#main-content"` → `<main id="main-content">`). 평소엔 `sr-only` 로 숨겨졌다가 Tab 포커스 시 좌측 상단에 표시. 키보드/스크린리더 사용자가 nav 를 건너뛰고 본문으로 바로 이동 가능.
 - 모션 감소: `prefers-reduced-motion` 존중 — 필수적이지 않은 애니메이션 비활성화
 - 스크린 리더: 시맨틱 HTML, 필요시 ARIA 속성, 서술적 alt 텍스트
 - 색각 이상 대응: 색상만으로 표시 금지 — 반드시 아이콘 또는 텍스트 레이블과 함께 사용

@@ -64,6 +64,19 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-dvh flex flex-col bg-bg-page text-text-primary font-sans">
+        {/*
+          Skip link — KWCAG / WCAG 2.2 AA. Hidden visually until it
+          receives keyboard focus, at which point it appears in the
+          top-left so a screen-reader / keyboard user can jump past
+          the navigation straight into the main content. Must remain
+          the first focusable element in the document.
+        */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-brand-primary-500 focus:text-text-inverse focus:px-4 focus:py-2 focus:rounded-md focus:shadow-lg focus:outline-none"
+        >
+          본문 바로가기
+        </a>
         <AppSplash />
         <OrganizationJsonLd />
         <NuqsProvider>
@@ -78,7 +91,7 @@ export default function RootLayout({
                 ready — see docs/beta-launch-deferred-features.md#search */}
             <Navigation />
 
-            <main className="flex-1">
+            <main id="main-content" className="flex-1">
               {children}
             </main>
 
