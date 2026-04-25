@@ -498,6 +498,7 @@
 | `/news` | 뉴스 피드 | Yes (ISR) | 공개 |
 | `/news/[id]` | 뉴스 기사 상세 | Yes (SSG + ISR) | 공개 |
 | `/about` | 소개 | Yes (SSG, 정적) | 공개 |
+| `/terms` | 이용약관 | Yes (SSG, 정적) | 공개 |
 
 **통합 검색**은 오버레이 컴포넌트 (라우트 없음) — `⌘K` 또는 검색 아이콘으로 실행. _베타 단계 UI 숨김 — `docs/beta-launch-deferred-features.md#search` 참고._
 

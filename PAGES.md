@@ -511,6 +511,7 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 | `/news` | News Feed | Yes (ISR) | Public |
 | `/news/[id]` | News Article Detail | Yes (SSG + ISR) | Public |
 | `/about` | About | Yes (SSG, static) | Public |
+| `/terms` | Terms of Service | Yes (SSG, static) | Public |
 
 **Global Search** is an overlay component (no route) — triggered by `⌘K` or search icon. _UI deferred for beta — see `docs/beta-launch-deferred-features.md#search`._
 

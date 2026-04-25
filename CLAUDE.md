@@ -119,6 +119,7 @@ src/
 | `/news` | News Feed | Category-tabbed article feed (정책/시장동향/분석/공지) |
 | `/news/[id]` | News Article | Full article with related listings |
 | `/about` | About | Service mission and the public data sources used by cheongyak.com |
+| `/terms` | Terms of Service | Service terms — no membership, no PII collection, operator contact, dispute resolution |
 
 **Global Search:** Overlay triggered by navigation search icon or `⌘K` shortcut. Cross-content search (listings + news) with recent search history. _Deferred for beta — see `docs/beta-launch-deferred-features.md#search`._
 

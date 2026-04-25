@@ -82,6 +82,7 @@ src/
 | **News Feed** | SSR + ISR (120s) | Frequently updated feed; ISR balances freshness with performance |
 | **News Article** | SSG + ISR (600s) | Published articles are near-static; ISR handles edits |
 | **About** | SSG (static) | `/about` is a marketing/identity page — content changes are rare and committed in code, so build-time prerender is enough |
+| **Terms of Service** | SSG (static) | `/terms` content is legal-grade and amended on a fixed effective date — committed in code, prerendered at build time |
 
 **Global Search:** Overlay component (no dedicated route) triggered by navigation icon or `⌘K`. CSR within the overlay.
 
