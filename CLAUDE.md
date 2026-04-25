@@ -307,6 +307,7 @@ vitest 3.
 - Focus: 2px solid `brand-primary-500` ring with 2px offset, visible on `:focus-visible` only
 - Touch targets: minimum 44×44px
 - Keyboard: full navigation support, logical tab order, focus management on route changes
+- Skip link: first focusable element in `src/app/layout.tsx` (`href="#main-content"` → `<main id="main-content">`). Hidden via `sr-only` until focus, then surfaces top-left. Lets keyboard / screen-reader users bypass nav directly to page content.
 - Reduced motion: respect `prefers-reduced-motion` — disable non-essential animation
 - Screen readers: semantic HTML, ARIA attributes where needed, descriptive alt text
 - Color-blind safety: never use color alone — pair with icon or text label
