@@ -56,7 +56,7 @@
 | 경로 | 전략 | 재검증 |
 |---|---|---|
 | `/` (Home) | SSR + ISR | 60s |
-| `/listings` (Listing) | SSR | 요청별 |
+| `/listings` (Listing) | SSR + ISR | 60s |
 | `/listings/[id]` (Detail) | SSG + ISR | 300s |
 | `/news` (Feed) | SSR + ISR | 120s |
 | `/news/[id]` (Article) | SSG + ISR | 600s |

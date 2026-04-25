@@ -109,7 +109,7 @@
 | `/` | `[data-testid=home-hero-skeleton]` | `section:has(> [data-hero])` 또는 HomeHero 래퍼에 `data-section="home-hero"` 추가 |
 | `/` | `[data-testid=weekly-schedule-skeleton]` | WeeklySchedule 래퍼에 `data-section="weekly-schedule"` 추가 |
 | `/` | `[data-testid=top-trades-skeleton]` | TopTrades 래퍼에 `data-section="top-trades"` 추가 |
-| `/listings` | `[data-testid=subscription-list-skeleton] > .grid` (카드 그리드) | `.grid:has([data-card])` (실제 카드 그리드) |
+| `/listings` | `[data-testid=listings-loading]` (라우트 `loading.tsx` 셸) + `[data-testid=subscription-card-skeleton]` (첫 카드 측정) | `main article` (첫 실제 카드) — Phase 2.0 SSR 전환 후 client `SubscriptionListSkeleton` 은 삭제, `loading.tsx` 가 단독 fallback |
 | `/listings/[id]` | loading.tsx의 Schedule/Supply/Links 각 Skeleton에 testid 부여 | 동일 name의 `data-section` 매칭 |
 
 ### 변경 대상

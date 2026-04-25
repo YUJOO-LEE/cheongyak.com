@@ -2,17 +2,18 @@
  * Next.js instrumentation hook — runs once per server process on boot.
  *
  * Only used today for the Phase B-2b skeleton-parity Playwright gate
- * (see `e2e/skeleton-parity.spec.ts`). The home route is a pure Server
- * Component that fetches `/main/*` server-side, so the browser-level
- * `page.route` trick the other tests rely on cannot reach those
- * requests. Instead, the test webServer boots with
+ * (see `e2e/skeleton-parity.spec.ts`). The home and `/listings` routes
+ * are Server Components that fetch their data server-side, so the
+ * browser-level `page.route` trick the other tests rely on cannot
+ * reach those requests. Instead, the test webServer boots with
  * `SKELETON_PARITY_DELAY_MS=<ms>` set, and this hook monkey-patches
- * `globalThis.fetch` to both (a) stall `/main/*` for that many
- * milliseconds so the home Suspense fallbacks stay rendered long enough
- * to measure AND (b) respond with the same deterministic fixture data
- * our Vitest suite already relies on. Real backend state (which can
- * change between runs and legitimately be empty) would make the height
- * parity assertion non-deterministic, so we serve from fixtures.
+ * `globalThis.fetch` to both (a) stall `/main/*` and `/apt-sales` for
+ * that many milliseconds so the route's `loading.tsx` stays rendered
+ * long enough to measure AND (b) respond with the same deterministic
+ * fixture data our Vitest suite already relies on. Real backend state
+ * (which can change between runs and legitimately be empty) would
+ * make the height parity assertion non-deterministic, so we serve
+ * from fixtures.
  *
  * Guard rails:
  * - `process.env.NODE_ENV !== 'development'` short-circuits everything
@@ -20,8 +21,9 @@
  *   Next does not bundle `instrumentation.ts` into client code, so the
  *   fixture imports never ship to the browser.
  * - Empty / non-numeric `SKELETON_PARITY_DELAY_MS` is a no-op.
- * - Only requests whose URL contains `/main/` are delayed / faked; HMR
- *   pings, RSC payload fetches, and everything else pass through
+ * - Only requests whose URL ends with `/main/<x>` or `/apt-sales` are
+ *   delayed / faked; HMR pings, RSC payload fetches, detail-page
+ *   requests (`/apt-sales/<id>`), and everything else pass through
  *   untouched.
  * - The patch is installed once at startup; dev-server restarts
  *   reinstall it naturally.
@@ -40,24 +42,38 @@ export async function register(): Promise<void> {
     { mainStats },
     { mainWeeklySchedule },
     { mainTopTrades },
+    { aptSalesItems },
   ] = await Promise.all([
     import('./mocks/fixtures/main/featured'),
     import('./mocks/fixtures/main/stats'),
     import('./mocks/fixtures/main/weekly-schedule'),
     import('./mocks/fixtures/main/top-trades'),
+    import('./mocks/fixtures/apt-sales'),
   ]);
 
   /**
-   * URL suffix → JSON body (already wrapped in the `{ data: ... }`
-   * envelope that `createEnvelopeParser` in `src/shared/types/main-api.ts`
-   * expects). We match on suffix so the base URL (prod vs staging vs
-   * localhost proxy) doesn't need to be hard-coded here.
+   * URL suffix → JSON body. The `/main/*` payloads are wrapped in the
+   * `{ data: ... }` envelope `createEnvelopeParser` (see
+   * `src/shared/types/main-api.ts`) expects. The `/apt-sales` payload
+   * uses the same envelope shape — `{ data: { totalCount, page, size,
+   * items } }` — that the real backend returns. We match on suffix so
+   * the base URL (prod vs staging vs localhost proxy) doesn't need
+   * hard-coding here.
    */
+  const PAGE_SIZE = 20;
   const fixtureResponses: Record<string, () => unknown> = {
     '/main/featured': () => ({ data: mainFeatured }),
     '/main/stats': () => ({ data: mainStats }),
     '/main/weekly-schedule': () => ({ data: mainWeeklySchedule }),
     '/main/top-trades': () => ({ data: mainTopTrades }),
+    '/apt-sales': () => ({
+      data: {
+        totalCount: aptSalesItems.length,
+        page: 0,
+        size: PAGE_SIZE,
+        items: aptSalesItems.slice(0, PAGE_SIZE),
+      },
+    }),
   };
 
   const matchFixture = (url: string): (() => unknown) | null => {
@@ -79,7 +95,10 @@ export async function register(): Promise<void> {
           ? input.toString()
           : input.url;
 
-    const fixture = url.includes('/main/') ? matchFixture(url) : null;
+    const fixture =
+      url.includes('/main/') || url.includes('/apt-sales')
+        ? matchFixture(url)
+        : null;
     if (fixture) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
       return new Response(JSON.stringify(fixture()), {
@@ -95,6 +114,6 @@ export async function register(): Promise<void> {
   // active. Suppressed outside dev by the guard above.
   // eslint-disable-next-line no-console
   console.log(
-    `[skeleton-parity] fetch shim active — /main/* fixtured + delayed ${delayMs}ms`,
+    `[skeleton-parity] fetch shim active — /main/* + /apt-sales fixtured + delayed ${delayMs}ms`,
   );
 }

@@ -95,7 +95,6 @@ function PaginationLink({
   return (
     <Link
       href={href}
-      scroll={false}
       className={[
         baseClass,
         active

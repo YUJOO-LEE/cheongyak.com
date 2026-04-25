@@ -79,7 +79,7 @@ src/
 | 페이지 | 전략 | 근거 |
 |---|---|---|
 | **홈 대시보드** | SSR + ISR (60s) | 최신 목록과 뉴스 표시; 신선하면서도 캐시 가능해야 함 |
-| **청약 목록** | Server shell + CSR fetch | 라우트 파일은 await 하지 않는 Server Component 라서 `<Link>` 가 RSC payload 를 즉시 prefetch 할 수 있음. 데이터 fetch 는 TanStack Query 가 소유 (`aptSalesQueryOptions`, staleTime 60s) 하며 `keepPreviousData` 로 필터/페이지 전환 시 스켈레톤 깜빡임 없음. 초기 HTML 에 리스트가 없지만 목록 페이지엔 structured data 가 없어 SEO 영향 없음 (크롤러는 hydration 후 JS 실행 결과를 색인). |
+| **청약 목록** | SSR + ISR (60s) | `async` Server Component 가 `fetchAptSalesListSSR(request)` 를 await 한 뒤 매핑한 결과 셋을 `SubscriptionListClient` 에 props 로 전달. ISR 캐시 키는 URL — 가장 흔한 진입(빈 필터 + page=1)과 재방문하는 필터 조합은 hot 캐시, 드문 조합만 fresh hit. 초기 HTML 에 카드 그리드가 모두 포함돼 SEO/GEO 크롤러에 친화적. 필터/페이지 인터랙션은 nuqs 가 `shallow: false, scroll: true` 옵션으로 URL 을 갱신해 Server Component 를 다시 실행하고 새 결과 리스트의 최상단으로 스크롤. |
 | **청약 상세** | ISR (revalidate 300s) | 서버 컴포넌트가 `fetchAptSalesDetailSSR(id)` (`/apt-sales/{id}` + `next.revalidate=300`) 를 await. 숫자 PK 라 `generateStaticParams` 를 제거하고 on-demand ISR 만 사용 — 빌드 시 전량 사전 렌더는 비현실적이고, 300s revalidate 로 핫 페이지만 warm 유지. 404 는 `ApiClientError` → `notFound()` 로 처리. |
 | **뉴스 피드** | SSR + ISR (120s) | 자주 업데이트되는 피드; ISR로 신선도와 성능의 균형 |
 | **뉴스 기사** | SSG + ISR (600s) | 게시된 기사는 거의 정적; ISR로 수정사항 반영 |
@@ -104,7 +104,7 @@ src/
 
 **원칙:** Server Components에서의 서버 사이드 데이터 페칭을 우선. TanStack Query는 클라이언트 인터랙티브 패턴(필터 업데이트, 폴링)에서만 사용. Zustand store는 작고 기능 단위로 유지. 최대 3개.
 
-**nuqs 연동:** `src/app/layout.tsx`에서 `QueryProvider` 바깥을 `NuqsAdapter`로 감쌉니다. `/listings`의 필터(`status`, `type`, `page`)는 `useQueryState`로 URL 쿼리 파라미터에 바인딩되어, 이동·새로고침·링크 공유 시에도 필터 상태가 유지됩니다. 필터 값이 변경되면 중앙 집중화된 effect 하나가 `page`를 1로 리셋합니다 — 변경 핸들러는 페이지네이션을 직접 건드리지 않습니다.
+**nuqs 연동:** `src/app/layout.tsx`에서 `QueryProvider` 바깥을 `NuqsAdapter`로 감쌉니다. `/listings`의 필터(`status`, `type`, `region`, `page`)는 `useQueryStates`로 URL 쿼리 파라미터에 바인딩되어, 이동·새로고침·링크 공유 시에도 필터 상태가 유지됩니다. 훅은 `shallow: false`(어떤 변경이든 Server Component 를 다시 실행해 새 결과 셋을 반영)와 `scroll: true`(필터/페이지 변경 시 새 리스트 최상단으로 이동) 옵션으로 구성됩니다. 네 개의 파라미터가 하나의 atomic setter 를 공유 — 필터 변경은 새 값 + `page: 1` 을 한 번의 URL push 로 묶어, 더블 렌더링을 방지합니다.
 
 **FilterBar 슬롯 API:** `src/features/listings/components/filter-bar/`의 `FilterBar`는 3개 prop(`activeCount`, `onReset`, `children`)을 받는 shell이며, `FilterBar.DesktopBar`와 `FilterBar.Sheet` 두 개의 compound 슬롯을 노출합니다. 각 슬롯은 `FilterField.*` 조합을 받습니다 — `Inline`(데스크톱 칩 행), `Stacked`(시트 내 수직 그룹), `Range`(Phase 6 슬라이더). 새 필터 추가는 각 슬롯에 `FilterField` 인스턴스를 하나 추가하는 것으로 끝나며 shell 본체는 변경하지 않습니다. 이로써 §6 Component Conventions의 5-prop 상한을 필터 확장 속에서도 유지합니다.
 
@@ -157,10 +157,10 @@ Client Component → TanStack Query hook → Typed API Client → API Server
 3. 생성된 fetch 함수는 `src/shared/lib/api-client.ts`의 `apiClientMutator`를 통해 라우팅 — base URL, headers, `ApiClientError` 정규화의 단일 지점.
 4. CI는 `pnpm codegen:check`를 실행 — 스펙이 변경됐는데 생성 파일이 재커밋되지 않으면 실패.
 
-### 클라이언트 데이터 흐름 (예: `/listings` → `/apt-sales`)
-1. 라우트 파일(`src/app/listings/page.tsx`)은 `async` 도, prefetch 도, `HydrationBoundary` 도 없는 얇은 Server Component. 이렇게 둬야 RSC payload 가 즉시 반환돼 `<Link>` prefetch 가 살아 있고, `loading.tsx` 가 백엔드 라운드트립 동안 사용자를 붙잡지 않음.
-2. `SubscriptionListClient` 가 nuqs 로 URL 필터 상태를 읽고 `toAptSalesRequest` 로 `AptSalesListRequest` 를 만들어 `useQuery({ ...aptSalesQueryOptions(request), placeholderData: keepPreviousData })` 를 호출. 첫 페인트의 스켈레톤은 내부 `SubscriptionListSkeleton` 이 담당하며, `keepPreviousData` 가 필터/페이지 변경 시 기존 결과를 유지해 스켈레톤이 번쩍이지 않음.
-3. 쿼리의 `staleTime: 60_000` 덕에 세션 내 재방문(예: 홈 → `/listings` → 뒤로 → `/listings`)은 TanStack 캐시에서 즉시 렌더.
+### SSR 데이터 흐름 (예: `/listings` → `/apt-sales`)
+1. 라우트 파일(`src/app/listings/page.tsx`)은 `export const revalidate = 60` 을 가진 `async` Server Component. `searchParams` 를 await 한 뒤 `src/features/listings/lib/listings-search-params.ts` 의 `parseListingsSearchParams` 로 파싱하고, `fetchAptSalesListSSR(request)` 를 호출 — 내부적으로 `next: { revalidate: 60 }` 을 fetch 에 전달해 Next ISR 캐시에 URL 단위로 저장. 가장 흔한 진입(빈 필터 + page=1)은 hot 캐시로 유지되고, 드문 필터 조합만 한 번씩 fresh hit.
+2. Server Component 가 `Item[]` → `Subscription[]` (`mapItemToSubscription`) 매핑과 `totalPages` 계산까지 끝낸 뒤 props 로 `SubscriptionListClient` 에 전달. 캐시 miss 동안에는 라우트의 `loading.tsx` 가 사용자에게 보이는 fallback; 캐시 hit 인 경우엔 Next 가 캐시된 HTML 을 즉시 스트리밍해 loader 프레임 없이 페인트.
+3. `SubscriptionListClient` 는 `'use client'` 셸 — URL 바인딩된 필터 상태(`useQueryStates(filtersSchema, { shallow: false, scroll: true })`)와 모바일 시트 draft 버퍼만 소유. `shallow: false` 로 모든 필터/페이지 변경이 Server Component 를 다시 실행해 새 결과를 반영하고, `scroll: true` 로 새 결과 리스트의 최상단으로 사용자를 이동 — 필터/페이지 전환은 "새 결과 셋"이라는 인상을 줘야 한다는 UX 요구사항 반영.
 4. `src/features/listings/lib/apt-sales-query.ts` wrapper 가 존재하는 이유: orval 이 생성한 param 형태가 `{ request: AptSalesListRequest }` 라서, wrapper 가 URL 직렬화(flat `status[]`, `regionCode[]`)를 담당. 생성 타입은 source of truth 로 유지하면서 직렬화만 우회.
 
 ### 에러 처리 패턴
@@ -223,7 +223,7 @@ interface ApiError {
 |---|---|---|
 | **LCP** | < 2.5s | 스크롤 이전 콘텐츠 서버 렌더링; 히어로 이미지 preload; 초기 뷰에서 클라이언트 사이드 데이터 페칭 회피 |
 | **INP** | < 200ms | 메인 스레드 작업 최소화; 비긴급 업데이트에 `startTransition` 사용; 필터 입력 debounce |
-| **CLS** | < 0.1 | 모든 이미지에 명시적 `width`/`height`; 스켈레톤 플레이스홀더가 최종 레이아웃과 일치 (형제 `*.skeleton.tsx` + 라우트 `loading.tsx`, 매 PR 에서 `loading.test.tsx` RTL 게이트로 고정하고, main 전용 Playwright 페리티 게이트 `e2e/skeleton-parity.spec.ts` 가 `/listings` 는 `page.route` 로 per-card 페리티를, `/` 홈은 `src/instrumentation.ts` 로 `/main/*` 서버 fetch 를 fixture + 지연시켜 Hero + TopTrades 페리티를 추가 고정, CI 연결은 `.github/workflows/skeleton-parity.yml` 이 `main` `push` + `workflow_dispatch` 에서 실행하며 /listings 용으로 레포 시크릿 `API_BACKEND_URL` 필요 — `docs/skeleton-parity-test-plan.md` 참조); 레이아웃 변경 없는 폰트 스왑 |
+| **CLS** | < 0.1 | 모든 이미지에 명시적 `width`/`height`; 스켈레톤 플레이스홀더가 최종 레이아웃과 일치 (형제 `*.skeleton.tsx` + 라우트 `loading.tsx`, 매 PR 에서 `loading.test.tsx` RTL 게이트로 고정하고, main 전용 Playwright 페리티 게이트 `e2e/skeleton-parity.spec.ts` 가 `/listings`(per-card 페리티)와 `/` 홈(Hero + TopTrades) 모두 `src/instrumentation.ts` 로 서버 fetch(`/apt-sales` / `/main/*`)를 fixture + 지연시켜 라우트의 `loading.tsx` 가 측정 가능한 시간만큼 보이도록 고정, CI 연결은 `.github/workflows/skeleton-parity.yml` 이 `main` `push` + `workflow_dispatch` 에서 실행하며 빌드용으로 레포 시크릿 `API_BACKEND_URL` 필요 — `docs/skeleton-parity-test-plan.md` 참조); 레이아웃 변경 없는 폰트 스왑 |
 
 ### 번들 예산
 | 예산 항목 | 목표 |

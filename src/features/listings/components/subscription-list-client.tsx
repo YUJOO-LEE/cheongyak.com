@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   createSerializer,
   parseAsArrayOf,
@@ -10,24 +9,18 @@ import {
   useQueryStates,
 } from 'nuqs';
 import { SubscriptionCard } from './subscription-card';
-import { SubscriptionListSkeleton } from './subscription-list-skeleton';
 import { FilterBar, FilterField } from './filter-bar';
 import { statusOptions, typeOptions } from './filter-bar/filter-bar.options';
 import { EmptyState, Pagination } from '@/shared/components';
-import { aptSalesQueryOptions } from '@/features/listings/lib/apt-sales-query';
-import {
-  PAGE_SIZE,
-  toAptSalesRequest,
-} from '@/features/listings/lib/listings-search-params';
 import {
   REGION_GROUPS,
   REGION_LABEL_MAP,
-  mapItemToSubscription,
 } from '@/features/listings/lib/map-apt-sales';
 import type { ItemRegionCode } from '@/shared/api/generated/schemas/itemRegionCode';
 import {
   SubscriptionStatusSchema,
   SubscriptionTypeSchema,
+  type Subscription,
   type SubscriptionStatus,
   type SubscriptionType,
 } from '@/shared/types/api';
@@ -57,10 +50,11 @@ const regionGroups = REGION_GROUPS.map((group) => ({
   })),
 }));
 
-// All four filter URL params share one atomic setter. Committing value +
-// page-reset together is what makes a chip click produce exactly one URL
-// push (previously filter change and page reset fired sequentially,
-// causing a double render and skeleton flicker).
+// Schema shared between filter inputs and the pagination href serializer.
+// Pagination needs a baseHref that carries the current filters so page
+// navigation doesn't strip them. `createSerializer` drops default values
+// (page=1, empty arrays), so the result is `/listings` when clean and
+// `/listings?status=…&region=…` with filters applied.
 const filtersSchema = {
   status: statusParser,
   type: typeParser,
@@ -68,19 +62,39 @@ const filtersSchema = {
   page: parseAsInteger.withDefault(1),
 };
 
-// Pagination needs a baseHref that carries the current filters so page
-// navigation doesn't strip them. `createSerializer` drops default values
-// (page=1, empty arrays), so the result is `/listings` when clean and
-// `/listings?status=…&region=…` with filters applied.
 const serializeFilters = createSerializer(filtersSchema);
 
-export function SubscriptionListClient() {
-  const [filters, setFilters] = useQueryStates(filtersSchema);
+interface SubscriptionListClientProps {
+  subscriptions: Subscription[];
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+/**
+ * Client surface for `/listings`. Data comes pre-fetched from the
+ * Server Component (`page.tsx`) — this layer owns only the URL-bound
+ * filter state and the mobile-sheet draft buffer.
+ *
+ * `useQueryStates` is configured with `shallow: false` so any filter
+ * change triggers a router transition (re-runs the route, re-fetches
+ * with the new searchParams, drops `loading.tsx` for the wait), and
+ * `scroll: true` so the user lands at the top of the new result list.
+ */
+export function SubscriptionListClient({
+  subscriptions,
+  totalCount,
+  totalPages,
+  currentPage,
+}: SubscriptionListClientProps) {
+  const [filters, setFilters] = useQueryStates(filtersSchema, {
+    shallow: false,
+    scroll: true,
+  });
   const {
     status: selectedStatus,
     type: selectedType,
     region: selectedRegions,
-    page: currentPage,
   } = filters;
 
   const activeFilterCount =
@@ -132,29 +146,6 @@ export function SubscriptionListClient() {
   function handleReset() {
     setFilters({ status: null, type: null, region: null, page: 1 });
   }
-
-  const request = toAptSalesRequest({
-    status: selectedStatus,
-    type: selectedType,
-    region: selectedRegions,
-    page: currentPage,
-  });
-
-  // `keepPreviousData` lets the card grid keep rendering the old results
-  // while the new ones fetch — no Suspense fallback, no skeleton flicker.
-  // The route-level server file is a bare shell; this client owns the
-  // first fetch too, so the route skeleton from `loading.tsx` is only
-  // visible for the RSC transition (near-instant) and the
-  // `SubscriptionListSkeleton` below covers the actual API wait.
-  const { data: envelope } = useQuery({
-    ...aptSalesQueryOptions(request),
-    placeholderData: keepPreviousData,
-  });
-
-  const response = envelope?.data.data;
-  const subscriptions = (response?.items ?? []).map(mapItemToSubscription);
-  const totalCount = response?.totalCount ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
     <>
@@ -216,9 +207,7 @@ export function SubscriptionListClient() {
         </FilterBar.Sheet>
       </FilterBar>
 
-      {!envelope ? (
-        <SubscriptionListSkeleton />
-      ) : subscriptions.length === 0 ? (
+      {subscriptions.length === 0 ? (
         <div className="animate-scale-in">
           <EmptyState size="lg">
             <p className="text-body-lg text-text-secondary">

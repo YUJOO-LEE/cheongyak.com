@@ -54,7 +54,7 @@
 | Route | Strategy | Revalidation |
 |---|---|---|
 | `/` (Home) | SSR + ISR | 60s |
-| `/listings` (Listing) | SSR | Per-request |
+| `/listings` (Listing) | SSR + ISR | 60s |
 | `/listings/[id]` (Detail) | SSG + ISR | 300s |
 | `/news` (Feed) | SSR + ISR | 120s |
 | `/news/[id]` (Article) | SSG + ISR | 600s |

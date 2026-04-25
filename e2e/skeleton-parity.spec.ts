@@ -9,13 +9,15 @@
  *
  * Scope & known limitations (intentional):
  *
- * - `/listings` is covered because the page keeps its own client-side
- *   skeleton (`SubscriptionListSkeleton`) visible until TanStack Query
- *   resolves `/api/backend/apt-sales`. We delay that fetch with
- *   `page.route`, measure the first placeholder card, let the data land,
- *   then measure the first real `<article>`. Per-card parity is the
- *   right unit: the skeleton renders a fixed 6 cards while the real
- *   list renders whatever the backend returns (20+ per page today), so
+ * - `/listings` is covered via the same server-side fetch shim the
+ *   home gate uses (`src/instrumentation.ts` matches both `/main/*` and
+ *   `/apt-sales`). After the Phase 2.0 SSR cutover, `/listings` is a
+ *   Server Component that fetches `/apt-sales` server-side, so
+ *   browser-level `page.route` cannot reach it — we delay the
+ *   server-side fetch instead and measure during the route's
+ *   `loading.tsx` window. Per-card parity is the right unit: the
+ *   loader renders a fixed 6 placeholder cards while the real list
+ *   renders whatever the backend returns (20+ per page today), so
  *   outer-wrapper totals could never match — but each card must occupy
  *   the same box as its placeholder or users feel the shift.
  * - `/listings/[id]` is NOT covered at runtime. The detail page is a
@@ -78,9 +80,6 @@ import { test, expect, type Page } from '@playwright/test';
 
 /** Drift tolerance: 10% as agreed in the plan doc. */
 const TOLERANCE = 0.1;
-
-/** Artificial API latency window used to stretch the skeleton phase. */
-const API_DELAY_MS = 2_000;
 
 /**
  * Poll a selector's rendered height until two consecutive samples agree.
@@ -150,73 +149,57 @@ function expectHeightParity(
   ).toBeLessThanOrEqual(TOLERANCE);
 }
 
-/**
- * Install a delay on a specific URL glob. We unroute after measurement
- * so subsequent navigations inside the same test aren't throttled.
- */
-async function withApiDelay(
-  page: Page,
-  urlGlob: string,
-  handler: () => Promise<void>,
-): Promise<void> {
-  await page.route(urlGlob, async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, API_DELAY_MS));
-    await route.continue();
-  });
-  try {
-    await handler();
-  } finally {
-    await page.unroute(urlGlob);
-  }
-}
-
 test.describe('skeleton ↔ real layout parity (CLS gate)', () => {
   test('/listings first card matches subscription-card-skeleton', async ({
     page,
   }) => {
-    await withApiDelay(page, '**/api/backend/apt-sales*', async () => {
-      // Start the navigation; don't await its completion — we want the
-      // skeleton phase to be alive when we measure.
-      const navigation = page.goto('/listings');
+    // The webServer boots with `SKELETON_PARITY_DELAY_MS=2000`, which
+    // `src/instrumentation.ts` consumes to stall every server-side
+    // `/apt-sales` fetch by that many milliseconds. During the stall
+    // Next streams the route's `loading.tsx` fallback (which renders
+    // 6 SubscriptionCardSkeleton placeholders); when the fetch
+    // resolves, the real grid replaces the loader.
+    //
+    // Per-card parity is the right unit: the loader renders a fixed 6
+    // placeholder cards while the real list renders whatever the
+    // backend returns (currently 20+ per page), so the outer wrappers
+    // can never share a total height. Each placeholder must settle to
+    // the same box the real card will occupy or users feel the shift.
 
-      // Compare a single skeleton card to a single real card. The outer
-      // SubscriptionListSkeleton always renders 6 placeholder cards,
-      // while the real list renders whatever the backend returns
-      // (currently 20+ per page), so the outer wrappers can never
-      // share a total height. Per-card parity is the signal that
-      // actually matches real CLS: each placeholder must settle to the
-      // same box the real card will occupy.
-      const listSkeleton = page.getByTestId('subscription-list-skeleton');
-      await listSkeleton.waitFor({ state: 'visible', timeout: 10_000 });
+    // Kick navigation without awaiting — we need the loader phase
+    // alive when we measure. The await comes after heights are captured.
+    const navigation = page.goto('/listings', { waitUntil: 'load' });
 
-      const skeletonCard = page
-        .getByTestId('subscription-card-skeleton')
-        .first();
-      await skeletonCard.waitFor({ state: 'visible', timeout: 10_000 });
-      const skeletonCardHeight = await readStableHeight(
-        page,
-        '[data-testid="subscription-card-skeleton"]',
-        'subscription-card-skeleton',
-      );
+    const listSkeleton = page.getByTestId('listings-loading');
+    await listSkeleton.waitFor({ state: 'visible', timeout: 10_000 });
 
-      // Now let the navigation finish and the real grid render.
-      await navigation;
-      await listSkeleton.waitFor({ state: 'detached', timeout: 10_000 });
-      await page.waitForLoadState('networkidle');
+    const skeletonCard = page
+      .getByTestId('subscription-card-skeleton')
+      .first();
+    await skeletonCard.waitFor({ state: 'visible', timeout: 10_000 });
+    const skeletonCardHeight = await readStableHeight(
+      page,
+      '[data-testid="subscription-card-skeleton"]',
+      'subscription-card-skeleton',
+    );
 
-      // SubscriptionCard is rendered as `<Card as="article">`, so the
-      // first <article> inside <main> is the first real card. This is
-      // the structural twin of the skeleton card we just measured.
-      const realCard = page.locator('main article').first();
-      await realCard.waitFor({ state: 'visible', timeout: 10_000 });
-      const realCardHeight = await readStableHeight(
-        page,
-        'main article',
-        'subscription-card-real',
-      );
+    // Now let the navigation finish and the real grid render.
+    await navigation;
+    await listSkeleton.waitFor({ state: 'detached', timeout: 10_000 });
+    await page.waitForLoadState('networkidle');
 
-      expectHeightParity('listings-card', skeletonCardHeight, realCardHeight);
-    });
+    // SubscriptionCard is rendered as `<Card as="article">`, so the
+    // first <article> inside <main> is the first real card. This is
+    // the structural twin of the skeleton card we just measured.
+    const realCard = page.locator('main article').first();
+    await realCard.waitFor({ state: 'visible', timeout: 10_000 });
+    const realCardHeight = await readStableHeight(
+      page,
+      'main article',
+      'subscription-card-real',
+    );
+
+    expectHeightParity('listings-card', skeletonCardHeight, realCardHeight);
   });
 
   test('/ home Suspense fallbacks match their real sections', async ({
