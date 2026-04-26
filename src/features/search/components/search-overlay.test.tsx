@@ -3,16 +3,16 @@
  *
  * Coverage:
  *   1. Recent-searches storage model — SSR guard + MRU / de-dupe /
- *      MAX_RECENT slicing (reference implementation mirrors the helpers in
- *      the component body).
- *   2. Fixture-backed search filter — `useSearchResults` matches by name,
- *      sido, gugun, builder; caps at 5.
- *   3. Null render when `open={false}`.
- *   4. Interactive — body scroll lock, debounce 300ms, Escape close.
+ *      MAX_RECENT slicing (reference implementation mirrors the helpers
+ *      used by `useRecentSearches`).
+ *   2. Null render when `open={false}`.
+ *   3. Interactive — body scroll lock, debounce 350ms, min-length gate,
+ *      cleared-input no-call, Escape close.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -25,9 +25,31 @@ vi.mock('next/navigation', () => ({
   }),
 }));
 
+// The hook fetches `/api/search?q=...&limit=...` directly (Next.js
+// rewrites that to the upstream `/apt-sales/search`). Stub the global
+// fetch so we can capture the URL and avoid network access.
+const lastSearchArgs: { url: string; q: string }[] = [];
+const stubbedFetch = vi.fn(async (input: RequestInfo | URL) => {
+  const url =
+    typeof input === 'string'
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+  if (url.includes('/api/search')) {
+    const match = url.match(/[?&]q=([^&]+)/);
+    const q = match ? decodeURIComponent(match[1]) : '';
+    lastSearchArgs.push({ url, q });
+    return new Response(JSON.stringify({ subscriptions: [] }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  return new Response(null, { status: 404 });
+});
+
 import { SearchOverlay } from './search-overlay';
-import { subscriptions } from '@/mocks/fixtures/subscriptions';
-import type { Subscription } from '@/shared/types/api';
+import { renderWithNuqs } from '@/test/render';
 
 /* ─────────────────────────────────────────────────────────── */
 /* In-memory localStorage stand-in so we can exercise the      */
@@ -54,7 +76,7 @@ function makeStorage(): FakeStorage {
   };
 }
 
-/* Reference implementations — mirror search-overlay.tsx helpers. */
+/* Reference implementations — mirror the recent-searches hook helpers. */
 
 function getRecentSearches(
   hasWindow: boolean,
@@ -130,62 +152,25 @@ describe('SearchOverlay · recent-searches storage model (reference)', () => {
 });
 
 /* ─────────────────────────────────────────────────────────── */
-/* Fixture-backed search filter — mirrors useSearchResults     */
-/* body. Captures the 4-field match and the 5-item slice cap.  */
-/* ─────────────────────────────────────────────────────────── */
-
-function useSearchResultsRef(query: string): Subscription[] {
-  if (!query.trim()) return [];
-  const q = query.toLowerCase();
-  return subscriptions
-    .filter(
-      (s) =>
-        s.name.toLowerCase().includes(q) ||
-        s.location.sido.includes(q) ||
-        s.location.gugun.includes(q) ||
-        s.builder.toLowerCase().includes(q),
-    )
-    .slice(0, 5);
-}
-
-describe('SearchOverlay · fixture-backed search (reference)', () => {
-  it('returns no results for an empty or whitespace query', () => {
-    expect(useSearchResultsRef('')).toEqual([]);
-    expect(useSearchResultsRef('   ')).toEqual([]);
-  });
-
-  it('matches subscription name case-insensitively', () => {
-    const hits = useSearchResultsRef('래미안');
-    expect(hits.some((s) => s.name.includes('래미안'))).toBe(true);
-  });
-
-  it('matches by gugun region literal', () => {
-    const hits = useSearchResultsRef('서초구');
-    expect(hits.some((s) => s.location.gugun === '서초구')).toBe(true);
-  });
-
-  it('caps results at 5', () => {
-    // '동' substring hits dong values across many fixtures → cap kicks in.
-    const hits = useSearchResultsRef('동');
-    expect(hits.length).toBeLessThanOrEqual(5);
-  });
-});
-
-/* ─────────────────────────────────────────────────────────── */
 /* Server markup: open=false short-circuits to null render.    */
 /* ─────────────────────────────────────────────────────────── */
 
 describe('SearchOverlay · server markup', () => {
   it('emits no dialog markup when open is false', () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
     const html = renderToStaticMarkup(
-      <SearchOverlay open={false} onClose={() => undefined} />,
+      <QueryClientProvider client={client}>
+        <SearchOverlay open={false} onClose={() => undefined} />
+      </QueryClientProvider>,
     );
     expect(html).toBe('');
   });
 });
 
 /* ─────────────────────────────────────────────────────────── */
-/* Interactive — body scroll lock, debounce, Escape close.     */
+/* Interactive — body scroll lock, debounce, IME, Escape.      */
 /* These pin the useEffect-driven behavior that any future     */
 /* hook extraction must preserve 1:1.                          */
 /* ─────────────────────────────────────────────────────────── */
@@ -198,12 +183,12 @@ describe('SearchOverlay · body scroll lock', () => {
   });
 
   it('locks body overflow when open transitions to true', () => {
-    render(<SearchOverlay open onClose={() => undefined} />);
+    renderWithNuqs(<SearchOverlay open onClose={() => undefined} />);
     expect(document.body.style.overflow).toBe('hidden');
   });
 
   it('restores body overflow when the component rerenders closed', () => {
-    const { rerender } = render(
+    const { rerender } = renderWithNuqs(
       <SearchOverlay open onClose={() => undefined} />,
     );
     expect(document.body.style.overflow).toBe('hidden');
@@ -213,33 +198,68 @@ describe('SearchOverlay · body scroll lock', () => {
   });
 });
 
-describe('SearchOverlay · debounce 300ms', () => {
+describe('SearchOverlay · debounce + safeguards', () => {
   beforeEach(() => {
+    lastSearchArgs.length = 0;
+    stubbedFetch.mockClear();
+    vi.stubGlobal('fetch', stubbedFetch);
     vi.useFakeTimers();
   });
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
     cleanup();
   });
 
-  it('does not surface results until exactly 300ms after the last keystroke', () => {
-    render(<SearchOverlay open onClose={() => undefined} />);
-    const input = screen.getByPlaceholderText('청약명, 지역, 건설사 검색...');
+  it('does not call the search hook for queries shorter than 2 chars', () => {
+    renderWithNuqs(<SearchOverlay open onClose={() => undefined} />);
+    const input = screen.getByPlaceholderText('청약 단지명 검색...');
+
+    fireEvent.change(input, { target: { value: 'ㄱ' } });
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(lastSearchArgs).toEqual([]);
+  });
+
+  it('fires exactly once after 350ms following the last keystroke', () => {
+    renderWithNuqs(<SearchOverlay open onClose={() => undefined} />);
+    const input = screen.getByPlaceholderText('청약 단지명 검색...');
 
     fireEvent.change(input, { target: { value: '래미안' } });
 
-    // Before the full debounce delay, the results section must not yet exist.
     act(() => {
-      vi.advanceTimersByTime(299);
+      vi.advanceTimersByTime(349);
     });
-    expect(screen.queryByText(/청약 \(/)).toBeNull();
+    expect(lastSearchArgs).toEqual([]);
 
-    // One more ms crosses the 300ms boundary and the results section appears.
     act(() => {
       vi.advanceTimersByTime(1);
     });
-    expect(screen.getByText(/청약 \(/)).toBeTruthy();
+    expect(lastSearchArgs.map((a) => a.q)).toEqual(['래미안']);
   });
+
+  it('skips the search call when the user clears the input', () => {
+    renderWithNuqs(<SearchOverlay open onClose={() => undefined} />);
+    const input = screen.getByPlaceholderText('청약 단지명 검색...');
+
+    fireEvent.change(input, { target: { value: '래미안' } });
+    act(() => {
+      vi.advanceTimersByTime(350);
+    });
+    expect(lastSearchArgs.map((a) => a.q)).toContain('래미안');
+
+    fireEvent.change(input, { target: { value: '' } });
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    // The cleared state must not trigger a request for any keyword
+    // other than the still-debounced "래미안". Specifically, no call
+    // with q="" should ever fire — that's the protection we care about.
+    const distinct = Array.from(new Set(lastSearchArgs.map((a) => a.q)));
+    expect(distinct).toEqual(['래미안']);
+  });
+
 });
 
 describe('SearchOverlay · Escape key close', () => {
@@ -249,14 +269,14 @@ describe('SearchOverlay · Escape key close', () => {
 
   it('invokes onClose when Escape is pressed while open', () => {
     const onClose = vi.fn();
-    render(<SearchOverlay open onClose={onClose} />);
+    renderWithNuqs(<SearchOverlay open onClose={onClose} />);
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('does not invoke onClose for unrelated keys', () => {
     const onClose = vi.fn();
-    render(<SearchOverlay open onClose={onClose} />);
+    renderWithNuqs(<SearchOverlay open onClose={onClose} />);
     fireEvent.keyDown(document, { key: 'a' });
     expect(onClose).not.toHaveBeenCalled();
   });

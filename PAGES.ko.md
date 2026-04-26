@@ -24,13 +24,18 @@
 
 ### 통합 검색 (오버레이)
 
-> **상태:** 베타 단계 비공개. UI 숨김 처리, 코드는 보존. 복원 절차는 `docs/beta-launch-deferred-features.md#search` 참고.
-
 - **실행:** 네비게이션 검색 아이콘 클릭 또는 `⌘K` (`Ctrl+K`) 단축키
-- **범위:** 청약 (이름, 위치, 시공사) 및 뉴스 (제목, 본문) 전체 검색
-- **UI:** 전체 화면 모달 오버레이 (배경 딤), 중앙 패널 (최대 640px)
-- **결과:** 유형별 그룹화 (청약, 뉴스), 그룹당 최대 5개 미리보기
-- **최근 검색어:** localStorage에 저장, 최대 10개
+- **범위:** APT 청약 단지명만 — Next.js rewrite alias `GET /api/search?q=...&limit=...` 로 호출 (서버단에서 백엔드 `/apt-sales/search` 로 프록시; 단지명 부분 일치, q 2~20자, limit 기본 10·최대 50). 뉴스 검색은 아직 연결되지 않음.
+- **UI:** 전체 화면 모달 오버레이(배경 딤), 중앙 패널(최대 640px). 진입은 슬라이드 업, 닫힘은 슬라이드 다운 + 페이드 아웃 (`.search-panel-closing`).
+- **결과:** 키워드당 최대 8건의 청약을 일반 행 형태로 노출(중첩 카드 스타일 사용 금지). hover/active 는 박스섀도우/transform 없이 배경색 변화 (`bg-bg-sunken` / `bg-chip-bg-hover`) 만 사용 — 페이지 전반 톤과 일치.
+- **서버 부담 보호 장치 (반드시 유지):**
+  - 최소 길이 게이트 — 2글자 미만에서는 호출 차단, "검색어를 2글자 이상 입력해 주세요" 안내
+  - 빈 값/공백만의 입력은 단락 처리 (reset 버튼·백스페이스로 비웠을 때 호출 안 발생)
+  - 입력 스트림에 350 ms 디바운스
+  - TanStack Query `staleTime: 60_000` — 1분 이내 동일 키워드는 캐시 히트
+  - `maxLength={20}` — 백엔드 `q` 상한과 동일
+- **리셋 어포던스:** 인풋에 값이 있을 때만 닫기 버튼 옆에 `XCircle` 리셋 버튼이 노출. 브라우저 네이티브 `<input type="search">` 의 클리어 버튼은 글로벌 셀렉터 (`input[type="search"]::-webkit-search-cancel-button { appearance: none }`) 로 숨김.
+- **최근 검색:** localStorage 저장, 최대 10개, MRU 순서, 중복 제거
 - **키보드:** `Escape`로 닫기, 열릴 때 입력란 자동 포커스
 
 ### 푸터
@@ -548,7 +553,7 @@
 | `/about` | 소개 | Yes (SSG, 정적) | 공개 |
 | `/terms` | 이용약관 | Yes (SSG, 정적) | 공개 |
 
-**통합 검색**은 오버레이 컴포넌트 (라우트 없음) — `⌘K` 또는 검색 아이콘으로 실행. _베타 단계 UI 숨김 — `docs/beta-launch-deferred-features.md#search` 참고._
+**통합 검색**은 오버레이 컴포넌트 (라우트 없음) — `⌘K` 또는 검색 아이콘으로 실행. `GET /apt-sales/search` 에 연결됨(청약 단지명만). 보호 장치 정책은 위쪽 통합 검색 섹션 참고.
 
 - **ISR:** Incremental Static Regeneration (라우트별 재검증 주기 상이 — ARCHITECTURE.md 참조)
 - **SSR:** Server-Side Rendering (실시간 데이터)

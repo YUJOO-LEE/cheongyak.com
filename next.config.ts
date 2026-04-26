@@ -58,6 +58,13 @@ const nextConfig: NextConfig = {
       );
     }
     return [
+      // Friendly client-facing alias for the apt-sales autocomplete endpoint
+      // so the browser URL stays `/api/search?q=...` instead of leaking the
+      // backend's resource grouping (`/apt-sales/search`).
+      {
+        source: '/api/search',
+        destination: `${BACKEND_URL}/apt-sales/search`,
+      },
       {
         source: '/api/backend/:path*',
         destination: `${BACKEND_URL}/:path*`,

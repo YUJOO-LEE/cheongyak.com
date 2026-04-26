@@ -487,6 +487,36 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Reset macOS' native `<input type="search">` chrome (rounded inset
+   border + blue inset focus glow) so our Tailwind styles are the only
+   thing painted on the field. Without this, focusing the search input
+   shows a blue glow that doesn't align with our flat header background. */
+input[type='search'] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* The global :focus-visible rule (see FOCUS STYLES below) draws a 2px
+   primary outline with a 2px offset. The offset is fine for round
+   buttons but reads as a flaky white gap when the focused element is
+   a flat search input embedded in a colored header. Keep the outline,
+   pin the offset to 0 for search inputs only. */
+input[type='search']:focus-visible {
+  outline-offset: 0;
+}
+/* Hide the browser's native clear button on <input type="search">.
+   Components that need a clear affordance supply their own button so
+   the two clear icons would otherwise stack at the input's right edge. */
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type='search']::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /* ============================================================
    TYPOGRAPHY UTILITY CLASSES
    ============================================================ */
@@ -703,6 +733,16 @@ body[data-app-ready='true'] #app-splash {
   animation: none !important;
   transition: transform var(--duration-normal) var(--easing-in);
   transform: translateY(100%);
+}
+
+/* Search overlay panel close — mirrors .animate-slide-up's entry. */
+.search-panel-closing {
+  animation: none !important;
+  transition:
+    opacity var(--duration-fast) var(--easing-in),
+    transform var(--duration-fast) var(--easing-in);
+  opacity: 0;
+  transform: translateY(8px);
 }
 
 .animate-fade-in-up {

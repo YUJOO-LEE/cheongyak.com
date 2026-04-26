@@ -54,3 +54,23 @@ export const GetAptSalesDetailParams = zod.object({
 export const GetAptSalesNewsParams = zod.object({
   "id": zod.number().describe('공고 PK (내부 식별자)')
 })
+
+
+/**
+ * 단지명 부분 일치 검색 (자동완성용). 기본 10건, 최대 50건.
+ * @summary APT 청약 단지명 검색
+ */
+export const searchAptSalesQueryRequestQMin = 2;
+export const searchAptSalesQueryRequestQMax = 20;
+
+export const searchAptSalesQueryRequestLimitDefault = 10;
+export const searchAptSalesQueryRequestLimitMax = 50;
+
+
+
+export const SearchAptSalesQueryParams = zod.object({
+  "request": zod.object({
+  "q": zod.string().min(searchAptSalesQueryRequestQMin).max(searchAptSalesQueryRequestQMax).describe('검색어 (2~20자)'),
+  "limit": zod.number().min(1).max(searchAptSalesQueryRequestLimitMax).default(searchAptSalesQueryRequestLimitDefault).describe('결과 개수 (1~50, 기본 10)')
+})
+})

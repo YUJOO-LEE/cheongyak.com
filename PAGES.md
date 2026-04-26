@@ -22,13 +22,20 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 ### Global Search (Overlay)
 
-> **Status:** Deferred for beta. UI hidden, code preserved. Restoration tracked in `docs/beta-launch-deferred-features.md#search`.
-
 - **Trigger:** Navigation search icon click or `⌘K` (`Ctrl+K`) keyboard shortcut
-- **Scope:** Searches across listings (name, location, builder) and news (title, body)
-- **UI:** Full-screen modal overlay with backdrop, centered panel (max 640px)
-- **Results:** Grouped by type (Listings, News) with max 5 preview results per group
-- **Recent searches:** Persisted in localStorage, max 10 items
+- **Scope:** Apartment listings only — calls a friendly Next.js rewrite alias
+  `GET /api/search?q=...&limit=...` that proxies to the upstream
+  `/apt-sales/search` (단지명 부분 일치, q 2~20자, limit 기본 10·최대 50). News search is not yet wired.
+- **UI:** Full-screen modal overlay with backdrop, centered panel (max 640px). Slide-up entry, slide-down + fade close animation (`.search-panel-closing`).
+- **Results:** Up to 8 listings per query, rendered as plain rows (no nested card chrome). Hover/active states use background color shifts (`bg-bg-sunken` / `bg-chip-bg-hover`), never shadow or translate, to match the broader page mood.
+- **Server-load safeguards (must-keep):**
+  - Min length gate — no request fires below 2 chars; UI surfaces "검색어를 2글자 이상 입력해 주세요"
+  - Empty / whitespace-only input is short-circuited (cleared via the reset button or backspace never produces a request)
+  - 350 ms debounce on the input stream
+  - TanStack Query `staleTime: 60_000` — repeat queries within a minute are cache hits
+  - `maxLength={20}` mirrors the backend `q` upper bound
+- **Reset affordance:** When the input has any value, a `XCircle` reset button appears in-row alongside the close button. The browser's native `<input type="search">` clear is hidden globally (`input[type="search"]::-webkit-search-cancel-button { appearance: none }`).
+- **Recent searches:** Persisted in localStorage, max 10 items, MRU order, de-duped
 - **Keyboard:** `Escape` to close, auto-focus on input when opened
 
 ### Footer
@@ -564,7 +571,7 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 | `/about` | About | Yes (SSG, static) | Public |
 | `/terms` | Terms of Service | Yes (SSG, static) | Public |
 
-**Global Search** is an overlay component (no route) — triggered by `⌘K` or search icon. _UI deferred for beta — see `docs/beta-launch-deferred-features.md#search`._
+**Global Search** is an overlay component (no route) — triggered by `⌘K` or search icon. Wired to `GET /api/search` (Next.js rewrite alias for the upstream `/apt-sales/search`, listings only); see the Global Search section above for safeguard policy.
 
 - **ISR:** Incremental Static Regeneration (revalidation intervals vary per route — see ARCHITECTURE.md)
 - **SSR:** Server-Side Rendering (real-time data)
