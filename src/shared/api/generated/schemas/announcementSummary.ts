@@ -6,6 +6,7 @@
  * OpenAPI spec version: 2.0.0
  */
 import type { AnnouncementSummaryHouseDetailType } from './announcementSummaryHouseDetailType';
+import type { AnnouncementSummaryPhasesItem } from './announcementSummaryPhasesItem';
 import type { AnnouncementSummaryStatus } from './announcementSummaryStatus';
 
 /**
@@ -15,42 +16,26 @@ export interface AnnouncementSummary {
   /** 공고 PK */
   id: number;
   /** 단지명 */
-  houseName?: string;
+  houseName: string;
   /** 청약 상태 코드 (enum) */
   status: AnnouncementSummaryStatus;
+  /** APT 세부 유형 (PRIVATE=민영, NATIONAL=국민) */
+  houseDetailType: AnnouncementSummaryHouseDetailType;
+  /** 시군구명 (supplyAddress 파싱 결과) */
+  sigunguName: string;
   /**
-     * APT 세부 유형 (PRIVATE=민영, NATIONAL=국민). 미등록 코드는 null
-     * @nullable
-     */
-  houseDetailType?: AnnouncementSummaryHouseDetailType;
-  /**
-     * 시군구명 (supplyAddress 파싱 결과)
-     * @nullable
-     */
-  sigunguName?: string | null;
-  /**
-     * 동·읍·면명 (supplyAddress 파싱 결과)
+     * 동·읍·면명 (supplyAddress 파싱 결과). 파싱 실패 시 null
      * @nullable
      */
   dongName?: string | null;
-  /**
-     * 시공사명
-     * @nullable
-     */
-  constructorName?: string | null;
-  /**
-     * 총 공급 세대수
-     * @nullable
-     */
-  totalSupplyHousehold?: number | null;
-  /**
-     * 최소 공급면적 (m²)
-     * @nullable
-     */
-  minSupplyArea?: number | null;
-  /**
-     * 최대 공급면적 (m²)
-     * @nullable
-     */
-  maxSupplyArea?: number | null;
+  /** 시공사명 */
+  constructorName: string;
+  /** 총 공급 세대수 (단위: 세대) */
+  totalSupplyHousehold: number;
+  /** 최소 공급면적 (단위: ㎡) */
+  minSupplyArea: number;
+  /** 최대 공급면적 (단위: ㎡) */
+  maxSupplyArea: number;
+  /** 그 날짜에 진행 중인 청약 단계 라벨 배열. 1순위 3종(해당지역/기타경기/기타지역) 은 하나로 묶여 '일반공급 1순위', 2순위 3종도 동일하게 '일반공급 2순위' 로 통합. 특별공급/일반공급 1순위/일반공급 2순위/당첨자 발표 가 같은 날 동시 진행되면 모두 포함. 단계가 하나도 없는 날엔 그 공고가 응답에 포함되지 않으므로 항상 1개 이상. */
+  phases: AnnouncementSummaryPhasesItem[];
 }

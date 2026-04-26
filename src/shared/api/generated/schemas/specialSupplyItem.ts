@@ -13,16 +13,10 @@ import type { SpecialSupplyCategoryItem } from './specialSupplyCategoryItem';
 export interface SpecialSupplyItem {
   /** 주택형 코드 (models[].houseType 과 매칭) */
   houseType: string;
-  /**
-     * 특별공급 총 세대수 (단위: 세대)
-     * @nullable
-     */
-  totalSupplyCount?: number | null;
-  /**
-     * 청약결과명 (원본 수집값, 예: '완료', '마감' 등)
-     * @nullable
-     */
-  subscriptionResult?: string | null;
+  /** 특별공급 총 세대수 (단위: 세대) */
+  totalSupplyCount: number;
+  /** 청약결과명 (원본 수집값, 예: '완료', '마감' 등) */
+  subscriptionResult: string;
   /** 유형별 상세 목록. 배정세대수 또는 접수건수가 하나라도 있는 유형만 포함 */
   categories: SpecialSupplyCategoryItem[];
 }

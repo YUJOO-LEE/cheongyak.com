@@ -15,30 +15,21 @@ export interface TopTradeResponse {
   /** 아파트명 */
   aptName: string;
   /**
-     * 시군구명 (sggCd → RegionCodeEntity 변환)
+     * 시군구명 (sggCd → RegionCodeEntity 매핑). 매핑 실패 시 null
      * @nullable
      */
   sigunguName?: string | null;
+  /** 법정동명 */
+  dongName: string;
+  /** 전용면적 (단위: ㎡) */
+  exclusiveArea: number;
   /**
-     * 법정동명
-     * @nullable
-     */
-  dongName?: string | null;
-  /**
-     * 전용면적 (m²)
-     * @nullable
-     */
-  exclusiveArea?: number | null;
-  /**
-     * 층 (정수 변환 실패 시 null)
+     * 층 (정수 변환 실패 시 null — 엔티티는 문자열 컬럼)
      * @nullable
      */
   floor?: number | null;
-  /**
-     * 거래금액 (만원 단위)
-     * @nullable
-     */
-  dealAmount?: number | null;
+  /** 거래금액 (단위: 만원) */
+  dealAmount: number;
   /** 거래일 (yyyy-MM-dd) */
   dealDate: string;
 }

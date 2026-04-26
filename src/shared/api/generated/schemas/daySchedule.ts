@@ -14,10 +14,10 @@ import type { DayScheduleDayOfWeek } from './dayScheduleDayOfWeek';
 export interface DaySchedule {
   /** 날짜 (yyyy-MM-dd) */
   date: string;
-  /** 요일 (java.time.DayOfWeek enum). 프론트에서 라벨 매핑 */
+  /** 요일 (java.time.DayOfWeek enum) */
   dayOfWeek: DayScheduleDayOfWeek;
   /** 해당 날짜 공고 수 */
   count: number;
-  /** 해당 날짜에 진행 중인 APT 공고 목록 */
+  /** 해당 날짜에 진행 중인 APT 공고 목록 (핵심 필드 누락 레코드는 제외) */
   announcements: AnnouncementSummary[];
 }

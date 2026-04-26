@@ -7,7 +7,7 @@
  */
 
 /**
- * 요일 (java.time.DayOfWeek enum). 프론트에서 라벨 매핑
+ * 요일 (java.time.DayOfWeek enum)
  */
 export type DayScheduleDayOfWeek = typeof DayScheduleDayOfWeek[keyof typeof DayScheduleDayOfWeek];
 

@@ -12,6 +12,7 @@ export * from './announcementSectionRegionCode';
 export * from './announcementSectionStatus';
 export * from './announcementSummary';
 export * from './announcementSummaryHouseDetailType';
+export * from './announcementSummaryPhasesItem';
 export * from './announcementSummaryStatus';
 export * from './aptSalesDetailResponse';
 export * from './aptSalesListRequest';

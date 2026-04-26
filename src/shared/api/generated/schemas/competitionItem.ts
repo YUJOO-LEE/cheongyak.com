@@ -12,33 +12,21 @@
 export interface CompetitionItem {
   /** 주택형 코드 (models[].houseType 과 매칭) */
   houseType: string;
+  /** 청약 순위 (1=1순위, 2=2순위) */
+  subscriptionRank: number;
+  /** 거주지역명 (해당지역/기타경기/기타지역) */
+  residenceName: string;
+  /** 공급 세대수 (단위: 세대) */
+  supplyHouseholdCount: number;
+  /** 접수 건수 (단위: 건) */
+  requestCount: number;
   /**
-     * 청약 순위 (1=1순위, 2=2순위). 순위 구분 없으면 null
-     * @nullable
-     */
-  subscriptionRank?: number | null;
-  /**
-     * 거주지역명 (해당지역/기타경기/기타지역). 구분 없으면 null
-     * @nullable
-     */
-  residenceName?: string | null;
-  /**
-     * 공급 세대수 (단위: 세대)
-     * @nullable
-     */
-  supplyHouseholdCount?: number | null;
-  /**
-     * 접수 건수 (단위: 건)
-     * @nullable
-     */
-  requestCount?: number | null;
-  /**
-     * 경쟁률 (공급세대 대비 접수). 미달이면 null
+     * 경쟁률 (공급세대 대비 접수). 미달이거나 미집계면 null (약 78%)
      * @nullable
      */
   competitionRate?: number | null;
   /**
-     * 경쟁률 표시 문자열 — 정상: 숫자 문자열(예: '15.00'), 미달+세대수/접수 있음: '(N세대 부족)', 미달+세대수 없음: '미달'. null 이면 경쟁률 자체가 집계 전
+     * 경쟁률 표시 문자열 — 정상: 숫자 문자열(예: '15.00'), 미달+세대수/접수 있음: '(N세대 부족)', 미달+세대수 없음: '미달'. 완전 미집계면 null
      * @nullable
      */
   competitionRateDisplay?: string | null;

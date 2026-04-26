@@ -7,52 +7,25 @@
  */
 
 /**
- * 특공 세분 유형별 배정세대수 (단위: 세대). 해당 없음/미수집 필드는 null
+ * 특공 세분 유형별 배정세대수 (단위: 세대). 해당 유형에 배정 없으면 0
  */
 export interface SpecialDetailSection {
-  /**
-     * 다자녀 가구 배정세대수
-     * @nullable
-     */
-  multiChild?: number | null;
-  /**
-     * 신혼부부 배정세대수
-     * @nullable
-     */
-  newlywed?: number | null;
-  /**
-     * 생애최초 배정세대수
-     * @nullable
-     */
-  firstTime?: number | null;
-  /**
-     * 노부모부양 배정세대수
-     * @nullable
-     */
-  elderlyParent?: number | null;
-  /**
-     * 기관추천 배정세대수
-     * @nullable
-     */
-  institution?: number | null;
-  /**
-     * 기타 특공 배정세대수
-     * @nullable
-     */
-  etc?: number | null;
-  /**
-     * 이전기관 배정세대수 (세종·혁신도시 등)
-     * @nullable
-     */
-  transferInstitution?: number | null;
-  /**
-     * 청년 특공 배정세대수
-     * @nullable
-     */
-  youth?: number | null;
-  /**
-     * 신생아 특공 배정세대수
-     * @nullable
-     */
-  newborn?: number | null;
+  /** 다자녀 가구 배정세대수 */
+  multiChild: number;
+  /** 신혼부부 배정세대수 */
+  newlywed: number;
+  /** 생애최초 배정세대수 */
+  firstTime: number;
+  /** 노부모부양 배정세대수 */
+  elderlyParent: number;
+  /** 기관추천 배정세대수 */
+  institution: number;
+  /** 기타 특공 배정세대수 */
+  etc: number;
+  /** 이전기관 배정세대수 (세종·혁신도시 등) */
+  transferInstitution: number;
+  /** 청년 특공 배정세대수 */
+  youth: number;
+  /** 신생아 특공 배정세대수 */
+  newborn: number;
 }

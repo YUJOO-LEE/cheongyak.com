@@ -7,10 +7,9 @@
  */
 
 /**
- * APT 세부유형 (PRIVATE=민영/민간, NATIONAL=국민/공공). 미등록 코드는 null
- * @nullable
+ * APT 세부유형 (PRIVATE=민영/민간, NATIONAL=국민/공공)
  */
-export type AnnouncementSectionHouseDetailType = typeof AnnouncementSectionHouseDetailType[keyof typeof AnnouncementSectionHouseDetailType] | null;
+export type AnnouncementSectionHouseDetailType = typeof AnnouncementSectionHouseDetailType[keyof typeof AnnouncementSectionHouseDetailType];
 
 
 export const AnnouncementSectionHouseDetailType = {

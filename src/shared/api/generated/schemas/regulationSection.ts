@@ -7,47 +7,23 @@
  */
 
 /**
- * 규제 플래그 묶음. 각 필드는 true/false/null (null = 미수집/해당사항 없음). `Object.entries().filter(v=>v)` 로 활성 규제만 추리는 용도에 편리
+ * 규제 플래그 묶음. 8개 boolean 전부 수집됨 (0% null). `Object.entries().filter(v=>v)` 로 활성 규제만 추리는 용도에 편리
  */
 export interface RegulationSection {
-  /**
-     * 투기과열지구 지정 여부
-     * @nullable
-     */
-  speculativeArea?: boolean | null;
-  /**
-     * 조정대상지역 지정 여부
-     * @nullable
-     */
-  adjustmentArea?: boolean | null;
-  /**
-     * 분양가상한제 적용 여부
-     * @nullable
-     */
-  priceCeiling?: boolean | null;
-  /**
-     * 정비사업(재개발·재건축) 해당 여부
-     * @nullable
-     */
-  redevelopment?: boolean | null;
-  /**
-     * 공공주택지구 여부
-     * @nullable
-     */
-  publicHousingDistrict?: boolean | null;
-  /**
-     * 대규모 택지개발지구 여부
-     * @nullable
-     */
-  largeScaleDevelopment?: boolean | null;
-  /**
-     * 수도권 내 민영 공공주택지구 여부
-     * @nullable
-     */
-  metropolitanPublicHousing?: boolean | null;
-  /**
-     * 공공주택 특별법 적용 여부
-     * @nullable
-     */
-  publicHousingSpecialLaw?: boolean | null;
+  /** 투기과열지구 지정 여부 */
+  speculativeArea: boolean;
+  /** 조정대상지역 지정 여부 */
+  adjustmentArea: boolean;
+  /** 분양가상한제 적용 여부 */
+  priceCeiling: boolean;
+  /** 정비사업(재개발·재건축) 해당 여부 */
+  redevelopment: boolean;
+  /** 공공주택지구 여부 */
+  publicHousingDistrict: boolean;
+  /** 대규모 택지개발지구 여부 */
+  largeScaleDevelopment: boolean;
+  /** 수도권 내 민영 공공주택지구 여부 */
+  metropolitanPublicHousing: boolean;
+  /** 공공주택 특별법 적용 여부 */
+  publicHousingSpecialLaw: boolean;
 }

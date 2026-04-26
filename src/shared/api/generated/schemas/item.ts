@@ -16,67 +16,40 @@ export interface Item {
   /** 공고 PK */
   id: number;
   /** 단지명 */
-  houseName?: string;
+  houseName: string;
   /** 청약 상태 (enum) */
   status: ItemStatus;
+  /** APT 세부 유형 (PRIVATE/NATIONAL) */
+  houseDetailType: ItemHouseDetailType;
+  /** 공급지역 enum (시도 단위) */
+  regionCode: ItemRegionCode;
+  /** 공급지역명 (DB 원본) */
+  regionName: string;
+  /** 공급주소 원문 */
+  supplyAddress: string;
   /**
-     * APT 세부 유형 (PRIVATE/NATIONAL). 미등록 코드는 null
-     * @nullable
-     */
-  houseDetailType?: ItemHouseDetailType;
-  /**
-     * 공급지역 enum (시도 단위). 매핑 안 되는 코드는 null
-     * @nullable
-     */
-  regionCode?: ItemRegionCode;
-  /**
-     * 공급지역명 (DB 원본)
-     * @nullable
-     */
-  regionName?: string | null;
-  /**
-     * 공급주소 원문
-     * @nullable
-     */
-  supplyAddress?: string | null;
-  /**
-     * 시군구명 (supplyAddress 파싱)
+     * 시군구명 (supplyAddress 파싱). 파싱 실패 시 null
      * @nullable
      */
   sigunguName?: string | null;
   /**
-     * 동·읍·면명 (supplyAddress 파싱)
+     * 동·읍·면명 (supplyAddress 파싱). 파싱 실패 시 null
      * @nullable
      */
   dongName?: string | null;
   /**
-     * 시공사명
+     * 시공사명. 수집 누락 시 null
      * @nullable
      */
   constructorName?: string | null;
-  /**
-     * 청약 접수 시작일 (yyyy-MM-dd)
-     * @nullable
-     */
-  subscriptionStartDate?: string | null;
-  /**
-     * 청약 접수 종료일 (yyyy-MM-dd)
-     * @nullable
-     */
-  subscriptionEndDate?: string | null;
-  /**
-     * 총 공급 세대수
-     * @nullable
-     */
-  totalSupplyHousehold?: number | null;
-  /**
-     * 최소 공급면적 (m²)
-     * @nullable
-     */
-  minSupplyArea?: number | null;
-  /**
-     * 최대 공급면적 (m²)
-     * @nullable
-     */
-  maxSupplyArea?: number | null;
+  /** 청약 접수 시작일 (yyyy-MM-dd) */
+  subscriptionStartDate: string;
+  /** 청약 접수 종료일 (yyyy-MM-dd) */
+  subscriptionEndDate: string;
+  /** 총 공급 세대수 (단위: 세대) */
+  totalSupplyHousehold: number;
+  /** 최소 공급면적 (단위: ㎡) */
+  minSupplyArea: number;
+  /** 최대 공급면적 (단위: ㎡) */
+  maxSupplyArea: number;
 }

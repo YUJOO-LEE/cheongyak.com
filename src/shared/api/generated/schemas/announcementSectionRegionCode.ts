@@ -7,10 +7,9 @@
  */
 
 /**
- * 공급지역 enum (17개 시도). 미매핑 코드는 null
- * @nullable
+ * 공급지역 enum (17개 시도)
  */
-export type AnnouncementSectionRegionCode = typeof AnnouncementSectionRegionCode[keyof typeof AnnouncementSectionRegionCode] | null;
+export type AnnouncementSectionRegionCode = typeof AnnouncementSectionRegionCode[keyof typeof AnnouncementSectionRegionCode];
 
 
 export const AnnouncementSectionRegionCode = {

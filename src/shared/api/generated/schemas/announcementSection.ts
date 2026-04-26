@@ -17,73 +17,40 @@ import type { ScheduleSection } from './scheduleSection';
 export interface AnnouncementSection {
   /** 공고 PK (내부 식별자, API 참조 키) */
   id: number;
-  /**
-     * 단지명. 수집 시 없으면 null
-     * @nullable
-     */
-  houseName?: string | null;
-  /** 청약 상태 (날짜 기반 파생 계산). 판정 기준: SCHEDULED=시작일>오늘, ACTIVE=오늘이 접수 기간 내, RESULT_TODAY=발표일==오늘, RESULT_PENDING=발표일>오늘, COMPLETED=그 외 (리스트 API 와 동일) */
+  /** 단지명 */
+  houseName: string;
+  /** 청약 상태 (날짜 기반 파생 계산). 판정 기준: SCHEDULED=시작일>오늘, ACTIVE=오늘이 접수 기간 내, RESULT_TODAY=발표일==오늘, RESULT_PENDING=발표일>오늘, COMPLETED=그 외 */
   status: AnnouncementSectionStatus;
-  /**
-     * APT 세부유형 (PRIVATE=민영/민간, NATIONAL=국민/공공). 미등록 코드는 null
-     * @nullable
-     */
-  houseDetailType?: AnnouncementSectionHouseDetailType;
-  /**
-     * 공급지역 enum (17개 시도). 미매핑 코드는 null
-     * @nullable
-     */
-  regionCode?: AnnouncementSectionRegionCode;
-  /**
-     * 공급지역명 (DB 원본 문자열). enum 매핑 실패 시 대체 표기로 활용 가능
-     * @nullable
-     */
-  regionName?: string | null;
-  /**
-     * 공급주소 원문 (파싱 없이 그대로)
-     * @nullable
-     */
-  supplyAddress?: string | null;
-  /**
-     * 공급 우편번호
-     * @nullable
-     */
-  supplyZipCode?: string | null;
-  /**
-     * 총 공급 세대수 (단위: 세대)
-     * @nullable
-     */
-  totalSupplyHouseholdCount?: number | null;
+  /** APT 세부유형 (PRIVATE=민영/민간, NATIONAL=국민/공공) */
+  houseDetailType: AnnouncementSectionHouseDetailType;
+  /** 공급지역 enum (17개 시도) */
+  regionCode: AnnouncementSectionRegionCode;
+  /** 공급지역명 (DB 원본 문자열) */
+  regionName: string;
+  /** 공급주소 원문 (파싱 없이 그대로) */
+  supplyAddress: string;
+  /** 공급 우편번호 */
+  supplyZipCode: string;
+  /** 총 공급 세대수 (단위: 세대) */
+  totalSupplyHouseholdCount: number;
   schedule: ScheduleSection;
   /**
-     * 시공사명
+     * 시공사명. 수집 누락 시 null (약 7%)
      * @nullable
      */
   constructorName?: string | null;
+  /** 사업주체명 (시행사) */
+  businessEntityName: string;
+  /** 문의 전화번호 */
+  inquiryPhone: string;
   /**
-     * 사업주체명 (시행사)
-     * @nullable
-     */
-  businessEntityName?: string | null;
-  /**
-     * 문의 전화번호
-     * @nullable
-     */
-  inquiryPhone?: string | null;
-  /**
-     * 사업주체 홈페이지 URL
+     * 사업주체 홈페이지 URL. 수집 누락 시 null (약 9%)
      * @nullable
      */
   homepageUrl?: string | null;
-  /**
-     * 모집공고 상세 URL (청약홈 등)
-     * @nullable
-     */
-  announcementUrl?: string | null;
-  /**
-     * 입주 예정월 (yyyy-MM 포맷)
-     * @nullable
-     */
-  moveInMonth?: string | null;
+  /** 모집공고 상세 URL (청약홈 등) */
+  announcementUrl: string;
+  /** 입주 예정월 (yyyy-MM 포맷) */
+  moveInMonth: string;
   regulations: RegulationSection;
 }

@@ -7,7 +7,7 @@
  */
 
 /**
- * 청약 상태 코드 (enum). 프론트에서 라벨 매핑
+ * 청약 상태 코드 (enum)
  */
 export type FeaturedResponseStatus = typeof FeaturedResponseStatus[keyof typeof FeaturedResponseStatus];
 

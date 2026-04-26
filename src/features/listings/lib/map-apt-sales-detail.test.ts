@@ -14,11 +14,11 @@ describe('pickActiveRegulations', () => {
     const active = pickActiveRegulations({
       speculativeArea: true,
       adjustmentArea: false,
-      priceCeiling: null,
+      priceCeiling: false,
       redevelopment: true,
-      publicHousingDistrict: undefined,
+      publicHousingDistrict: false,
       largeScaleDevelopment: false,
-      metropolitanPublicHousing: null,
+      metropolitanPublicHousing: false,
       publicHousingSpecialLaw: true,
     });
     expect(active).toEqual([
@@ -26,11 +26,6 @@ describe('pickActiveRegulations', () => {
       'redevelopment',
       'publicHousingSpecialLaw',
     ]);
-  });
-
-  it('returns empty array when section is null', () => {
-    expect(pickActiveRegulations(null)).toEqual([]);
-    expect(pickActiveRegulations(undefined)).toEqual([]);
   });
 });
 
@@ -51,13 +46,6 @@ describe('parseSupplyAddress', () => {
     expect(
       parseSupplyAddress('세종특별자치시 나성동 123', '세종특별자치시'),
     ).toEqual({ gugun: '나성동', dong: undefined });
-  });
-
-  it('returns empty when address is missing', () => {
-    expect(parseSupplyAddress(null, '서울특별시')).toEqual({
-      gugun: '',
-      dong: undefined,
-    });
   });
 });
 
@@ -106,15 +94,9 @@ describe('deriveSchedulePhases', () => {
     expect(byPhase['move-in']).toBe('future');
   });
 
-  it('returns empty array when schedule + moveInMonth are all null', () => {
-    expect(deriveSchedulePhases(null, null, new Date('2026-04-08'))).toEqual(
-      [],
-    );
-  });
-
-  it('synthesizes yyyy-MM-01 for move-in phase', () => {
+  it('synthesizes yyyy-MM-01 for move-in phase from moveInMonth', () => {
     const phases = deriveSchedulePhases(
-      { announcementDate: '2026-03-20' },
+      schedule,
       '2028-06',
       new Date('2026-04-08'),
     );
@@ -173,11 +155,11 @@ describe('mapAptSalesDetailToSubscription', () => {
         speculativeArea: true,
         adjustmentArea: false,
         priceCeiling: true,
-        redevelopment: null,
-        publicHousingDistrict: null,
-        largeScaleDevelopment: null,
-        metropolitanPublicHousing: null,
-        publicHousingSpecialLaw: null,
+        redevelopment: false,
+        publicHousingDistrict: false,
+        largeScaleDevelopment: false,
+        metropolitanPublicHousing: false,
+        publicHousingSpecialLaw: false,
       },
     },
     models: [
@@ -191,12 +173,12 @@ describe('mapAptSalesDetailToSubscription', () => {
           multiChild: 20,
           newlywed: 30,
           firstTime: 10,
-          elderlyParent: null,
-          institution: null,
-          etc: null,
-          transferInstitution: null,
-          youth: null,
-          newborn: null,
+          elderlyParent: 0,
+          institution: 0,
+          etc: 0,
+          transferInstitution: 0,
+          youth: 0,
+          newborn: 0,
         },
         topAmount: 120000,
       },
@@ -210,12 +192,12 @@ describe('mapAptSalesDetailToSubscription', () => {
           multiChild: 30,
           newlywed: 40,
           firstTime: 10,
-          elderlyParent: null,
-          institution: null,
-          etc: null,
-          transferInstitution: null,
-          youth: null,
-          newborn: null,
+          elderlyParent: 0,
+          institution: 0,
+          etc: 0,
+          transferInstitution: 0,
+          youth: 0,
+          newborn: 0,
         },
         topAmount: 200000,
       },

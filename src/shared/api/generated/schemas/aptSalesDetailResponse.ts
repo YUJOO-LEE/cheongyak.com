@@ -16,7 +16,7 @@ import type { WinnerScoreItem } from './winnerScoreItem';
  */
 export interface AptSalesDetailResponse {
   announcement: AnnouncementSection;
-  /** 평형(주택형)별 기본 정보 목록. 면적·세대·특공 세분 배정·분양가만 포함 */
+  /** 평형(주택형)별 기본 정보 목록. 면적·세대·특공 세분 배정·분양가 */
   models: ModelItem[];
   /** 경쟁률 목록 (평형×순위×거주지역 조합). 집계 전(접수중/접수전)이면 빈 배열 */
   competitions: CompetitionItem[];

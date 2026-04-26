@@ -27,11 +27,12 @@ const DETAIL_TYPE_MAP: Record<'PRIVATE' | 'NATIONAL', SubscriptionType> = {
 };
 
 /**
- * 17개 시도 enum → 한국어 시도명. `regionName` 이 서버에서 올라오면
- * 그 값을 우선 쓰지만, null 이면 enum 기반 fallback 이 필요합니다.
- * Phase 6 의 지역 드롭다운도 이 맵의 라벨을 그대로 씁니다.
+ * 17개 시도 enum → 한국어 시도명. Phase 6 의 지역 드롭다운에서 라벨로
+ * 사용합니다. `regionName` 은 서버에서 항상 내려오므로 mapping 함수는
+ * 그 값을 그대로 쓰지만, 필터 UI 는 코드만 가지고 라벨을 표시해야 해서
+ * 별도 맵이 필요합니다.
  */
-export const REGION_LABEL_MAP: Record<NonNullable<ItemRegionCode>, string> = {
+export const REGION_LABEL_MAP: Record<ItemRegionCode, string> = {
   SEOUL: '서울특별시',
   GANGWON: '강원도',
   DAEJEON: '대전광역시',
@@ -58,7 +59,7 @@ export const REGION_LABEL_MAP: Record<NonNullable<ItemRegionCode>, string> = {
  */
 export const REGION_GROUPS: ReadonlyArray<{
   label: string;
-  codes: ReadonlyArray<NonNullable<ItemRegionCode>>;
+  codes: ReadonlyArray<ItemRegionCode>;
 }> = [
   { label: '수도권', codes: ['SEOUL', 'GYEONGGI', 'INCHEON'] },
   {
@@ -85,54 +86,44 @@ export function mapApiStatusToDomain(apiStatus: ItemStatus): SubscriptionStatus 
 }
 
 export function mapApiDetailTypeToDomain(
-  apiType: 'PRIVATE' | 'NATIONAL' | null | undefined,
+  apiType: 'PRIVATE' | 'NATIONAL',
 ): SubscriptionType {
-  if (!apiType) return 'private';
   return DETAIL_TYPE_MAP[apiType];
 }
 
 /**
- * `AptSalesListItem` → `Subscription` 도메인 타입.
+ * `Item` → `Subscription` 도메인 매핑.
  *
- * - Nullable wire fields are collapsed to safe display defaults so the
- *   UI never has to branch on "maybe missing" everywhere.
- * - `sizeRange` is reconstructed from `minSupplyArea`/`maxSupplyArea`
- *   because the API ships them as separate numeric fields.
- * - `priceRange` is not yet available on this endpoint — left undefined.
- * - `id` is a numeric PK on the wire; we stringify to match the
- *   domain's string-id convention.
+ * - `sizeRange` 는 `minSupplyArea`/`maxSupplyArea` 가 분리된 숫자 필드로
+ *   오기 때문에 한 줄로 합칩니다.
+ * - `priceRange` 는 아직 이 엔드포인트가 안 내려주므로 미정.
+ * - `id` 는 wire 에서 number 지만 도메인 규약상 string.
+ * - `sigunguName`/`dongName`/`constructorName` 만 nullable → 빈 문자열로.
  */
 export function mapItemToSubscription(item: Item): Subscription {
-  const sido =
-    item.regionName ?? (item.regionCode ? REGION_LABEL_MAP[item.regionCode] : '');
-
   return {
     id: String(item.id),
-    name: item.houseName ?? '',
+    name: item.houseName,
     location: {
-      sido,
+      sido: item.regionName,
       gugun: item.sigunguName ?? '',
       dong: item.dongName ?? undefined,
     },
     builder: item.constructorName ?? '',
     status: mapApiStatusToDomain(item.status),
     type: mapApiDetailTypeToDomain(item.houseDetailType),
-    applicationStart: item.subscriptionStartDate ?? '',
-    applicationEnd: item.subscriptionEndDate ?? '',
-    totalUnits: item.totalSupplyHousehold ?? 0,
+    applicationStart: item.subscriptionStartDate,
+    applicationEnd: item.subscriptionEndDate,
+    totalUnits: item.totalSupplyHousehold,
     sizeRange: formatSizeRange(item.minSupplyArea, item.maxSupplyArea),
   };
 }
 
-export function formatSizeRange(
-  min: number | null | undefined,
-  max: number | null | undefined,
-): string {
-  if (min == null && max == null) return '';
-  if (min != null && max != null && min !== max) {
+export function formatSizeRange(min: number, max: number): string {
+  if (min !== max) {
     return `${formatArea(min)} ~ ${formatArea(max)}`;
   }
-  return formatArea(min ?? max ?? 0);
+  return formatArea(min);
 }
 
 export function formatArea(value: number): string {
