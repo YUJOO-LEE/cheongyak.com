@@ -422,11 +422,26 @@ Tesla or Bolt before merge:
 - `useEffect(..., [])` fetches on mount (TanStack Query is fine; raw fetch is not)
 - `refetchInterval` / polling
 
-**Rule B — Long lists must use `prefetch={false}` on entry `<Link>`s.**
+**Rule B — `<Link prefetch={false}>` is required when the destination
+route fetches from the backend.** Backend = `api.cheongyak.bubu.dev`.
+Default `<Link>` prefetch fires an RSC request to the destination on
+viewport entry, and that RSC request executes the destination's
+`generateMetadata` and Server Component — both of which can call the
+backend before the user clicks anything. Routes that hit the backend
+today: `/`, `/listings`, `/listings/{id}`. Any `<Link>` pointing at
+those (or any future backend-hitting route) must set `prefetch={false}`.
+
+**Static routes are exempt.** `/about`, `/terms`, `/trades` (coming-soon
+shell), `/not-found`, etc. do not call the backend — links to them may
+keep default prefetch (UX win, zero backend cost). When `/trades` is
+wired to the 실거래가 API, flip it to `prefetch={false}` (the
+`hitsBackend` flag in `navigation.tsx`'s `navItems` is the canonical
+place to track this).
+
 Reference implementations: `subscription-card.tsx`, `weekly-card.tsx`,
-`featured-subscription.tsx`. Single hot CTAs (header nav, footer links,
-single banner CTAs) may keep default prefetch — they target single warm-cache
-URLs and are clicked often enough that the prefetch is amortized.
+`featured-subscription.tsx`, `pagination.tsx`, `navigation.tsx`,
+`weekly-schedule.tsx`, `about/page.tsx`, `not-found.tsx`,
+`trades/page.tsx`.
 
 **Rule C — Wrap shared loaders with React `cache()`.** When the same backend
 call would fire from both `generateMetadata` and the page body, wrap the

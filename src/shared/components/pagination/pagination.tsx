@@ -95,6 +95,11 @@ function PaginationLink({
   return (
     <Link
       href={href}
+      // Pagination is a list of entry links into the same paginated route.
+      // Default prefetch would fan out one RSC request per visible page
+      // number, each one re-running the route's Server Component and
+      // hitting the backend for that page's data. See CLAUDE.md §14.
+      prefetch={false}
       className={[
         baseClass,
         active

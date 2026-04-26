@@ -51,7 +51,7 @@ export default function AboutPage() {
         <p className="text-body-lg text-text-secondary mb-6">
           이번 주 청약 일정이 궁금하다면
         </p>
-        <Link href="/listings" aria-label="청약 일정 보러 가기">
+        <Link href="/listings" prefetch={false} aria-label="청약 일정 보러 가기">
           <Button variant="primary" size="lg">
             청약 일정 보러 가기
             <ArrowRight size={18} aria-hidden="true" />
