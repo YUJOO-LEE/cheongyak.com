@@ -103,7 +103,7 @@ export default function TradesPage() {
             className="animate-fade-in-up"
             style={{ animationDelay: '240ms' }}
           >
-            <Link href="/">
+            <Link href="/" prefetch={false}>
               <Button variant="secondary" size="lg">
                 홈으로 돌아가기
               </Button>

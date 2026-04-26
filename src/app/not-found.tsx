@@ -8,7 +8,7 @@ export default function NotFound() {
       <p className="text-body-lg text-text-secondary mb-8">
         요청하신 페이지를 찾을 수 없습니다.
       </p>
-      <Link href="/">
+      <Link href="/" prefetch={false}>
         <Button variant="primary" size="lg">
           홈으로 돌아가기
         </Button>

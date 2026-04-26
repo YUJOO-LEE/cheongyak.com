@@ -22,12 +22,21 @@ interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
+  /**
+   * Whether the destination route fetches from the backend
+   * (`api.cheongyak.bubu.dev`). When `true`, the link MUST disable RSC
+   * prefetch so viewport entry does not trigger a backend call before
+   * the user clicks (CLAUDE.md §14). When `false` (purely static route),
+   * default prefetch is fine. Flip `/trades` to `true` when the
+   * 실거래가 API is wired up.
+   */
+  hitsBackend: boolean;
 }
 
 const navItems: NavItem[] = [
-  { href: '/', label: '홈', icon: Home },
-  { href: '/listings', label: '청약', icon: Building2 },
-  { href: '/trades', label: '실거래가', icon: TrendingUp },
+  { href: '/', label: '홈', icon: Home, hitsBackend: true },
+  { href: '/listings', label: '청약', icon: Building2, hitsBackend: true },
+  { href: '/trades', label: '실거래가', icon: TrendingUp, hitsBackend: false },
 ];
 
 export function Navigation() {
@@ -46,7 +55,7 @@ export function Navigation() {
       {/* Desktop: Top header */}
       <header className="hidden lg:block fixed top-0 left-0 right-0 z-sticky bg-bg-page/55 backdrop-blur-glass shadow-[0_0.5px_0_rgba(15,23,42,0.06),0_4px_16px_rgba(15,23,42,0.05)]">
         <div className="mx-auto max-w-300 px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2" aria-label="청약닷컴 홈">
+          <Link href="/" prefetch={false} className="flex items-center gap-2" aria-label="청약닷컴 홈">
             <Image src="/logo.svg" alt="" width={22} height={20} aria-hidden="true" />
             <span className="text-headline-sm text-brand-primary-500">
               청약닷컴
@@ -58,6 +67,7 @@ export function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={item.hitsBackend ? false : undefined}
                 className={[
                   'text-label-lg transition-colors duration-fast ease-default',
                   isActive(item.href)
@@ -98,6 +108,7 @@ export function Navigation() {
           {/* Home with logo — horizontal capsule pill */}
           <Link
             href="/"
+            prefetch={false}
             className="flex flex-col items-center justify-center gap-0.5 min-w-14 transition-colors duration-fast ease-default"
             aria-current={isActive('/') ? 'page' : undefined}
             aria-label="홈"
@@ -130,6 +141,7 @@ export function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={item.hitsBackend ? false : undefined}
                 className="flex flex-col items-center justify-center gap-0.5 min-w-14 transition-colors duration-fast ease-default"
                 aria-current={active ? 'page' : undefined}
               >

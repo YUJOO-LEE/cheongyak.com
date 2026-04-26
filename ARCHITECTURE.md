@@ -99,12 +99,15 @@ before the user clicks anything (the 2026-04-26 outage trigger).
 
 Therefore:
 
-- **List/feed/card-grid entry `<Link>`s: `prefetch={false}` (required).**
-  Hover prefetch is preserved (real click intent), but viewport-entry
-  prefetch is disabled. Reference: `subscription-card.tsx`,
-  `weekly-card.tsx`, `featured-subscription.tsx`.
-- **Single hot CTAs / header nav: default prefetch is fine.** Single warm-cache
-  URLs are amortized across all visitors.
+- **`<Link prefetch={false}>` when the destination hits the backend.**
+  Backend = `api.cheongyak.bubu.dev`. Routes that fetch today: `/`,
+  `/listings`, `/listings/{id}`. Every `<Link>` pointing at those
+  must disable prefetch. Static destinations (`/about`, `/terms`,
+  `/trades` until 실거래가 API lands, `/not-found`) keep default
+  prefetch — they cost nothing on the backend. The `hitsBackend` flag
+  on `navigation.tsx`'s `navItems` is the canonical place to track
+  per-route backend behavior.
+- Hover prefetch stays on regardless — it's a real click-intent signal.
 - **Explicit prefetch APIs (`router.prefetch`, `queryClient.prefetchQuery`)
   are forbidden by default.** Adding one needs Tesla/Bolt review.
 - **Same-request duplicate backend calls: wrap the loader with React `cache()`.**
