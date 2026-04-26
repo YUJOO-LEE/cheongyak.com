@@ -27,6 +27,7 @@ import type {
   GetAptSalesListParams,
   MainApiResponseAptSalesDetailResponse,
   MainApiResponseAptSalesListResponse,
+  MainApiResponseAptSalesNewsResponse,
   MainApiResponseFeaturedResponse,
   MainApiResponseListTopTradeResponse,
   MainApiResponseMonthlyStatsResponse,
@@ -1051,6 +1052,175 @@ export function useGetAptSalesDetailSuspense<TData = Awaited<ReturnType<typeof g
  ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetAptSalesDetailSuspenseQueryOptions(id,options)
+
+  const query = useSuspenseQuery(queryOptions, queryClient) as  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * 공고의 단지명(`house_name`)을 공백 토큰으로 분할 후, 모든 토큰이 뉴스 `title + summary` 합본의 공백 제거 문자열에 contains 되는 기사를 발행일 내림차순 반환. 건수 제한 없음. 매칭 0건이면 `items` 빈 배열. 캐시: `aptNews` (공고 ID별 키, TTL 6h, 매일 04시 일괄 evict). `{id}` 가 존재하지 않으면 404 NOT_FOUND.
+ * @summary APT 청약 공고 연관 뉴스
+ */
+export type getAptSalesNewsResponse200 = {
+  data: MainApiResponseAptSalesNewsResponse
+  status: 200
+}
+
+export type getAptSalesNewsResponseSuccess = (getAptSalesNewsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getAptSalesNewsResponse = (getAptSalesNewsResponseSuccess)
+
+export const getGetAptSalesNewsUrl = (id: number,) => {
+
+
+
+
+  return `/apt-sales/${id}/news`
+}
+
+export const getAptSalesNews = async (id: number, options?: RequestInit): Promise<getAptSalesNewsResponse> => {
+
+  return apiClientMutator<getAptSalesNewsResponse>(getGetAptSalesNewsUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAptSalesNewsQueryKey = (id: number,) => {
+    return [
+    `/apt-sales/${id}/news`
+    ] as const;
+    }
+
+
+export const getGetAptSalesNewsQueryOptions = <TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAptSalesNewsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAptSalesNews>>> = ({ signal }) => getAptSalesNews(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id),  staleTime: 60000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAptSalesNewsQueryResult = NonNullable<Awaited<ReturnType<typeof getAptSalesNews>>>
+export type GetAptSalesNewsQueryError = unknown
+
+
+export function useGetAptSalesNews<TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAptSalesNews>>,
+          TError,
+          Awaited<ReturnType<typeof getAptSalesNews>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAptSalesNews<TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAptSalesNews>>,
+          TError,
+          Awaited<ReturnType<typeof getAptSalesNews>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAptSalesNews<TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary APT 청약 공고 연관 뉴스
+ */
+
+export function useGetAptSalesNews<TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAptSalesNewsQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+export const getGetAptSalesNewsSuspenseQueryOptions = <TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(id: number, options?: { query?:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAptSalesNewsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAptSalesNews>>> = ({ signal }) => getAptSalesNews(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn,   staleTime: 60000,  ...queryOptions} as UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAptSalesNewsSuspenseQueryResult = NonNullable<Awaited<ReturnType<typeof getAptSalesNews>>>
+export type GetAptSalesNewsSuspenseQueryError = unknown
+
+
+export function useGetAptSalesNewsSuspense<TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(
+ id: number, options: { query:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAptSalesNewsSuspense<TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAptSalesNewsSuspense<TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+  ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary APT 청약 공고 연관 뉴스
+ */
+
+export function useGetAptSalesNewsSuspense<TData = Awaited<ReturnType<typeof getAptSalesNews>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAptSalesNews>>, TError, TData>>, request?: SecondParameter<typeof apiClientMutator>}
+ , queryClient?: QueryClient
+ ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAptSalesNewsSuspenseQueryOptions(id,options)
 
   const query = useSuspenseQuery(queryOptions, queryClient) as  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

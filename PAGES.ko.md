@@ -280,11 +280,14 @@
 - 메인 컬럼 마지막(§3.9 특별공급 신청현황 다음)에 모든 브레이크포인트
   공통으로 배치합니다. 사이드바는 액션 영역(공식 링크 / 공유)으로
   남기고, 뉴스는 보조 콘텐츠라 본문 흐름에 둡니다.
-- 행에는 신뢰성 핵심 필드만 노출: `outlet`(언론사), `title`,
+- 행에는 신뢰성 핵심 필드만 노출: `press`(언론사), `title`,
   `publishedAt`(선택, `formatRelativeDate`로 "2일 전" 표기), `url`.
+  `publishedAt` 은 백엔드가 Asia/Seoul `LOCAL_DATE_TIME`(오프셋 없음)
+  으로 내려주므로, 컴포넌트가 렌더 시 `+09:00` 으로 anchor — Vercel
+  UTC 서버에서 SSR/ISR 해도 9시간 drift 가 생기지 않음.
   썸네일·요약·카테고리 칩은 미포함 — 본 콘텐츠와 시선 경쟁을 피하기
   위한 의도된 단순화.
-- 행 구조: 메타 라인 `outlet · 상대 날짜`(`text-caption`,
+- 행 구조: 메타 라인 `press · 상대 날짜`(`text-caption`,
   `text-text-tertiary`) 위에 제목(`text-body-md`, `text-text-primary`,
   `line-clamp-2`)이 두 번째 줄. 우측에 `ExternalLink`(16px,
   `text-text-tertiary` → hover 시 `brand-primary-500`)이 있되 **평소엔
@@ -310,12 +313,12 @@
   시프트하면서 `scale-[0.99]` 미세 다운. 카드 안 row 라 translate
   lift 는 의도적으로 배제.
 - 외부 링크는 `target="_blank" rel="noopener noreferrer"`,
-  `aria-label`은 `${outlet} – ${title} (새 창에서 열림)` 단일 문자열로
+  `aria-label`은 `${press} – ${title} (새 창에서 열림)` 단일 문자열로
   스크린리더 음독 순서 보장. 섹션은 `<section aria-labelledby>` 로
   랜드마크화.
-- 빈/에러 상태: 항목이 비어 있으면(데이터 없음, 4xx, 엔드포인트 미배포)
-  섹션 자체를 렌더하지 않습니다 — 빈 placeholder 없음. 5xx 는 라우트
-  ErrorBoundary 로 위임.
+- 빈/에러 상태: 항목이 비어 있으면(매칭 뉴스 없음, 4xx) 섹션 자체를
+  렌더하지 않습니다 — 빈 placeholder 없음. 5xx 는 라우트 ErrorBoundary
+  로 위임.
 - 백엔드가 내려주는 항목을 그대로 노출하며, 페이지네이션·"더보기"는
   볼륨이 늘어났을 때 별도 PR로 도입할 예정.
 - 사이블링 스켈레톤(`related-news.skeleton.tsx`)은 동일한 `bg-bg-card
@@ -375,7 +378,7 @@
 | 엔드포인트 | 데이터 |
 |---|---|
 | `GET /apt-sales/{id}` | 5개 섹션 상세 응답: `announcement` (공고 본체 + `schedule` + `regulations`), `models[]` (평형 기본정보), `competitions[]`, `winnerScores[]`, `specialSupplies[]`. 서버 컴포넌트에서 `fetchAptSalesDetailSSR(numericId)` (`next.revalidate=300`) 로 호출. 404 는 `ApiClientError` → `notFound()` 로 흐름. |
-| `GET /apt-sales/{id}/related-news` | `RelatedNewsItem[]` 엔벨로프(`{ outlet, title, url, publishedAt? }`). 상세 페이지는 이 fetch 를 **await 하지 않음** — `<RelatedNewsSection>` 을 `<Suspense>` 로 감싸 청약 데이터가 먼저 렌더되고 뉴스는 후순위로 streaming(스켈레톤이 자리 유지). ISR 300s 동조. **엔드포인트 경로는 잠정** — BE 확정 전까지 MSW 픽스처로 dev 미리보기. 4xx → 빈 배열(섹션 미렌더). |
+| `GET /apt-sales/{id}/news` | `AptSalesNewsResponse` 엔벨로프(`{ data: { totalCount: number, items: NewsItem[] } }`, `NewsItem = { title, press, url, publishedAt? }`). 백엔드가 `house_name` 토큰을 title+summary 에 contains 매칭하고 발행일 내림차순 반환. `publishedAt` 은 Asia/Seoul `LOCAL_DATE_TIME`(오프셋 없음). 백엔드 캐시: 공고 ID 별 6h, 매일 04시 일괄 evict. 상세 페이지는 이 fetch 를 **await 하지 않음** — `<RelatedNewsSection>` 을 `<Suspense>` 로 감싸 청약 데이터가 먼저 렌더되고 뉴스는 후순위로 streaming(스켈레톤이 자리 유지). ISR 300s 동조. 4xx → 빈 배열(섹션 미렌더). |
 
 ### 모바일 레이아웃
 

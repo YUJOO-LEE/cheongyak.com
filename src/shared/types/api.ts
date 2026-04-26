@@ -210,17 +210,9 @@ export const NewsArticleSchema = z.object({
 });
 export type NewsArticle = z.infer<typeof NewsArticleSchema>;
 
-// 청약 상세 페이지의 "관련 뉴스" 섹션 항목. `/apt-sales/{id}` 응답 범위
-// 밖의 별도 엔드포인트(BE 확정 대기 중)에서 내려준다. outlet 빈 문자열은
-// 표시 신뢰성을 해치므로 BE 가 미리 거르고, 클라이언트 측에서도 min(1)
-// 로 한 번 더 가드한다.
-export const RelatedNewsItemSchema = z.object({
-  outlet: z.string().min(1),
-  title: z.string().min(1),
-  url: z.string().url(),
-  publishedAt: z.string().datetime().optional(),
-});
-export type RelatedNewsItem = z.infer<typeof RelatedNewsItemSchema>;
+// 청약 상세 페이지의 "관련 뉴스" 섹션은 generated `NewsItem`
+// (`src/shared/api/generated/schemas/newsItem.ts`) 을 직접 사용한다.
+// API 가 source-of-truth 이므로 별도 도메인 타입을 두지 않는다.
 
 // ============================================================
 // Market Insights

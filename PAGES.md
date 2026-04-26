@@ -286,11 +286,14 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
   every breakpoint — sidebar is reserved for action-oriented blocks
   (Official Links / ShareActions); news is supplementary reading and
   belongs in the content flow.
-- Each row exposes only the trust-critical fields: `outlet` (언론사),
+- Each row exposes only the trust-critical fields: `press` (언론사),
   `title`, optional `publishedAt` (rendered via `formatRelativeDate` —
-  "2일 전"), and `url`. No thumbnail, summary, or category chip — the
-  section stays low-noise so it doesn't compete with primary content.
-- Row anatomy: meta line `outlet · relativeDate` (`text-caption`,
+  "2일 전"), and `url`. `publishedAt` ships as Asia/Seoul
+  `LOCAL_DATE_TIME` with no offset; the component anchors it to
+  `+09:00` at render time so SSR on a UTC server doesn't drift 9 h.
+  No thumbnail, summary, or category chip — the section stays
+  low-noise so it doesn't compete with primary content.
+- Row anatomy: meta line `press · relativeDate` (`text-caption`,
   `text-text-tertiary`) above the title (`text-body-md`,
   `text-text-primary`, `line-clamp-2`). The right side carries an
   `ExternalLink` icon (16px, `text-text-tertiary` → `brand-primary-500`
@@ -299,14 +302,14 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
   noise-free, surfaces the external-navigation signal exactly when the
   user is interacting. On touch devices (`pointer: coarse`) where
   `:hover` never fires, a smaller 12px `ExternalLink` is rendered
-  inline next to the outlet name in the meta line — one tone smaller
+  inline next to the press name in the meta line — one tone smaller
   than the meta-line text, so the external-nav cue is visible at rest
   without the heavy presence of a 16px right-side icon. The two
   placements are mutually exclusive (`pointer-coarse:hidden` vs
   `hidden pointer-coarse:inline-block`) so each input modality reads
   the appropriate position. No persistent left-side icon (categorical
   `Newspaper` indicator was tried and dropped — it competed with the
-  outlet text without adding meaning). Hover shifts the row's
+  press text without adding meaning). Hover shifts the row's
   background to `bg-bg-sunken` (no translate / no border — the row
   sits inside `bg-bg-card rounded-lg p-3 md:p-4`, so card-in-card
   nesting and 1px sectioning lines are both avoided per DESIGN.md §11.5).
@@ -319,12 +322,12 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
   `scale-[0.99]` micro press. Translation lift is intentionally
   avoided since the row sits inside another card.
 - External links open in a new tab with `target="_blank" rel="noopener
-  noreferrer"`, single `aria-label` packs `${outlet} – ${title} (새 창에서 열림)`
+  noreferrer"`, single `aria-label` packs `${press} – ${title} (새 창에서 열림)`
   for screen readers. Section uses `<section aria-labelledby>` so it
   surfaces as a landmark heading.
-- Empty/error: when the items array is empty (no data, 4xx, planned
-  endpoint not yet wired) the section renders nothing — no placeholder
-  card or "no news" copy. 5xx propagates to the route ErrorBoundary.
+- Empty/error: when the items array is empty (no matched news, 4xx)
+  the section renders nothing — no placeholder card or "no news"
+  copy. 5xx propagates to the route ErrorBoundary.
 - The list returns whatever the backend serves; pagination / "load
   more" deliberately deferred until the volume justifies it.
 - Sibling skeleton (`related-news.skeleton.tsx`) renders 3 rows inside
@@ -390,7 +393,7 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 | Endpoint | Data |
 |---|---|
 | `GET /apt-sales/{id}` | Full 5-section detail: `announcement` (공고 본체 + `schedule` + `regulations`), `models[]` (평형 기본정보), `competitions[]`, `winnerScores[]`, `specialSupplies[]`. Server-side fetch via `fetchAptSalesDetailSSR(numericId)` with `next.revalidate=300`. 404 flows through `ApiClientError` → `notFound()`. |
-| `GET /apt-sales/{id}/related-news` | `RelatedNewsItem[]` envelope (`{ outlet, title, url, publishedAt? }`). The detail page does **not** await this fetch — `<RelatedNewsSection>` is wrapped in `<Suspense>` so the apartment data paints first and news streams in afterwards (skeleton holds the slot). ISR 300s aligned with the parent page. **Endpoint path is provisional** — backend confirmation pending; MSW serves a fixture for dev preview today. 4xx → empty list (section hides). |
+| `GET /apt-sales/{id}/news` | `AptSalesNewsResponse` envelope (`{ data: { totalCount: number, items: NewsItem[] } }` where `NewsItem = { title, press, url, publishedAt? }`). Backend matches articles by tokenizing `house_name` and contains-checking against title+summary; `publishedAt` is Asia/Seoul `LOCAL_DATE_TIME` (no offset). Backend caches per-id 6 h with daily 04:00 batch evict. The detail page does **not** await this fetch — `<RelatedNewsSection>` is wrapped in `<Suspense>` so the apartment data paints first and news streams in afterwards (skeleton holds the slot). ISR 300s aligned with the parent page. 4xx → empty list (section hides). |
 
 ### Mobile Layout
 
