@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-// TODO(beta-deferred): SearchRoot mount disabled — see docs/beta-launch-deferred-features.md#search
-// import { SearchRoot } from './search-root';
-import { Navigation } from '@/shared/components/navigation';
+import { SearchRoot } from './search-root';
 import { AppReadyMarker, AppSplash } from '@/shared/components';
 import { Footer } from '@/shared/components/footer';
 import { OrganizationJsonLd } from '@/shared/components/json-ld';
@@ -86,10 +84,7 @@ export default function RootLayout({
             {/* Desktop top padding for fixed header */}
             <div className="hidden lg:block h-16" />
 
-            {/* TODO(beta-deferred): replaced SearchRoot with bare Navigation while
-                BE search endpoint is pending. Restore <SearchRoot /> here when
-                ready — see docs/beta-launch-deferred-features.md#search */}
-            <Navigation />
+            <SearchRoot />
 
             <main id="main-content" className="flex-1">
               {children}

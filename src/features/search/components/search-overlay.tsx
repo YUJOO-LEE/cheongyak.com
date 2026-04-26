@@ -1,11 +1,5 @@
 'use client';
 
-/**
- * @deprecated Beta-launch deferral.
- * Currently rendered only by SearchRoot, which is no longer mounted in
- * app/layout.tsx. Tracking: docs/beta-launch-deferred-features.md#search
- */
-
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Search as SearchIcon, X, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
