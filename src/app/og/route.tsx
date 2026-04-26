@@ -41,6 +41,130 @@ export async function GET(request: NextRequest) {
   const statusParam = searchParams.get('status') ?? '';
   const statusLabel = STATUS_LABEL[statusParam] ?? '';
   const period = searchParams.get('period')?.slice(0, 60) ?? '';
+  // ratio=kakao → 800×800 (1:1) for Kakao Share. Kakao chat list shows the
+  // image as a square thumbnail; the inline feed card crops to 2:1 (top/bottom
+  // shaved). A 1:1 canvas with center-stacked content keeps the title visible
+  // in BOTH surfaces — the brand row + footer get partially clipped in the
+  // feed card, but the title (the actual message) stays. 800×800 sits well
+  // within Kakao's accepted dimension envelope.
+  const isKakao = searchParams.get('ratio') === 'kakao';
+
+  if (isKakao) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '64px 56px',
+            background: BRAND_PRIMARY,
+            fontFamily: 'Pretendard, system-ui, sans-serif',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              color: WHITE,
+              fontSize: 32,
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+            }}
+          >
+            <svg width={44} height={40} viewBox="0 0 22 20" xmlns="http://www.w3.org/2000/svg">
+              <path d={LOGO_PATH} fill={WHITE} />
+            </svg>
+            청약닷컴
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '28px',
+              maxWidth: '720px',
+            }}
+          >
+            {statusLabel && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  background: WHITE_15,
+                  color: WHITE,
+                  fontSize: 28,
+                  fontWeight: 700,
+                  letterSpacing: '-0.01em',
+                  padding: '10px 22px',
+                  borderRadius: 999,
+                }}
+              >
+                <span
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: 999,
+                    background: statusParam === 'accepting' ? BRAND_SECONDARY : WHITE,
+                  }}
+                />
+                {statusLabel}
+              </div>
+            )}
+            <div
+              style={{
+                color: WHITE,
+                fontSize: 80,
+                fontWeight: 800,
+                lineHeight: 1.15,
+                letterSpacing: '-0.03em',
+                display: 'flex',
+                textAlign: 'center',
+              }}
+            >
+              {title}
+            </div>
+            {subtitle && (
+              <div
+                style={{
+                  color: WHITE_85,
+                  fontSize: 36,
+                  fontWeight: 600,
+                  letterSpacing: '-0.01em',
+                  display: 'flex',
+                }}
+              >
+                {subtitle}
+              </div>
+            )}
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '8px',
+              color: WHITE_70,
+              fontSize: 26,
+              fontWeight: 500,
+            }}
+          >
+            {period && <span>분양기간 {period}</span>}
+            <span style={{ color: WHITE, fontWeight: 700, fontSize: 30 }}>cheongyak.com</span>
+          </div>
+        </div>
+      ),
+      { width: 800, height: 800, headers: CACHE_HEADERS },
+    );
+  }
 
   return new ImageResponse(
     (
@@ -51,7 +175,7 @@ export async function GET(request: NextRequest) {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          padding: '72px',
+          padding: '64px 72px',
           background: BRAND_PRIMARY,
           fontFamily: 'Pretendard, system-ui, sans-serif',
         }}
@@ -60,41 +184,41 @@ export async function GET(request: NextRequest) {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '18px',
             color: WHITE,
-            fontSize: 28,
+            fontSize: 36,
             fontWeight: 700,
             letterSpacing: '-0.02em',
           }}
         >
-          <svg width={44} height={40} viewBox="0 0 22 20" xmlns="http://www.w3.org/2000/svg">
+          <svg width={56} height={51} viewBox="0 0 22 20" xmlns="http://www.w3.org/2000/svg">
             <path d={LOGO_PATH} fill={WHITE} />
           </svg>
           청약닷컴
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '1000px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '1000px' }}>
           {(statusLabel || subtitle) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
               {statusLabel && (
                 <div
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
+                    gap: '12px',
                     background: WHITE_15,
                     color: WHITE,
-                    fontSize: 26,
+                    fontSize: 32,
                     fontWeight: 700,
                     letterSpacing: '-0.01em',
-                    padding: '8px 18px',
+                    padding: '10px 22px',
                     borderRadius: 999,
                   }}
                 >
                   <span
                     style={{
-                      width: 10,
-                      height: 10,
+                      width: 12,
+                      height: 12,
                       borderRadius: 999,
                       background: statusParam === 'accepting' ? BRAND_SECONDARY : WHITE,
                     }}
@@ -106,7 +230,7 @@ export async function GET(request: NextRequest) {
                 <div
                   style={{
                     color: WHITE_85,
-                    fontSize: 28,
+                    fontSize: 38,
                     fontWeight: 600,
                     letterSpacing: '-0.01em',
                   }}
@@ -119,7 +243,7 @@ export async function GET(request: NextRequest) {
           <div
             style={{
               color: WHITE,
-              fontSize: 72,
+              fontSize: 96,
               fontWeight: 800,
               lineHeight: 1.1,
               letterSpacing: '-0.03em',
@@ -136,7 +260,7 @@ export async function GET(request: NextRequest) {
             alignItems: 'center',
             justifyContent: 'space-between',
             color: WHITE_70,
-            fontSize: 22,
+            fontSize: 30,
             fontWeight: 500,
           }}
         >

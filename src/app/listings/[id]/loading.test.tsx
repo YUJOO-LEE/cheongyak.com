@@ -12,7 +12,8 @@
  *     - WinnerScoreTable              (당첨가점)
  *     - SpecialSupplyStatusTable      (특공 신청현황)
  *   Sidebar (col-span-1):
- *     - OfficialLinks card            (single block)
+ *     - OfficialLinks card            (links block)
+ *     - ShareActions card             (URL copy + Kakao share)
  *
  * This test pins the loader composition so shape changes in the real page
  * can't drift from the Suspense fallback silently.
@@ -46,26 +47,26 @@ describe('app/listings/[id]/loading.tsx', () => {
     ]);
   });
 
-  it('renders exactly one sidebar card (links) — no phantom blocks', () => {
+  it('renders the sidebar cards (links + share) in canonical order — no phantom blocks', () => {
     render(<SubscriptionDetailLoading />);
 
     const sidebar = screen.getByTestId('listing-detail-sidebar-col');
-    const sidebarSkeletons = sidebar.querySelectorAll(
-      '[data-testid$="-skeleton"]',
-    );
+    const order = Array.from(
+      sidebar.querySelectorAll<HTMLElement>('[data-testid$="-skeleton"]'),
+    ).map((el) => el.dataset.testid);
 
-    expect(sidebarSkeletons).toHaveLength(1);
-    expect(
-      sidebar.querySelector('[data-testid="listing-detail-links-skeleton"]'),
-    ).not.toBeNull();
+    expect(order).toEqual([
+      'listing-detail-links-skeleton',
+      'listing-detail-share-skeleton',
+    ]);
   });
 
   it('pins the overall skeleton-testid count so phantom bands fail loudly', () => {
     const { container } = render(<SubscriptionDetailLoading />);
-    // 7 content sections in main + 1 in sidebar + 1 outer wrapper = 9
+    // 7 content sections in main + 2 in sidebar + 1 outer wrapper = 10
     expect(
       container.querySelectorAll('[data-testid$="-skeleton"]'),
-    ).toHaveLength(9);
+    ).toHaveLength(10);
   });
 
   it('uses the 3-col responsive grid that matches the real page shape', () => {

@@ -12,3 +12,4 @@ export { WinnerScoreTable } from './winner-score-table';
 export { SpecialSupplyStatusTable } from './special-supply-status-table';
 export { RegulationChips } from './regulation-chips';
 export { OfficialLinks } from './official-links';
+export { ShareActions } from './share-actions';

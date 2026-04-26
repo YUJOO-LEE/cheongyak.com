@@ -370,8 +370,9 @@ interface ApiError {
 |---|---|---|
 | `API_BACKEND_URL` | Server-only | Backend API origin. Browser never sees this — CSR calls hit `/api/backend/*`, which `next.config.ts` rewrites to this origin server-side. Deliberately no `NEXT_PUBLIC_` prefix. |
 | `OPENAPI_URL` | Build-time | OpenAPI JSON URL consumed by `pnpm codegen`; read via `dotenv-cli` from `.env.local`. |
+| `NEXT_PUBLIC_KAKAO_JS_KEY` | Browser (intentionally public) | Kakao JavaScript SDK key for the listing-detail share button (`ShareActions`). Optional — when missing, the Kakao share button is a silent no-op (single mount-time warning). Use the JavaScript key only, never REST/Admin keys. The real defense is the **Platform → Web** domain whitelist in Kakao Developers (production, Vercel preview, localhost) — Kakao validates the Origin header on every API call and rejects unregistered domains. |
 
-All secrets via Vercel dashboard — **never in code or commits**.
+All secrets via Vercel dashboard — **never in code or commits**. Even browser-public keys (`NEXT_PUBLIC_*`) belong in `.env.local` / Vercel env, never in `.env.example`.
 
 ---
 

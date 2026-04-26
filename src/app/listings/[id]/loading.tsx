@@ -46,10 +46,16 @@ export default function SubscriptionDetailLoading() {
           className="lg:col-span-1"
           data-testid="listing-detail-sidebar-col"
         >
-          <Skeleton
-            className="h-40 rounded-lg"
-            data-testid="listing-detail-links-skeleton"
-          />
+          <div className="flex flex-col gap-8">
+            <Skeleton
+              className="h-40 rounded-lg"
+              data-testid="listing-detail-links-skeleton"
+            />
+            <Skeleton
+              className="h-28 rounded-lg"
+              data-testid="listing-detail-share-skeleton"
+            />
+          </div>
         </div>
       </div>
     </div>
