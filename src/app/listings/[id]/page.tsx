@@ -6,6 +6,7 @@ import {
   OfficialLinks,
   RegulationChips,
   ScheduleTimeline,
+  ShareActions,
   SpecialSupplyStatusTable,
   SubscriptionHeader,
   WinnerScoreTable,
@@ -120,6 +121,25 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
   const hasWinnerScores = subscription.winnerScores.length > 0;
   const hasSpecialStatus = subscription.specialSupplyStatus.length > 0;
 
+  const detailUrl = `${SITE_URL}/listings/${subscription.id}`;
+  const sharePeriod = formatApplicationPeriod(
+    subscription.applicationStart,
+    subscription.applicationEnd,
+  );
+  const shareLocation = `${subscription.location.sido} ${subscription.location.gugun}`;
+  const shareDescription = sharePeriod
+    ? `${shareLocation} · ${sharePeriod}`
+    : shareLocation;
+  // Kakao share feed card crops to 2:1 — request the slimmer 1200×600 variant
+  // so the logo (top) and "cheongyak.com" footer (bottom) don't get clipped.
+  const shareImageUrl = `${SITE_URL}/og?${new URLSearchParams({
+    title: subscription.name,
+    subtitle: shareLocation,
+    status: subscription.status,
+    period: sharePeriod,
+    ratio: 'kakao',
+  }).toString()}`;
+
   return (
     <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-10">
       <SubscriptionJsonLd
@@ -191,6 +211,18 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
                 builderUrl={subscription.builderUrl}
                 announcementUrl={subscription.announcementUrl}
                 inquiryPhone={subscription.inquiryPhone}
+              />
+            </section>
+
+            <section>
+              <h2 className="text-headline-sm text-text-primary mb-4">
+                공유하기
+              </h2>
+              <ShareActions
+                url={detailUrl}
+                title={`${subscription.name} 청약 정보`}
+                description={shareDescription}
+                imageUrl={shareImageUrl}
               />
             </section>
           </div>
