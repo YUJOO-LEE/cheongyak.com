@@ -25,6 +25,7 @@ export function WeeklyCard({
   return (
     <Link
       href={`/listings/${sub.id}`}
+      prefetch={false}
       style={{ animationDelay: `${index * 50}ms` }}
       className={[
         'block bg-bg-card animate-fade-in-up',

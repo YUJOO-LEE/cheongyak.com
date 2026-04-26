@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import {
   CompetitionTable,
@@ -50,15 +51,21 @@ function formatApplicationPeriod(startISO: string, endISO: string): string {
   return `${y1}.${m1}.${d1}–${y2}.${m2}.${d2}`;
 }
 
-async function loadDetail(id: number): Promise<SubscriptionDetail | null> {
-  try {
-    const envelope = await fetchAptSalesDetailSSR(id);
-    return mapAptSalesDetailToSubscription(envelope.data.data);
-  } catch (err) {
-    if (err instanceof ApiClientError && err.status === 404) return null;
-    throw err;
-  }
-}
+// React `cache()` dedupes within a single request: when the same `id`
+// is loaded by `generateMetadata` and the page body, only one backend
+// call fires. Without this, every detail render hits `/apt-sales/{id}`
+// twice. See `CLAUDE.md` §14 Rule C.
+const loadDetail = cache(
+  async (id: number): Promise<SubscriptionDetail | null> => {
+    try {
+      const envelope = await fetchAptSalesDetailSSR(id);
+      return mapAptSalesDetailToSubscription(envelope.data.data);
+    } catch (err) {
+      if (err instanceof ApiClientError && err.status === 404) return null;
+      throw err;
+    }
+  },
+);
 
 export async function generateMetadata({
   params,
