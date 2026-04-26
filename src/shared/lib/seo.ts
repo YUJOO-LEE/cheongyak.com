@@ -1,6 +1,23 @@
 import type { Metadata } from 'next';
 
-export const SITE_URL = 'https://cheongyak.com';
+// Required env. Set explicitly in every environment so canonical URLs,
+// sitemap entries, OG metadata, and share links resolve correctly:
+//   - Vercel production / preview / development → https://cheongyak.com
+//   - Local .env.local                          → http://localhost:715
+//   - Vitest test setup (src/test-setup.ts)     → https://cheongyak.com
+// No silent fallback — a missing value should fail loudly at boot rather
+// than ship a wrong canonical to Google.
+function readSiteUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!raw) {
+    throw new Error(
+      'NEXT_PUBLIC_SITE_URL is required. Set it in .env.local (locally) and in Vercel (production / preview / development).',
+    );
+  }
+  return raw.replace(/\/+$/, '');
+}
+
+export const SITE_URL = readSiteUrl();
 export const SITE_NAME = '청약닷컴';
 export const SITE_LOCALE = 'ko_KR';
 export const SITE_DESCRIPTION =

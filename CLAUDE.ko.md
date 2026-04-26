@@ -365,6 +365,7 @@ interface ApiError {
 | `API_BACKEND_URL` | 서버 전용 | 백엔드 API origin. 브라우저는 이 값을 보지 않음 — CSR 호출은 `/api/backend/*` 로 가고 `next.config.ts` rewrites 가 서버 사이드에서 이 origin 으로 포워딩. `NEXT_PUBLIC_` 접두사를 의도적으로 쓰지 않음. |
 | `OPENAPI_URL` | 빌드 타임 | `pnpm codegen` (orval) 이 읽는 OpenAPI JSON URL. `dotenv-cli` 가 `.env.local` 에서 주입. |
 | `NEXT_PUBLIC_KAKAO_JS_KEY` | 브라우저 (의도적으로 공개) | 청약 상세 페이지 공유 버튼(`ShareActions`)이 사용하는 카카오 JavaScript SDK 키. 옵셔널 — 없으면 카카오 공유 버튼은 마운트 시 한 번 경고 후 silent no-op. 반드시 JavaScript 키만 사용 (REST/Admin 키 금지). 진짜 방어선은 카카오 디벨로퍼스 → **플랫폼 → Web** 의 도메인 화이트리스트(운영·Vercel 프리뷰·localhost) — Kakao 서버가 매 API 호출의 Origin 헤더를 검증해 등록되지 않은 도메인은 거절함. |
+| `NEXT_PUBLIC_SITE_URL` | 브라우저 (필수) | sitemap, canonical/OG 메타데이터, JSON-LD, 공유 버튼의 클립보드 URL이 사용하는 정식 사이트 origin. **코드 폴백 없음** — `src/shared/lib/seo.ts` 가 boot 시 missing 이면 throw. Vercel production / preview / development 모두 `https://cheongyak.com` 으로 설정 (preview는 Vercel 기본 noindex). 로컬 `.env.local` 은 `http://localhost:715` 으로 설정해서 dev 환경 share 테스트 시 로컬 URL이 클립보드로 복사되도록 함. Vitest는 `src/test-setup.ts` 에서 핀. |
 
 모든 시크릿은 Vercel 대시보드를 통해 관리 — **코드나 커밋에 절대 포함하지 않음**. 브라우저 공개 키 (`NEXT_PUBLIC_*`) 도 `.env.local` / Vercel env 에만 두고 `.env.example` 에는 절대 넣지 않음.
 
