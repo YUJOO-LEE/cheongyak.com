@@ -127,7 +127,7 @@ function SpecBox({ icon: Icon, label, value }: { icon: typeof Building2; label: 
         <Icon size={14} className="text-icon-inverse" aria-hidden="true" />
         <span className="text-caption text-text-on-dark-subtle">{label}</span>
       </div>
-      <p className="text-label-lg text-text-on-dark">{value}</p>
+      <p className="text-label-lg text-text-on-dark text-balance">{value}</p>
     </div>
   );
 }

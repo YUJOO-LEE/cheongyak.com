@@ -24,11 +24,6 @@ describe('mapApiDetailTypeToDomain', () => {
     expect(mapApiDetailTypeToDomain('PRIVATE')).toBe('private');
     expect(mapApiDetailTypeToDomain('NATIONAL')).toBe('public');
   });
-
-  it('falls back to private when the API omits the detail type', () => {
-    expect(mapApiDetailTypeToDomain(undefined)).toBe('private');
-    expect(mapApiDetailTypeToDomain(null)).toBe('private');
-  });
 });
 
 describe('REGION_GROUPS', () => {
@@ -89,20 +84,6 @@ describe('mapItemToSubscription', () => {
     });
   });
 
-  it('uses regionCode fallback when regionName is null', () => {
-    const sub = mapItemToSubscription({ ...baseItem, regionName: null });
-    expect(sub.location.sido).toBe('서울특별시');
-  });
-
-  it('leaves sido blank when both regionName and regionCode are missing', () => {
-    const sub = mapItemToSubscription({
-      ...baseItem,
-      regionName: null,
-      regionCode: null,
-    });
-    expect(sub.location.sido).toBe('');
-  });
-
   it('collapses equal min/max supply areas to a single value', () => {
     const sub = mapItemToSubscription({
       ...baseItem,
@@ -112,19 +93,15 @@ describe('mapItemToSubscription', () => {
     expect(sub.sizeRange).toBe('59㎡');
   });
 
-  it('handles missing nullable fields without throwing', () => {
+  it('falls back to empty strings for nullable optional fields', () => {
     const sub = mapItemToSubscription({
-      id: 99,
-      status: 'SUBSCRIPTION_COMPLETED',
+      ...baseItem,
+      sigunguName: null,
+      dongName: null,
+      constructorName: null,
     });
-    expect(sub).toMatchObject({
-      id: '99',
-      name: '',
-      builder: '',
-      status: 'closed',
-      type: 'private',
-      totalUnits: 0,
-      sizeRange: '',
-    });
+    expect(sub.location.gugun).toBe('');
+    expect(sub.location.dong).toBeUndefined();
+    expect(sub.builder).toBe('');
   });
 });

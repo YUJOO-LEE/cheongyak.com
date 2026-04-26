@@ -8,7 +8,7 @@
 import type { SpecialSupplyCategoryItemCategoryName } from './specialSupplyCategoryItemCategoryName';
 
 /**
- * 특공 유형별 상세. 다자녀/신혼부부/생애최초/청년/노부모부양/신생아는 3지역(해당/기타경기/기타지역) 접수건수 보유. 기관추천/이전기관은 지역 구분 없이 totalCount 만
+ * 특공 유형별 상세. 다자녀/신혼부부/생애최초/청년/노부모부양/신생아는 3지역(해당/기타경기/기타지역) 접수건수 보유. 기관추천/이전기관은 지역 구분 없이 totalCount 만. 배정·접수가 하나도 없는 유형은 categories 에서 제외됨
  */
 export interface SpecialSupplyCategoryItem {
   /** 공급 유형명 (고정 8종 중 해당값) */

@@ -75,5 +75,8 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: '/api/backend/:path*',
+  // `/api/search` is the friendly alias for `/apt-sales/search` (see
+  // `next.config.ts` rewrites). It needs the same origin + rate-limit
+  // guards as `/api/backend/*` since both ultimately hit the upstream.
+  matcher: ['/api/backend/:path*', '/api/search'],
 };

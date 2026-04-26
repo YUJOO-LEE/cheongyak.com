@@ -24,13 +24,18 @@
 
 ### 통합 검색 (오버레이)
 
-> **상태:** 베타 단계 비공개. UI 숨김 처리, 코드는 보존. 복원 절차는 `docs/beta-launch-deferred-features.md#search` 참고.
-
 - **실행:** 네비게이션 검색 아이콘 클릭 또는 `⌘K` (`Ctrl+K`) 단축키
-- **범위:** 청약 (이름, 위치, 시공사) 및 뉴스 (제목, 본문) 전체 검색
-- **UI:** 전체 화면 모달 오버레이 (배경 딤), 중앙 패널 (최대 640px)
-- **결과:** 유형별 그룹화 (청약, 뉴스), 그룹당 최대 5개 미리보기
-- **최근 검색어:** localStorage에 저장, 최대 10개
+- **범위:** APT 청약 단지명만 — Next.js rewrite alias `GET /api/search?q=...&limit=...` 로 호출 (서버단에서 백엔드 `/apt-sales/search` 로 프록시; 단지명 부분 일치, q 2~20자, limit 기본 10·최대 50). 뉴스 검색은 아직 연결되지 않음.
+- **UI:** 전체 화면 모달 오버레이(배경 딤), 중앙 패널(최대 640px). 진입은 슬라이드 업, 닫힘은 슬라이드 다운 + 페이드 아웃 (`.search-panel-closing`).
+- **결과:** 키워드당 최대 8건의 청약을 일반 행 형태로 노출(중첩 카드 스타일 사용 금지). hover/active 는 박스섀도우/transform 없이 배경색 변화 (`bg-bg-sunken` / `bg-chip-bg-hover`) 만 사용 — 페이지 전반 톤과 일치.
+- **서버 부담 보호 장치 (반드시 유지):**
+  - 최소 길이 게이트 — 2글자 미만에서는 호출 차단, "검색어를 2글자 이상 입력해 주세요" 안내
+  - 빈 값/공백만의 입력은 단락 처리 (reset 버튼·백스페이스로 비웠을 때 호출 안 발생)
+  - 입력 스트림에 350 ms 디바운스
+  - TanStack Query `staleTime: 60_000` — 1분 이내 동일 키워드는 캐시 히트
+  - `maxLength={20}` — 백엔드 `q` 상한과 동일
+- **리셋 어포던스:** 인풋에 값이 있을 때만 닫기 버튼 옆에 `XCircle` 리셋 버튼이 노출. 브라우저 네이티브 `<input type="search">` 의 클리어 버튼은 글로벌 셀렉터 (`input[type="search"]::-webkit-search-cancel-button { appearance: none }`) 로 숨김.
+- **최근 검색:** localStorage 저장, 최대 10개, MRU 순서, 중복 제거
 - **키보드:** `Escape`로 닫기, 열릴 때 입력란 자동 포커스
 
 ### 푸터
@@ -275,9 +280,55 @@
 
 - 해당 백엔드 엔드포인트가 아직 없어 보류. 소득/자산/거주 요건이 노출되면 재개합니다.
 
-#### 3.5 관련 뉴스 *(보류)*
+#### 3.5 관련 뉴스
 
-- `/apt-sales/{id}` 응답 범위 밖입니다. 뉴스 연계 전용 엔드포인트 배포 이후 재개.
+- 메인 컬럼 마지막(§3.9 특별공급 신청현황 다음)에 모든 브레이크포인트
+  공통으로 배치합니다. 사이드바는 액션 영역(공식 링크 / 공유)으로
+  남기고, 뉴스는 보조 콘텐츠라 본문 흐름에 둡니다.
+- 행에는 신뢰성 핵심 필드만 노출: `press`(언론사), `title`,
+  `publishedAt`(선택, `formatRelativeDate`로 "2일 전" 표기), `url`.
+  `publishedAt` 은 백엔드가 Asia/Seoul `LOCAL_DATE_TIME`(오프셋 없음)
+  으로 내려주므로, 컴포넌트가 렌더 시 `+09:00` 으로 anchor — Vercel
+  UTC 서버에서 SSR/ISR 해도 9시간 drift 가 생기지 않음.
+  썸네일·요약·카테고리 칩은 미포함 — 본 콘텐츠와 시선 경쟁을 피하기
+  위한 의도된 단순화.
+- 행 구조: 메타 라인 `press · 상대 날짜`(`text-caption`,
+  `text-text-tertiary`) 위에 제목(`text-body-md`, `text-text-primary`,
+  `line-clamp-2`)이 두 번째 줄. 우측에 `ExternalLink`(16px,
+  `text-text-tertiary` → hover 시 `brand-primary-500`)이 있되 **평소엔
+  숨김(`opacity-0`)** 이고 `group-hover` / `group-focus-visible` 시에만
+  등장 — 정적 노이즈 없이 인터랙션 순간에만 외부 이동 신호를 노출.
+  단 터치 디바이스(`pointer: coarse`)에서는 `:hover` 가 발동하지
+  않으므로 우측 16px 아이콘 대신 **12px 작은 `ExternalLink` 를 메타
+  라인의 언론사명 옆에 inline** 으로 노출 — 텍스트 크기 한 단 아래
+  사이즈로 시각 무게를 줄이면서 외부 이동 신호는 유지. 두 위치는
+  서로 배타적으로 렌더되어(`pointer-coarse:hidden` / `hidden
+  pointer-coarse:inline-block`) 동일 의도를 입력 방식별로 적합한
+  자리에 둠.
+  좌측 카테고리 아이콘(`Newspaper`)은 채택하지 않음 — 언론사명 텍스트와
+  의미가 겹쳐 시각 가중치만 늘어남. hover 는 행 배경을 `bg-bg-sunken`
+  으로 톤 시프트만(위치 이동·보더 추가 없음). 행은 `bg-bg-card
+  rounded-lg p-3 md:p-4` 컨테이너 내부에 들어가 카드 중첩과 보더 분할
+  룰(DESIGN.md §11.5)을 동시에 만족하며, 컨테이너 padding 을 상하/좌우
+  대칭으로 두어 hover 영역 바깥의 흰 여백이 사방 균등하게 보이도록
+  조정. 누름(active) 상태는 행 배경을 `bg-bg-active`
+  (`neutral-200` — 글로벌 `bg-active` 토큰을 한 톤 연하게 재조정해
+  카드 안 리스트 행 누름이 시각 노이즈로 읽히지 않게 함; 더 강한
+  press 가 필요한 버튼은 새 `bg-button-secondary-active` 토큰 사용)로
+  시프트하면서 `scale-[0.99]` 미세 다운. 카드 안 row 라 translate
+  lift 는 의도적으로 배제.
+- 외부 링크는 `target="_blank" rel="noopener noreferrer"`,
+  `aria-label`은 `${press} – ${title} (새 창에서 열림)` 단일 문자열로
+  스크린리더 음독 순서 보장. 섹션은 `<section aria-labelledby>` 로
+  랜드마크화.
+- 빈/에러 상태: 항목이 비어 있으면(매칭 뉴스 없음, 4xx) 섹션 자체를
+  렌더하지 않습니다 — 빈 placeholder 없음. 5xx 는 라우트 ErrorBoundary
+  로 위임.
+- 백엔드가 내려주는 항목을 그대로 노출하며, 페이지네이션·"더보기"는
+  볼륨이 늘어났을 때 별도 PR로 도입할 예정.
+- 사이블링 스켈레톤(`related-news.skeleton.tsx`)은 동일한 `bg-bg-card
+  rounded-lg p-4 md:p-6` 컨테이너에 row 3개를 렌더해 Suspense 폴백이
+  최종 레이아웃을 근사하도록 함(CLS 가드).
 
 #### 3.6 공식 링크
 
@@ -332,7 +383,7 @@
 | 엔드포인트 | 데이터 |
 |---|---|
 | `GET /apt-sales/{id}` | 5개 섹션 상세 응답: `announcement` (공고 본체 + `schedule` + `regulations`), `models[]` (평형 기본정보), `competitions[]`, `winnerScores[]`, `specialSupplies[]`. 서버 컴포넌트에서 `fetchAptSalesDetailSSR(numericId)` (`next.revalidate=300`) 로 호출. 404 는 `ApiClientError` → `notFound()` 로 흐름. |
-| ~~`GET /api/news?subscription=[id]&limit=5`~~ | *(보류)* 관련 뉴스 엔드포인트 미공개 |
+| `GET /apt-sales/{id}/news` | `AptSalesNewsResponse` 엔벨로프(`{ data: { totalCount: number, items: NewsItem[] } }`, `NewsItem = { title, press, url, publishedAt? }`). 백엔드가 `house_name` 토큰을 title+summary 에 contains 매칭하고 발행일 내림차순 반환. `publishedAt` 은 Asia/Seoul `LOCAL_DATE_TIME`(오프셋 없음). 백엔드 캐시: 공고 ID 별 6h, 매일 04시 일괄 evict. 상세 페이지는 이 fetch 를 **await 하지 않음** — `<RelatedNewsSection>` 을 `<Suspense>` 로 감싸 청약 데이터가 먼저 렌더되고 뉴스는 후순위로 streaming(스켈레톤이 자리 유지). ISR 300s 동조. 4xx → 빈 배열(섹션 미렌더). |
 
 ### 모바일 레이아웃
 
@@ -502,7 +553,7 @@
 | `/about` | 소개 | Yes (SSG, 정적) | 공개 |
 | `/terms` | 이용약관 | Yes (SSG, 정적) | 공개 |
 
-**통합 검색**은 오버레이 컴포넌트 (라우트 없음) — `⌘K` 또는 검색 아이콘으로 실행. _베타 단계 UI 숨김 — `docs/beta-launch-deferred-features.md#search` 참고._
+**통합 검색**은 오버레이 컴포넌트 (라우트 없음) — `⌘K` 또는 검색 아이콘으로 실행. `GET /apt-sales/search` 에 연결됨(청약 단지명만). 보호 장치 정책은 위쪽 통합 검색 섹션 참고.
 
 - **ISR:** Incremental Static Regeneration (라우트별 재검증 주기 상이 — ARCHITECTURE.md 참조)
 - **SSR:** Server-Side Rendering (실시간 데이터)

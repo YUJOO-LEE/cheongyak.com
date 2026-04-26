@@ -7,10 +7,9 @@
  */
 
 /**
- * APT 세부 유형 (PRIVATE/NATIONAL). 미등록 코드는 null
- * @nullable
+ * APT 세부 유형 (PRIVATE/NATIONAL)
  */
-export type ItemHouseDetailType = typeof ItemHouseDetailType[keyof typeof ItemHouseDetailType] | null;
+export type ItemHouseDetailType = typeof ItemHouseDetailType[keyof typeof ItemHouseDetailType];
 
 
 export const ItemHouseDetailType = {

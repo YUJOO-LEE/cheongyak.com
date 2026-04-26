@@ -7,10 +7,9 @@
  */
 
 /**
- * 공급지역 enum (시도 단위). 매핑 안 되는 코드는 null
- * @nullable
+ * 공급지역 enum (시도 단위)
  */
-export type ItemRegionCode = typeof ItemRegionCode[keyof typeof ItemRegionCode] | null;
+export type ItemRegionCode = typeof ItemRegionCode[keyof typeof ItemRegionCode];
 
 
 export const ItemRegionCode = {

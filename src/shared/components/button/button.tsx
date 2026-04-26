@@ -18,15 +18,18 @@ const variantStyles: Record<ButtonVariant, string> = {
     'disabled:bg-bg-disabled disabled:text-text-tertiary',
   ].join(' '),
   secondary: [
-    'bg-neutral-200 text-text-primary',
-    'hover:bg-neutral-300',
-    'active:bg-bg-active',
+    'bg-button-secondary text-text-primary',
+    'hover:bg-button-secondary-hover',
+    'active:bg-button-secondary-active',
     'disabled:bg-bg-disabled disabled:text-text-tertiary',
   ].join(' '),
   tertiary: [
     'bg-transparent text-brand-primary-500',
     'hover:bg-bg-hover',
-    'active:bg-bg-active',
+    // Press feedback for tertiary buttons is carried by the
+    // button-level `active:scale-[0.97]` transform alone — no
+    // background shift, since the surface stays transparent for
+    // ghost-style hierarchy.
     'disabled:text-text-tertiary disabled:bg-transparent',
   ].join(' '),
   danger: [

@@ -8,35 +8,20 @@
 import type { SpecialDetailSection } from './specialDetailSection';
 
 /**
- * 주택형(평형)별 기본 정보. 경쟁률/가점/특공은 별도 섹션(top-level)에서 houseType 으로 매칭
+ * 주택형(평형)별 기본 정보. 경쟁률/가점/특공은 별도 섹션에서 houseType 으로 매칭
  */
 export interface ModelItem {
   /** 모델번호 (평형 내부 번호) */
   modelNo: string;
-  /**
-     * 주택형 코드 (공급면적.소수4자리+타입, 예: 058.8500A). 다른 섹션의 houseType 과 매칭 키
-     * @nullable
-     */
-  houseType?: string | null;
-  /**
-     * 공급면적 (단위: ㎡)
-     * @nullable
-     */
-  supplyArea?: number | null;
-  /**
-     * 일반공급 세대수 (단위: 세대)
-     * @nullable
-     */
-  generalSupplyCount?: number | null;
-  /**
-     * 특별공급 세대수 합계 (단위: 세대)
-     * @nullable
-     */
-  specialSupplyCount?: number | null;
+  /** 주택형 코드 (공급면적.소수4자리+타입). 다른 섹션 houseType 과 매칭 키 */
+  houseType: string;
+  /** 공급면적 (단위: ㎡) */
+  supplyArea: number;
+  /** 일반공급 세대수 (단위: 세대) */
+  generalSupplyCount: number;
+  /** 특별공급 세대수 합계 (단위: 세대) */
+  specialSupplyCount: number;
   specialDetail: SpecialDetailSection;
-  /**
-     * 분양 최고 금액 (단위: 만원). 미수집이면 null
-     * @nullable
-     */
-  topAmount?: number | null;
+  /** 분양 최고 금액 (단위: 만원) */
+  topAmount: number;
 }

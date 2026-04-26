@@ -11,6 +11,7 @@
  *     - CompetitionTable              (경쟁률 — only when data present)
  *     - WinnerScoreTable              (당첨가점)
  *     - SpecialSupplyStatusTable      (특공 신청현황)
+ *     - RelatedNews                   (관련 뉴스 — 외부 언론사 링크)
  *   Sidebar (col-span-1):
  *     - OfficialLinks card            (links block)
  *     - ShareActions card             (URL copy + Kakao share)
@@ -44,6 +45,7 @@ describe('app/listings/[id]/loading.tsx', () => {
       'competition-table-skeleton',
       'winner-score-table-skeleton',
       'special-supply-status-table-skeleton',
+      'related-news-skeleton',
     ]);
   });
 
@@ -63,10 +65,10 @@ describe('app/listings/[id]/loading.tsx', () => {
 
   it('pins the overall skeleton-testid count so phantom bands fail loudly', () => {
     const { container } = render(<SubscriptionDetailLoading />);
-    // 7 content sections in main + 2 in sidebar + 1 outer wrapper = 10
+    // 8 content sections in main + 2 in sidebar + 1 outer wrapper = 11
     expect(
       container.querySelectorAll('[data-testid$="-skeleton"]'),
-    ).toHaveLength(10);
+    ).toHaveLength(11);
   });
 
   it('uses the 3-col responsive grid that matches the real page shape', () => {

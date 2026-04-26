@@ -7,7 +7,7 @@
  */
 
 /**
- * 청약 상태 (날짜 기반 파생 계산). 판정 기준: SCHEDULED=시작일>오늘, ACTIVE=오늘이 접수 기간 내, RESULT_TODAY=발표일==오늘, RESULT_PENDING=발표일>오늘, COMPLETED=그 외 (리스트 API 와 동일)
+ * 청약 상태 (날짜 기반 파생 계산). 판정 기준: SCHEDULED=시작일>오늘, ACTIVE=오늘이 접수 기간 내, RESULT_TODAY=발표일==오늘, RESULT_PENDING=발표일>오늘, COMPLETED=그 외
  */
 export type AnnouncementSectionStatus = typeof AnnouncementSectionStatus[keyof typeof AnnouncementSectionStatus];
 

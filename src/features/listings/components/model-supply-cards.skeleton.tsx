@@ -14,7 +14,7 @@ export function ModelSupplyCardsSkeleton() {
       {[0, 1].map((i) => (
         <li
           key={i}
-          className="bg-bg-card rounded-md p-5 flex flex-col gap-4"
+          className="bg-bg-card rounded-lg p-5 flex flex-col gap-4"
         >
           <div className="flex items-start justify-between gap-3">
             <Skeleton width="70%" height={22} />

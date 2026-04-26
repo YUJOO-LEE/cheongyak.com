@@ -45,3 +45,32 @@ export const GetAptSalesListQueryParams = zod.object({
 export const GetAptSalesDetailParams = zod.object({
   "id": zod.number().describe('공고 PK (내부 식별자)')
 })
+
+
+/**
+ * 공고의 단지명(`house_name`)을 공백 토큰으로 분할 후, 모든 토큰이 뉴스 `title + summary` 합본의 공백 제거 문자열에 contains 되는 기사를 발행일 내림차순 반환. 건수 제한 없음. 매칭 0건이면 `items` 빈 배열. 캐시: `aptNews` (공고 ID별 키, TTL 6h, 매일 04시 일괄 evict). `{id}` 가 존재하지 않으면 404 NOT_FOUND.
+ * @summary APT 청약 공고 연관 뉴스
+ */
+export const GetAptSalesNewsParams = zod.object({
+  "id": zod.number().describe('공고 PK (내부 식별자)')
+})
+
+
+/**
+ * 단지명 부분 일치 검색 (자동완성용). 기본 10건, 최대 50건.
+ * @summary APT 청약 단지명 검색
+ */
+export const searchAptSalesQueryRequestQMin = 2;
+export const searchAptSalesQueryRequestQMax = 20;
+
+export const searchAptSalesQueryRequestLimitDefault = 10;
+export const searchAptSalesQueryRequestLimitMax = 50;
+
+
+
+export const SearchAptSalesQueryParams = zod.object({
+  "request": zod.object({
+  "q": zod.string().min(searchAptSalesQueryRequestQMin).max(searchAptSalesQueryRequestQMax).describe('검색어 (2~20자)'),
+  "limit": zod.number().min(1).max(searchAptSalesQueryRequestLimitMax).default(searchAptSalesQueryRequestLimitDefault).describe('결과 개수 (1~50, 기본 10)')
+})
+})

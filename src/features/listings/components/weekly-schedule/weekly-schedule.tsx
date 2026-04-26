@@ -74,7 +74,7 @@ export function WeeklySchedule({ days }: WeeklyScheduleProps) {
                   'text-label-md',
                   isSelected ? 'text-text-on-dark' : 'text-text-primary',
                 ].join(' ')}>
-                  {info.isToday ? '오늘' : info.shortLabel}
+                  {info.shortLabel}
                 </span>
                 <span className={[
                   'text-caption',
@@ -125,37 +125,39 @@ export function WeeklySchedule({ days }: WeeklyScheduleProps) {
               className="animate-fade-in-up"
               style={{ animationDelay: `${i * 60}ms` }}
             >
-              {/* Column header — no wrapper, just text */}
+              {/* Column header — today is signaled by color + bullet only,
+                  not by replacing the weekday label. */}
               <div className="text-center mb-3">
-                {info.isToday ? (
-                  <>
-                    <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-label-lg text-brand-primary-700">오늘</p>
-                      <span className="inline-block size-1.5 rounded-full bg-brand-primary-500 animate-pulse-soft" />
-                    </div>
-                    <p className="text-caption text-brand-primary-600">
-                      {info.dateStr}
-                      {daySubs.length > 0 && (
-                        <span className="ml-1.5 font-medium">{daySubs.length}건</span>
-                      )}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className={[
+                <div className="flex items-center justify-center gap-1.5">
+                  <p
+                    className={[
                       'text-label-lg',
-                      info.isPast ? 'text-text-tertiary' : 'text-text-primary',
-                    ].join(' ')}>
-                      {info.shortLabel}
-                    </p>
-                    <p className="text-caption text-text-tertiary">
-                      {info.dateStr}
-                      {daySubs.length > 0 && (
-                        <span className="ml-1.5 font-medium">· {daySubs.length}건</span>
-                      )}
-                    </p>
-                  </>
-                )}
+                      info.isToday
+                        ? 'text-brand-primary-700'
+                        : info.isPast
+                          ? 'text-text-tertiary'
+                          : 'text-text-primary',
+                    ].join(' ')}
+                  >
+                    {info.shortLabel}
+                  </p>
+                  {info.isToday && (
+                    <span className="inline-block size-1.5 rounded-full bg-brand-primary-500 animate-pulse-soft" />
+                  )}
+                </div>
+                <p
+                  className={[
+                    'text-caption',
+                    info.isToday ? 'text-brand-primary-600' : 'text-text-tertiary',
+                  ].join(' ')}
+                >
+                  {info.dateStr}
+                  {daySubs.length > 0 && (
+                    <span className="ml-1.5 font-medium">
+                      {info.isToday ? `${daySubs.length}건` : `· ${daySubs.length}건`}
+                    </span>
+                  )}
+                </p>
               </div>
 
               {/* Cards — single level, no nesting */}

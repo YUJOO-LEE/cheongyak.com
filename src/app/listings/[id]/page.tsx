@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 import { notFound } from 'next/navigation';
@@ -6,12 +7,14 @@ import {
   ModelSupplyCards,
   OfficialLinks,
   RegulationChips,
+  RelatedNewsSection,
   ScheduleTimeline,
   ShareActions,
   SpecialSupplyStatusTable,
   SubscriptionHeader,
   WinnerScoreTable,
 } from '@/features/listings/components';
+import { RelatedNewsSkeleton } from '@/features/listings/components/related-news.skeleton';
 import { fetchAptSalesDetailSSR } from '@/features/listings/lib/apt-sales-detail-query';
 import { mapAptSalesDetailToSubscription } from '@/features/listings/lib/map-apt-sales-detail';
 import { ApiClientError } from '@/shared/lib/api-client';
@@ -204,6 +207,15 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
               />
             </DetailSection>
           )}
+
+          {/* News lives at the bottom of the page and depends on a
+              separate, slower-moving endpoint than `/apt-sales/{id}`.
+              Wrap it in `<Suspense>` so the detail above paints the
+              moment the apartment data resolves and the news streams
+              in afterwards — apartment info should never wait on news. */}
+          <Suspense fallback={<RelatedNewsSkeleton />}>
+            <RelatedNewsSection listingId={numericId} />
+          </Suspense>
         </div>
 
         {/* Sidebar */}
@@ -253,3 +265,4 @@ function DetailSection({
     </section>
   );
 }
+

@@ -7,18 +7,12 @@
  */
 
 /**
- * 시작일~종료일 쌍 (yyyy-MM-dd). 두 날짜 중 하나만 있을 수도 있어 개별 nullable
+ * 시작일~종료일 쌍 (yyyy-MM-dd). 정상 데이터에서는 둘 다 채워짐
  * @nullable
  */
 export type DateRange = {
-  /**
-     * 시작일 (yyyy-MM-dd)
-     * @nullable
-     */
-  start?: string | null;
-  /**
-     * 종료일 (yyyy-MM-dd)
-     * @nullable
-     */
-  end?: string | null;
+  /** 시작일 (yyyy-MM-dd) */
+  start: string;
+  /** 종료일 (yyyy-MM-dd) */
+  end: string;
 } | null;

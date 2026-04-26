@@ -121,7 +121,7 @@ src/
 | `/about` | About | Service mission and the public data sources used by cheongyak.com |
 | `/terms` | Terms of Service | Service terms — no membership, no PII collection, operator contact, dispute resolution |
 
-**Global Search:** Overlay triggered by navigation search icon or `⌘K` shortcut. Cross-content search (listings + news) with recent search history. _Deferred for beta — see `docs/beta-launch-deferred-features.md#search`._
+**Global Search:** Overlay triggered by navigation search icon or `⌘K` shortcut. Wired to `GET /api/search` (Next.js rewrite alias for the upstream `/apt-sales/search`, listings only); recent-search history persisted in localStorage. News search is not yet wired.
 
 **Full specifications:** See `PAGES.md` for detailed sections, data requirements, mobile layouts, and acceptance criteria.
 

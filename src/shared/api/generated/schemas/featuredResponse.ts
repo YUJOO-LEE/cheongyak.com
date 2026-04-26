@@ -15,67 +15,46 @@ export interface FeaturedResponse {
   /** 공고 PK */
   id: number;
   /** 단지명 */
-  houseName?: string;
-  /** 청약 상태 코드 (enum). 프론트에서 라벨 매핑 */
+  houseName: string;
+  /** 청약 상태 코드 (enum) */
   status: FeaturedResponseStatus;
+  /** APT 세부 유형 (PRIVATE=민영, NATIONAL=국민) */
+  houseDetailType: FeaturedResponseHouseDetailType;
+  /** 시도명 (공급지역명 원본) */
+  sidoName: string;
   /**
-     * APT 세부 유형 (PRIVATE=민영, NATIONAL=국민). 미등록 코드는 null
-     * @nullable
-     */
-  houseDetailType?: FeaturedResponseHouseDetailType;
-  /**
-     * 시도명 (supplyAddress 파싱 결과)
-     * @nullable
-     */
-  sidoName?: string | null;
-  /**
-     * 시군구명 (supplyAddress 파싱 결과)
+     * 시군구명 (supplyAddress 파싱 결과). 파싱 실패 시 null
      * @nullable
      */
   sigunguName?: string | null;
   /**
-     * 동·읍·면명 (supplyAddress 파싱 결과)
+     * 동·읍·면명 (supplyAddress 파싱 결과). 파싱 실패 시 null
      * @nullable
      */
   dongName?: string | null;
   /**
-     * 시공사명
+     * 시공사명. 수집 누락 시 null (약 7%)
      * @nullable
      */
   constructorName?: string | null;
+  /** 총 공급 세대수 (단위: 세대) */
+  totalSupplyHousehold: number;
+  /** 최소 공급면적 (단위: ㎡) */
+  minSupplyArea: number;
+  /** 최대 공급면적 (단위: ㎡) */
+  maxSupplyArea: number;
   /**
-     * 총 공급 세대수
-     * @nullable
-     */
-  totalSupplyHousehold?: number | null;
-  /**
-     * 최소 공급면적 (m²)
-     * @nullable
-     */
-  minSupplyArea?: number | null;
-  /**
-     * 최대 공급면적 (m²)
-     * @nullable
-     */
-  maxSupplyArea?: number | null;
-  /**
-     * 최저 분양가 (만원 단위)
+     * 최저 분양가 (단위: 만원). 수집 누락 시 null
      * @nullable
      */
   minTopAmount?: number | null;
   /**
-     * 최고 분양가 (만원 단위)
+     * 최고 분양가 (단위: 만원). 수집 누락 시 null
      * @nullable
      */
   maxTopAmount?: number | null;
-  /**
-     * 청약 접수 시작일 (yyyy-MM-dd)
-     * @nullable
-     */
-  subscriptionStartDate?: string | null;
-  /**
-     * 청약 접수 종료일 (yyyy-MM-dd)
-     * @nullable
-     */
-  subscriptionEndDate?: string | null;
+  /** 청약 접수 시작일 (yyyy-MM-dd) */
+  subscriptionStartDate: string;
+  /** 청약 접수 종료일 (yyyy-MM-dd) */
+  subscriptionEndDate: string;
 }

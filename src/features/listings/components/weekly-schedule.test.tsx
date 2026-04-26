@@ -117,22 +117,22 @@ describe('WeeklySchedule · server markup', () => {
 
     const days = FIVE_DAYS.map((d) =>
       d.date === '2026-04-15'
-        ? { ...d, items: [makeSub({ id: 'wed', name: '오늘 청약' })] }
+        ? { ...d, items: [makeSub({ id: 'wed', name: '수요일 청약' })] }
         : d,
     );
 
     const html = renderToStaticMarkup(<WeeklySchedule days={days} />);
 
-    // 서버 dayOfWeek 한국어 매핑 — '수' 컬럼은 오늘 라벨로 대체되므로 그 외 4개는 항상 노출
-    for (const label of ['월', '화', '목', '금']) {
+    // 서버 dayOfWeek 한국어 매핑 — 5 일 모두 라벨이 노출됨 (오늘도 요일 라벨 유지)
+    for (const label of ['월', '화', '수', '목', '금']) {
       expect(html).toContain(label);
     }
     // dateStr 은 server date 에서 파생된 "M.D"
     expect(html).toContain('4.13');
     expect(html).toContain('4.15');
     expect(html).toContain('4.17');
-    // 오늘 컬럼 마커 — '수' 라벨을 갈음
-    expect(html).toContain('오늘');
+    // 오늘 컬럼 마커는 텍스트가 아니라 색 + pulse 점으로만 신호
+    expect(html).toContain('animate-pulse-soft');
   });
 
   it('renders "0건" with disabled styling on empty days so alignment + intent stay clear', () => {

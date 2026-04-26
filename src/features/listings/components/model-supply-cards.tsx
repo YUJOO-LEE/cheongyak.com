@@ -29,7 +29,7 @@ export function ModelSupplyCards({ models }: ModelSupplyCardsProps) {
       {models.map((model) => (
         <li
           key={model.modelNo}
-          className="bg-bg-card rounded-md p-5 flex flex-col gap-4"
+          className="bg-bg-card rounded-lg p-5 flex flex-col gap-4"
         >
           <header className="flex items-start justify-between gap-3">
             <p className="text-headline-sm text-text-primary font-semibold">

@@ -31,7 +31,6 @@ import type {
   WinnerScoreRow,
 } from '@/shared/types/api';
 import {
-  REGION_LABEL_MAP,
   formatArea,
   formatSizeRange,
   mapApiDetailTypeToDomain,
@@ -160,17 +159,17 @@ export function deriveSchedulePhases(
   moveInMonth: string | null | undefined,
   today: Date = new Date(),
 ): SchedulePhase[] {
-  const s = schedule ?? {};
-  const specialSupply = pickRange(s.specialSupply);
-  const firstRank = pickRange(s.firstRankLocal);
-  const secondRank = pickRange(s.secondRankLocal);
-  const contract = pickRange(s.contract);
+  if (!schedule) return [];
+  const specialSupply = pickRange(schedule.specialSupply);
+  const firstRank = pickRange(schedule.firstRankLocal);
+  const secondRank = pickRange(schedule.secondRankLocal);
+  const contract = pickRange(schedule.contract);
 
   const candidates: PhaseCandidate[] = [
     {
       phase: 'announcement',
       label: '모집공고',
-      startDate: s.announcementDate ?? undefined,
+      startDate: schedule.announcementDate,
       endDate: undefined,
     },
     {
@@ -194,7 +193,7 @@ export function deriveSchedulePhases(
     {
       phase: 'winner-announcement',
       label: '당첨자 발표',
-      startDate: s.winnerAnnouncementDate ?? undefined,
+      startDate: schedule.winnerAnnouncementDate,
       endDate: undefined,
     },
     {
@@ -316,16 +315,21 @@ function formatPriceRange(
   const lo = min ?? max!;
   const hi = max ?? min!;
   if (lo === hi) return formatPriceManWon(lo);
-  return `${formatPriceManWon(lo)} ~ ${formatPriceManWon(hi)}`;
+  // U+00A0 (no-break space) before "~" keeps "lower~" glued together so
+  // narrow columns wrap *after* the tilde, producing
+  //   "12억 5,000만~"
+  //   "15억 2,000만"
+  // instead of breaking before "~" or somewhere inside the lower bound.
+  return `${formatPriceManWon(lo)} ~ ${formatPriceManWon(hi)}`;
 }
 
 // ─── 헬퍼: models 에서 공급면적 최소/최대 ─────────────────────────────
-function minMax(
-  values: ReadonlyArray<number | undefined>,
-): { min: number | undefined; max: number | undefined } {
-  const defined = values.filter((v): v is number => typeof v === 'number');
-  if (defined.length === 0) return { min: undefined, max: undefined };
-  return { min: Math.min(...defined), max: Math.max(...defined) };
+function minMax(values: ReadonlyArray<number>): {
+  min: number | undefined;
+  max: number | undefined;
+} {
+  if (values.length === 0) return { min: undefined, max: undefined };
+  return { min: Math.min(...values), max: Math.max(...values) };
 }
 
 // ─── 엔트리 포인트 ────────────────────────────────────────────────────
@@ -336,42 +340,41 @@ export function mapAptSalesDetailToSubscription(
   const { announcement, models, competitions, winnerScores, specialSupplies } =
     response;
 
-  const sido =
-    announcement.regionName ??
-    (announcement.regionCode
-      ? REGION_LABEL_MAP[announcement.regionCode]
-      : '');
+  const sido = announcement.regionName;
   const { gugun, dong } = parseSupplyAddress(announcement.supplyAddress, sido);
 
   const { start: appStart, end: appEnd } = pickRange(
-    announcement.schedule?.subscription,
+    announcement.schedule.subscription,
   );
 
-  const areas = models.map((m) => m.supplyArea ?? undefined);
+  const areas = models.map((m) => m.supplyArea);
   const { min: minArea, max: maxArea } = minMax(areas);
-  const prices = models.map((m) => m.topAmount ?? undefined);
+  const prices = models.map((m) => m.topAmount);
   const { min: minPrice, max: maxPrice } = minMax(prices);
 
   const mappedModels = models.map(mapModel);
 
   return {
     id: String(announcement.id),
-    name: announcement.houseName ?? '',
+    name: announcement.houseName,
     location: { sido, gugun, dong },
     builder: announcement.constructorName ?? '',
     status: mapApiStatusToDomain(announcement.status),
-    type: mapApiDetailTypeToDomain(announcement.houseDetailType ?? null),
+    type: mapApiDetailTypeToDomain(announcement.houseDetailType),
     applicationStart: appStart ?? '',
     applicationEnd: appEnd ?? '',
-    totalUnits: announcement.totalSupplyHouseholdCount ?? 0,
-    sizeRange: formatSizeRange(minArea, maxArea),
+    totalUnits: announcement.totalSupplyHouseholdCount,
+    sizeRange:
+      minArea !== undefined && maxArea !== undefined
+        ? formatSizeRange(minArea, maxArea)
+        : '',
     priceRange: formatPriceRange(minPrice, maxPrice),
     // Official links — API에는 시행사 홈페이지(homepageUrl)와 모집공고문
     // (announcementUrl) 두 필드만 존재. 청약홈 신청 URL은 별도 필드가 없어
     // applyHomeUrl 은 undefined 로 둡니다(차후 청약홈 deeplink 룰 도입 예정).
     builderUrl: announcement.homepageUrl ?? undefined,
     applyHomeUrl: undefined,
-    announcementUrl: announcement.announcementUrl ?? undefined,
+    announcementUrl: announcement.announcementUrl,
     // Extra info
     supplyAddress: announcement.supplyAddress ?? undefined,
     businessEntityName: announcement.businessEntityName ?? undefined,

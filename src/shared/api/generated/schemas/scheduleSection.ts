@@ -8,26 +8,20 @@
 import type { DateRange } from './dateRange';
 
 /**
- * 일정 그룹. 모든 하위 날짜 필드는 데이터 없음이면 null. 각 접수 기간은 { start, end } 쌍 객체로 제공
+ * 일정 그룹. 필수 일정(announcementDate/subscription/firstRankLocal/secondRankLocal/winnerAnnouncementDate/contract)은 항상 존재. 조건부 일정(specialSupply/firstRank*Gyeonggi/secondRank*Gyeonggi/firstRankOther/secondRankOther)은 해당 없으면 null
  */
 export interface ScheduleSection {
-  /**
-     * 모집공고일 (yyyy-MM-dd). 없으면 null
-     * @nullable
-     */
-  announcementDate?: string | null;
-  subscription?: DateRange | null;
+  /** 모집공고일 (yyyy-MM-dd) */
+  announcementDate: string;
+  subscription: DateRange | null;
+  firstRankLocal: DateRange | null;
+  secondRankLocal: DateRange | null;
+  /** 당첨자 발표일 (yyyy-MM-dd) */
+  winnerAnnouncementDate: string;
+  contract: DateRange | null;
   specialSupply?: DateRange | null;
-  firstRankLocal?: DateRange | null;
   firstRankGyeonggi?: DateRange | null;
   firstRankOther?: DateRange | null;
-  secondRankLocal?: DateRange | null;
   secondRankGyeonggi?: DateRange | null;
   secondRankOther?: DateRange | null;
-  /**
-     * 당첨자 발표일 (yyyy-MM-dd). 없으면 null
-     * @nullable
-     */
-  winnerAnnouncementDate?: string | null;
-  contract?: DateRange | null;
 }

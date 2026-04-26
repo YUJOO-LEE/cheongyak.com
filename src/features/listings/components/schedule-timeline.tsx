@@ -7,10 +7,12 @@ interface ScheduleTimelineProps {
 
 const stateStyles = {
   past: {
-    dot: 'bg-bg-active',
-    // Match the past dot tone so the completed portion reads as one continuous
-    // "already passed" stroke instead of a darker dot sitting on a lighter line.
-    line: 'bg-bg-active',
+    // Past phases use a noticeably-darker neutral so the completed
+    // stroke reads clearly against the much lighter `future` divider —
+    // the global `bg-active` token has been retuned for press feedback
+    // (one tone lighter), which is too subtle for a static timeline.
+    dot: 'bg-neutral-300',
+    line: 'bg-neutral-300',
     text: 'text-text-tertiary',
     label: 'text-text-tertiary',
   },

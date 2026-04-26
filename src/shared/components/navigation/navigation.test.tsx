@@ -77,18 +77,9 @@ describe('Navigation · server markup', () => {
     expect(html).toContain('href="/trades"');
   });
 
-  // TODO(beta-deferred): search trigger UI hidden — restore this assertion
-  // alongside the desktop/mobile search buttons.
-  // See docs/beta-launch-deferred-features.md#search
-  it.skip('exposes the search button with its ⌘K accessible label on desktop', () => {
+  it('exposes the search button with its ⌘K accessible label on desktop', () => {
     const html = renderToStaticMarkup(<Navigation />);
     expect(html).toContain('aria-label="검색 (⌘K)"');
-  });
-
-  it('omits the search trigger UI while it is beta-deferred', () => {
-    const html = renderToStaticMarkup(<Navigation />);
-    expect(html).not.toContain('aria-label="검색 (⌘K)"');
-    expect(html).not.toContain('aria-label="검색"');
   });
 
   it('marks the active route (listings) as aria-current on mobile', () => {

@@ -243,6 +243,9 @@
 | `color-interactive-disabled` | `neutral-300` | 비활성 인터랙티브 요소 |
 | `color-button-secondary` | `neutral-200` | 세컨더리 버튼 표면 (페이지 캔버스 `bg-page` 위에서 `bg-sunken` 보다 명확한 대비가 필요한 탭 가능 요소) |
 | `color-button-secondary-hover` | `neutral-300` | 세컨더리 버튼 호버 상태 |
+| `color-button-secondary-active` | `neutral-400` | 세컨더리 버튼 누름 상태 — `bg-active` 보다 한 톤 진하게 두어 페이지 캔버스 위에서도 누름 신호가 명확히 읽히게 |
+| `color-bg-hover` | `neutral-200` | 비-버튼 행의 범용 호버 표면 |
+| `color-bg-active` | `neutral-200` | 카드 안 리스트 행 누름 표면 (카드 안에서 탭 했을 때 시각 노이즈가 되지 않도록 의도적으로 연하게 — 더 강한 press 가 필요한 버튼은 `color-button-secondary-active` 사용) |
 
 #### 상태
 

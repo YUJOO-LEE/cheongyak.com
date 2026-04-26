@@ -210,6 +210,10 @@ export const NewsArticleSchema = z.object({
 });
 export type NewsArticle = z.infer<typeof NewsArticleSchema>;
 
+// 청약 상세 페이지의 "관련 뉴스" 섹션은 generated `NewsItem`
+// (`src/shared/api/generated/schemas/newsItem.ts`) 을 직접 사용한다.
+// API 가 source-of-truth 이므로 별도 도메인 타입을 두지 않는다.
+
 // ============================================================
 // Market Insights
 // ============================================================

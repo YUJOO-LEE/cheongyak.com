@@ -22,13 +22,20 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 ### Global Search (Overlay)
 
-> **Status:** Deferred for beta. UI hidden, code preserved. Restoration tracked in `docs/beta-launch-deferred-features.md#search`.
-
 - **Trigger:** Navigation search icon click or `⌘K` (`Ctrl+K`) keyboard shortcut
-- **Scope:** Searches across listings (name, location, builder) and news (title, body)
-- **UI:** Full-screen modal overlay with backdrop, centered panel (max 640px)
-- **Results:** Grouped by type (Listings, News) with max 5 preview results per group
-- **Recent searches:** Persisted in localStorage, max 10 items
+- **Scope:** Apartment listings only — calls a friendly Next.js rewrite alias
+  `GET /api/search?q=...&limit=...` that proxies to the upstream
+  `/apt-sales/search` (단지명 부분 일치, q 2~20자, limit 기본 10·최대 50). News search is not yet wired.
+- **UI:** Full-screen modal overlay with backdrop, centered panel (max 640px). Slide-up entry, slide-down + fade close animation (`.search-panel-closing`).
+- **Results:** Up to 8 listings per query, rendered as plain rows (no nested card chrome). Hover/active states use background color shifts (`bg-bg-sunken` / `bg-chip-bg-hover`), never shadow or translate, to match the broader page mood.
+- **Server-load safeguards (must-keep):**
+  - Min length gate — no request fires below 2 chars; UI surfaces "검색어를 2글자 이상 입력해 주세요"
+  - Empty / whitespace-only input is short-circuited (cleared via the reset button or backspace never produces a request)
+  - 350 ms debounce on the input stream
+  - TanStack Query `staleTime: 60_000` — repeat queries within a minute are cache hits
+  - `maxLength={20}` mirrors the backend `q` upper bound
+- **Reset affordance:** When the input has any value, a `XCircle` reset button appears in-row alongside the close button. The browser's native `<input type="search">` clear is hidden globally (`input[type="search"]::-webkit-search-cancel-button { appearance: none }`).
+- **Recent searches:** Persisted in localStorage, max 10 items, MRU order, de-duped
 - **Keyboard:** `Escape` to close, auto-focus on input when opened
 
 ### Footer
@@ -280,10 +287,59 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 - Collapsible eligibility reference — backend endpoint not defined yet.
   Revisit once the API exposes income/asset/residency rules per listing.
 
-#### 3.5 Related News *(deferred)*
+#### 3.5 Related News
 
-- Related articles are out of scope for the `/apt-sales/{id}` endpoint
-  per the backend spec. A dedicated news-linking endpoint is planned.
+- Sits at the end of the main column (after §3.9 특별공급 신청현황) at
+  every breakpoint — sidebar is reserved for action-oriented blocks
+  (Official Links / ShareActions); news is supplementary reading and
+  belongs in the content flow.
+- Each row exposes only the trust-critical fields: `press` (언론사),
+  `title`, optional `publishedAt` (rendered via `formatRelativeDate` —
+  "2일 전"), and `url`. `publishedAt` ships as Asia/Seoul
+  `LOCAL_DATE_TIME` with no offset; the component anchors it to
+  `+09:00` at render time so SSR on a UTC server doesn't drift 9 h.
+  No thumbnail, summary, or category chip — the section stays
+  low-noise so it doesn't compete with primary content.
+- Row anatomy: meta line `press · relativeDate` (`text-caption`,
+  `text-text-tertiary`) above the title (`text-body-md`,
+  `text-text-primary`, `line-clamp-2`). The right side carries an
+  `ExternalLink` icon (16px, `text-text-tertiary` → `brand-primary-500`
+  on hover) that is **hidden by default** (`opacity-0`) and reveals on
+  `group-hover` / `group-focus-visible` only — keeps the static row
+  noise-free, surfaces the external-navigation signal exactly when the
+  user is interacting. On touch devices (`pointer: coarse`) where
+  `:hover` never fires, a smaller 12px `ExternalLink` is rendered
+  inline next to the press name in the meta line — one tone smaller
+  than the meta-line text, so the external-nav cue is visible at rest
+  without the heavy presence of a 16px right-side icon. The two
+  placements are mutually exclusive (`pointer-coarse:hidden` vs
+  `hidden pointer-coarse:inline-block`) so each input modality reads
+  the appropriate position. No persistent left-side icon (categorical
+  `Newspaper` indicator was tried and dropped — it competed with the
+  press text without adding meaning). Hover shifts the row's
+  background to `bg-bg-sunken` (no translate / no border — the row
+  sits inside `bg-bg-card rounded-lg p-3 md:p-4`, so card-in-card
+  nesting and 1px sectioning lines are both avoided per DESIGN.md §11.5).
+  Container padding is symmetric (top/bottom = left/right) so the
+  hover-area inset reads even on each side. Active (press) state: row
+  background steps to `bg-bg-active` (`neutral-200` — the global
+  active token was retuned one tone lighter so card-in-card list-row
+  presses don't read as visual noise; buttons that need a heavier
+  press use the new `bg-button-secondary-active` token) plus a
+  `scale-[0.99]` micro press. Translation lift is intentionally
+  avoided since the row sits inside another card.
+- External links open in a new tab with `target="_blank" rel="noopener
+  noreferrer"`, single `aria-label` packs `${press} – ${title} (새 창에서 열림)`
+  for screen readers. Section uses `<section aria-labelledby>` so it
+  surfaces as a landmark heading.
+- Empty/error: when the items array is empty (no matched news, 4xx)
+  the section renders nothing — no placeholder card or "no news"
+  copy. 5xx propagates to the route ErrorBoundary.
+- The list returns whatever the backend serves; pagination / "load
+  more" deliberately deferred until the volume justifies it.
+- Sibling skeleton (`related-news.skeleton.tsx`) renders 3 rows inside
+  the same `bg-bg-card rounded-lg p-4 md:p-6` container so the
+  Suspense fallback approximates the final layout (CLS guard).
 
 #### 3.6 Official Links
 
@@ -344,7 +400,7 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 | Endpoint | Data |
 |---|---|
 | `GET /apt-sales/{id}` | Full 5-section detail: `announcement` (공고 본체 + `schedule` + `regulations`), `models[]` (평형 기본정보), `competitions[]`, `winnerScores[]`, `specialSupplies[]`. Server-side fetch via `fetchAptSalesDetailSSR(numericId)` with `next.revalidate=300`. 404 flows through `ApiClientError` → `notFound()`. |
-| ~~`GET /api/news?subscription=[id]&limit=5`~~ | *(deferred)* related news endpoint not yet published |
+| `GET /apt-sales/{id}/news` | `AptSalesNewsResponse` envelope (`{ data: { totalCount: number, items: NewsItem[] } }` where `NewsItem = { title, press, url, publishedAt? }`). Backend matches articles by tokenizing `house_name` and contains-checking against title+summary; `publishedAt` is Asia/Seoul `LOCAL_DATE_TIME` (no offset). Backend caches per-id 6 h with daily 04:00 batch evict. The detail page does **not** await this fetch — `<RelatedNewsSection>` is wrapped in `<Suspense>` so the apartment data paints first and news streams in afterwards (skeleton holds the slot). ISR 300s aligned with the parent page. 4xx → empty list (section hides). |
 
 ### Mobile Layout
 
@@ -515,7 +571,7 @@ no separate `/filters/*` endpoint. Any `/api/filters/regions` or
 | `/about` | About | Yes (SSG, static) | Public |
 | `/terms` | Terms of Service | Yes (SSG, static) | Public |
 
-**Global Search** is an overlay component (no route) — triggered by `⌘K` or search icon. _UI deferred for beta — see `docs/beta-launch-deferred-features.md#search`._
+**Global Search** is an overlay component (no route) — triggered by `⌘K` or search icon. Wired to `GET /api/search` (Next.js rewrite alias for the upstream `/apt-sales/search`, listings only); see the Global Search section above for safeguard policy.
 
 - **ISR:** Incremental Static Regeneration (revalidation intervals vary per route — see ARCHITECTURE.md)
 - **SSR:** Server-Side Rendering (real-time data)

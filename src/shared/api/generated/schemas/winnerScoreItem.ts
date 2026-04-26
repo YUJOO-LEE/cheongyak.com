@@ -7,44 +7,32 @@
  */
 
 /**
- * 당첨가점 한 행 — 평형×거주지역 단위. 가점제 미적용 시 빈 배열
+ * 당첨가점 한 행 — 평형×거주지역 단위. 가점제 미적용/접수 전 공고면 해당 배열이 비거나 점수 필드가 null
  */
 export interface WinnerScoreItem {
   /** 주택형 코드 (models[].houseType 과 매칭) */
   houseType: string;
+  /** 거주지역명 */
+  residenceName: string;
   /**
-     * 거주지역명
-     * @nullable
-     */
-  residenceName?: string | null;
-  /**
-     * 최저 당첨가점 (미집계/가점제 미적용 시 null)
+     * 최저 당첨가점. 접수 전/가점제 미적용 시 null (약 50%, 3종이 세트로 null)
      * @nullable
      */
   lowestScore?: number | null;
   /**
-     * 최고 당첨가점
+     * 최고 당첨가점. 집계 전이면 null
      * @nullable
      */
   highestScore?: number | null;
   /**
-     * 평균 당첨가점
+     * 평균 당첨가점. 집계 전이면 null
      * @nullable
      */
   averageScore?: number | null;
-  /**
-     * 최저 가점 표시 문자열 — 값 있으면 원본 문자열, null 이면 '-'
-     * @nullable
-     */
-  lowestScoreDisplay?: string | null;
-  /**
-     * 최고 가점 표시 문자열
-     * @nullable
-     */
-  highestScoreDisplay?: string | null;
-  /**
-     * 평균 가점 표시 문자열
-     * @nullable
-     */
-  averageScoreDisplay?: string | null;
+  /** 최저 가점 표시 문자열 — 값 있으면 원본 문자열, null 이면 '-' */
+  lowestScoreDisplay: string;
+  /** 최고 가점 표시 문자열 (null 이면 '-') */
+  highestScoreDisplay: string;
+  /** 평균 가점 표시 문자열 (null 이면 '-') */
+  averageScoreDisplay: string;
 }
