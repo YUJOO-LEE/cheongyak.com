@@ -129,13 +129,19 @@
 
   /* Surface interaction states */
   --color-bg-hover: var(--neutral-200);
-  --color-bg-active: var(--neutral-300);
+  /* `bg-active` lives one tone lighter than `bg-button-secondary-active`
+     because most consumers (card-in-card list rows, weekly-schedule
+     cards, mini-cards) sit inside another card and a heavier press
+     reads as visual noise. Buttons that need a stronger press affordance
+     use the dedicated `bg-button-secondary-active` token below. */
+  --color-bg-active: var(--neutral-200);
   --color-bg-disabled: var(--neutral-100);
 
   /* Secondary button surface (sits on bg-page, needs higher contrast than
      bg-sunken so the button reads as a tappable affordance) */
   --color-button-secondary: var(--neutral-200);
   --color-button-secondary-hover: var(--neutral-300);
+  --color-button-secondary-active: var(--neutral-400);
 
   /* Inverse context (dark/brand backgrounds) */
   --color-bg-inverse: var(--neutral-900);
@@ -399,6 +405,7 @@
 
   --color-button-secondary: var(--color-button-secondary);
   --color-button-secondary-hover: var(--color-button-secondary-hover);
+  --color-button-secondary-active: var(--color-button-secondary-active);
 
   --color-bg-inverse: var(--color-bg-inverse);
   --color-bg-inverse-subtle: var(--color-bg-inverse-subtle);

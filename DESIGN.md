@@ -241,6 +241,9 @@ All implementations must reference semantic tokens, not raw scales.
 | `color-interactive-disabled` | `neutral-300` | Disabled interactive elements |
 | `color-button-secondary` | `neutral-200` | Secondary button surface (sits on `bg-page` and needs higher contrast than `bg-sunken` to read as a tappable affordance) |
 | `color-button-secondary-hover` | `neutral-300` | Secondary button hover state |
+| `color-button-secondary-active` | `neutral-400` | Secondary button press state — kept one tone darker than `bg-active` so the press affordance still reads on a dense surface like `bg-page` |
+| `color-bg-hover` | `neutral-200` | Generic hover surface for non-button rows |
+| `color-bg-active` | `neutral-200` | Generic press surface for card-in-card list rows (kept light so a tap inside a card doesn't read as visual noise — buttons that need a heavier press use `color-button-secondary-active`) |
 
 #### Status
 
