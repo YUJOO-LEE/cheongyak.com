@@ -275,9 +275,52 @@
 
 - 해당 백엔드 엔드포인트가 아직 없어 보류. 소득/자산/거주 요건이 노출되면 재개합니다.
 
-#### 3.5 관련 뉴스 *(보류)*
+#### 3.5 관련 뉴스
 
-- `/apt-sales/{id}` 응답 범위 밖입니다. 뉴스 연계 전용 엔드포인트 배포 이후 재개.
+- 메인 컬럼 마지막(§3.9 특별공급 신청현황 다음)에 모든 브레이크포인트
+  공통으로 배치합니다. 사이드바는 액션 영역(공식 링크 / 공유)으로
+  남기고, 뉴스는 보조 콘텐츠라 본문 흐름에 둡니다.
+- 행에는 신뢰성 핵심 필드만 노출: `outlet`(언론사), `title`,
+  `publishedAt`(선택, `formatRelativeDate`로 "2일 전" 표기), `url`.
+  썸네일·요약·카테고리 칩은 미포함 — 본 콘텐츠와 시선 경쟁을 피하기
+  위한 의도된 단순화.
+- 행 구조: 메타 라인 `outlet · 상대 날짜`(`text-caption`,
+  `text-text-tertiary`) 위에 제목(`text-body-md`, `text-text-primary`,
+  `line-clamp-2`)이 두 번째 줄. 우측에 `ExternalLink`(16px,
+  `text-text-tertiary` → hover 시 `brand-primary-500`)이 있되 **평소엔
+  숨김(`opacity-0`)** 이고 `group-hover` / `group-focus-visible` 시에만
+  등장 — 정적 노이즈 없이 인터랙션 순간에만 외부 이동 신호를 노출.
+  단 터치 디바이스(`pointer: coarse`)에서는 `:hover` 가 발동하지
+  않으므로 우측 16px 아이콘 대신 **12px 작은 `ExternalLink` 를 메타
+  라인의 언론사명 옆에 inline** 으로 노출 — 텍스트 크기 한 단 아래
+  사이즈로 시각 무게를 줄이면서 외부 이동 신호는 유지. 두 위치는
+  서로 배타적으로 렌더되어(`pointer-coarse:hidden` / `hidden
+  pointer-coarse:inline-block`) 동일 의도를 입력 방식별로 적합한
+  자리에 둠.
+  좌측 카테고리 아이콘(`Newspaper`)은 채택하지 않음 — 언론사명 텍스트와
+  의미가 겹쳐 시각 가중치만 늘어남. hover 는 행 배경을 `bg-bg-sunken`
+  으로 톤 시프트만(위치 이동·보더 추가 없음). 행은 `bg-bg-card
+  rounded-lg p-3 md:p-4` 컨테이너 내부에 들어가 카드 중첩과 보더 분할
+  룰(DESIGN.md §11.5)을 동시에 만족하며, 컨테이너 padding 을 상하/좌우
+  대칭으로 두어 hover 영역 바깥의 흰 여백이 사방 균등하게 보이도록
+  조정. 누름(active) 상태는 행 배경을 `bg-bg-active`
+  (`neutral-200` — 글로벌 `bg-active` 토큰을 한 톤 연하게 재조정해
+  카드 안 리스트 행 누름이 시각 노이즈로 읽히지 않게 함; 더 강한
+  press 가 필요한 버튼은 새 `bg-button-secondary-active` 토큰 사용)로
+  시프트하면서 `scale-[0.99]` 미세 다운. 카드 안 row 라 translate
+  lift 는 의도적으로 배제.
+- 외부 링크는 `target="_blank" rel="noopener noreferrer"`,
+  `aria-label`은 `${outlet} – ${title} (새 창에서 열림)` 단일 문자열로
+  스크린리더 음독 순서 보장. 섹션은 `<section aria-labelledby>` 로
+  랜드마크화.
+- 빈/에러 상태: 항목이 비어 있으면(데이터 없음, 4xx, 엔드포인트 미배포)
+  섹션 자체를 렌더하지 않습니다 — 빈 placeholder 없음. 5xx 는 라우트
+  ErrorBoundary 로 위임.
+- 백엔드가 내려주는 항목을 그대로 노출하며, 페이지네이션·"더보기"는
+  볼륨이 늘어났을 때 별도 PR로 도입할 예정.
+- 사이블링 스켈레톤(`related-news.skeleton.tsx`)은 동일한 `bg-bg-card
+  rounded-lg p-4 md:p-6` 컨테이너에 row 3개를 렌더해 Suspense 폴백이
+  최종 레이아웃을 근사하도록 함(CLS 가드).
 
 #### 3.6 공식 링크
 
@@ -332,7 +375,7 @@
 | 엔드포인트 | 데이터 |
 |---|---|
 | `GET /apt-sales/{id}` | 5개 섹션 상세 응답: `announcement` (공고 본체 + `schedule` + `regulations`), `models[]` (평형 기본정보), `competitions[]`, `winnerScores[]`, `specialSupplies[]`. 서버 컴포넌트에서 `fetchAptSalesDetailSSR(numericId)` (`next.revalidate=300`) 로 호출. 404 는 `ApiClientError` → `notFound()` 로 흐름. |
-| ~~`GET /api/news?subscription=[id]&limit=5`~~ | *(보류)* 관련 뉴스 엔드포인트 미공개 |
+| `GET /apt-sales/{id}/related-news` | `RelatedNewsItem[]` 엔벨로프(`{ outlet, title, url, publishedAt? }`). 상세 페이지는 이 fetch 를 **await 하지 않음** — `<RelatedNewsSection>` 을 `<Suspense>` 로 감싸 청약 데이터가 먼저 렌더되고 뉴스는 후순위로 streaming(스켈레톤이 자리 유지). ISR 300s 동조. **엔드포인트 경로는 잠정** — BE 확정 전까지 MSW 픽스처로 dev 미리보기. 4xx → 빈 배열(섹션 미렌더). |
 
 ### 모바일 레이아웃
 

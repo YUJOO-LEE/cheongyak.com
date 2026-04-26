@@ -1,6 +1,7 @@
 import { CompetitionTableSkeleton } from '@/features/listings/components/competition-table.skeleton';
 import { ModelSupplyCardsSkeleton } from '@/features/listings/components/model-supply-cards.skeleton';
 import { RegulationChipsSkeleton } from '@/features/listings/components/regulation-chips.skeleton';
+import { RelatedNewsSkeleton } from '@/features/listings/components/related-news.skeleton';
 import { SpecialSupplyStatusTableSkeleton } from '@/features/listings/components/special-supply-status-table.skeleton';
 import { WinnerScoreTableSkeleton } from '@/features/listings/components/winner-score-table.skeleton';
 import { Skeleton, SkeletonText } from '@/shared/components';
@@ -40,6 +41,9 @@ export default function SubscriptionDetailLoading() {
           </div>
           <div className="mb-8">
             <SpecialSupplyStatusTableSkeleton />
+          </div>
+          <div className="mb-8">
+            <RelatedNewsSkeleton />
           </div>
         </div>
         <div

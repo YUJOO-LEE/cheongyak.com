@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { subscriptions } from './fixtures/subscriptions';
 import { aptSalesItems } from './fixtures/apt-sales';
 import { aptSalesDetailFixtures } from './fixtures/apt-sales-detail';
+import { relatedNewsFixture } from './fixtures/related-news';
 import type { Item } from '@/shared/api/generated/schemas/item';
 import type { ItemHouseDetailType } from '@/shared/api/generated/schemas/itemHouseDetailType';
 import type { ItemRegionCode } from '@/shared/api/generated/schemas/itemRegionCode';
@@ -180,6 +181,15 @@ export const handlers = [
     }
     return HttpResponse.json({ data: fixture });
   }),
+
+  // ─── /apt-sales/:id/related-news — listing detail "관련 뉴스" section.
+  // TODO(api-pending): align path with backend once the endpoint ships
+  // (mirrors the path in `src/features/listings/lib/related-news-query.ts`).
+  // Fixture returns the same items for every id during dev so designers
+  // can preview the section on any listing.
+  http.get(`${API_BASE}/apt-sales/:id/related-news`, () =>
+    HttpResponse.json({ data: relatedNewsFixture }),
+  ),
 
   // Search
   http.get(`${API_BASE}/search`, ({ request }) => {
