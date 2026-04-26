@@ -402,7 +402,64 @@ Pure helpers + tests live in `src/shared/lib/api-guard.ts` / `api-guard.test.ts`
 
 ---
 
-## 14. Cross-Validation Rules (MANDATORY)
+## 14. API Call Discipline (NON-NEGOTIABLE)
+
+Backend cost discipline. The 2026-04-26 outage traced to `<Link>` default
+`prefetch="auto"`: every card entering the viewport fired an RSC request
+to `/listings/{id}?_rsc=...`, and that request executed `loadDetail()` /
+`generateMetadata` — N visible cards = N backend calls. `loading.tsx` is a
+UI fallback, not a fetch gate. The rules below are preventive, not curative.
+
+**Rule A — No unintended backend calls.** The following patterns require an
+explicit measurement note in the PR description AND review approval from
+Tesla or Bolt before merge:
+- `router.prefetch()`
+- `queryClient.prefetchQuery()` / `prefetchInfiniteQuery()`
+- `<Link prefetch={true}>` (forces full prefetch, bypasses default partial)
+- Default `<Link>` prefetch on long lists (cards, feeds, paginated rows) — use `prefetch={false}` instead
+- `onMouseEnter` / `onMouseOver` / `onFocus`-triggered fetches
+- IntersectionObserver-triggered fetches
+- `useEffect(..., [])` fetches on mount (TanStack Query is fine; raw fetch is not)
+- `refetchInterval` / polling
+
+**Rule B — Long lists must use `prefetch={false}` on entry `<Link>`s.**
+Reference implementations: `subscription-card.tsx`, `weekly-card.tsx`,
+`featured-subscription.tsx`. Single hot CTAs (header nav, footer links,
+single banner CTAs) may keep default prefetch — they target single warm-cache
+URLs and are clicked often enough that the prefetch is amortized.
+
+**Rule C — Wrap shared loaders with React `cache()`.** When the same backend
+call would fire from both `generateMetadata` and the page body, wrap the
+loader. Reference: `loadDetail` in `src/app/listings/[id]/page.tsx`. Without
+this, every detail render hits the backend twice.
+
+**Rule D — Server Component fetches must declare `revalidate`.** Use
+`apiClient.get(path, { revalidate: REVALIDATE.* })` — never raw numbers,
+never omit. ISR cache is the first defense against backend overload.
+
+**Rule E — Build-time fan-out needs backend agreement.** `sitemap.ts`,
+`generateStaticParams`, and any other build-time multi-fetch path must respect
+the backend's documented page size and concurrency limits. Today: `size: 100`
+on the sitemap. Raising this or fanning out to detail endpoints requires
+backend-team sign-off in the PR.
+
+**Rule F — When in doubt, measure.** New fetch-introducing PRs must answer in
+the description: *"How many times per minute can a single user trigger this
+code path? Backend calls = N, Vercel Functions calls = M."* Reviewers reject
+PRs that cannot answer.
+
+**Why this rule exists:** 2026-04-26 production backend overload. Root cause
+identified: viewport-entry RSC prefetches from listing cards. 30 visible cards
+= 30 backend calls before the user clicked anything. Documented here so it
+cannot recur.
+
+**Owners:** Tesla (`.claude/agents/tesla.md`) for API contract; Bolt
+(`.claude/agents/bolt.md`) for performance. New fetch-introducing PRs
+require automatic review by at least one.
+
+---
+
+## 15. Cross-Validation Rules (MANDATORY)
 
 Every task that modifies code or documentation must include a cross-validation step before completion. This rule is permanent and applies to all future work.
 
@@ -424,6 +481,9 @@ Every task that modifies code or documentation must include a cross-validation s
 | Change Next.js / React / Tailwind / Vitest major version in `package.json` | `CLAUDE.md`·`ko` §2 tech-stack table, `ARCHITECTURE.md`·`ko` §1 |
 | Add a test strategy or CI gate (e.g. `scripts/audit-seo.mjs`) | `CLAUDE.md`·`ko` §8, `ARCHITECTURE.md`·`ko` §9 |
 | Edit a real component that has a `*.skeleton.tsx` sibling, or add / modify / remove a route-level `loading.tsx` | Matching `*.skeleton.tsx` sibling (update DOM structure + approximate heights so Suspense/route fallback mirrors the final layout — preserves CLS per `ARCHITECTURE.md` §7 Performance) + matching `loading.test.tsx` sibling (update sibling-skeleton counts / `data-testid` assertions so the RTL gate stays green) |
+| Add any of: `router.prefetch`, `queryClient.prefetchQuery`, `<Link prefetch={true}>`, default `<Link>` prefetch on a list/feed/card grid, `onMouseEnter`/`onFocus`-triggered fetch, IntersectionObserver-triggered fetch, `refetchInterval`, mount-time `useEffect` fetch | `CLAUDE.md` §14 (justification + measurement in PR description), Tesla/Bolt review |
+| Add `generateMetadata` + page body that share the same backend call | Wrap shared loader with React `cache()` per `CLAUDE.md` §14 Rule C |
+| Add a new `loading.tsx` to a dynamic route reachable from a list | Pair entry `<Link>`s with `prefetch={false}`. `loading.tsx` is UX only — does NOT gate data fetches during prefetch (`CLAUDE.md` §14 Rule B) |
 
 ### Document Sync (pairwise consistency)
 - When modifying any `.md` file, its `.ko.md` counterpart must be updated in the same commit
@@ -455,7 +515,7 @@ Every task that modifies code or documentation must include a cross-validation s
 
 ---
 
-## 15. Slack Integration
+## 16. Slack Integration
 
 Agents communicate via Slack threads. Each task has its own thread per channel.
 
@@ -489,7 +549,7 @@ Agents communicate via Slack threads. Each task has its own thread per channel.
 
 ---
 
-## 16. Pre-Commit Checklist
+## 17. Pre-Commit Checklist
 
 - [ ] No hardcoded tokens, keys, or secrets
 - [ ] `.env` and `settings.local.json` in `.gitignore`
@@ -497,11 +557,12 @@ Agents communicate via Slack threads. Each task has its own thread per channel.
 - [ ] TypeScript compiles with no errors
 - [ ] All tests pass
 - [ ] Bundle size within budget
-- [ ] Cross-validation rules satisfied (Section 14)
+- [ ] Cross-validation rules satisfied (Section 15)
+- [ ] API call discipline satisfied (Section 14)
 
 ---
 
-## 17. Writing to `.claude/` Directory
+## 18. Writing to `.claude/` Directory
 
 The `.claude/` directory is protected. Standard `Write` and `Edit` tools will be denied.
 
@@ -509,7 +570,7 @@ The `.claude/` directory is protected. Standard `Write` and `Edit` tools will be
 
 ---
 
-## 18. Language Policy
+## 19. Language Policy
 
 | Context | Language |
 |---|---|

@@ -10,7 +10,7 @@ interface SubscriptionCardProps {
 
 export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
   return (
-    <Link href={`/listings/${subscription.id}`} className="block">
+    <Link href={`/listings/${subscription.id}`} prefetch={false} className="block">
       <Card variant="subscription" as="article">
         <div className="flex items-center gap-2 mb-3">
           <StatusChip status={subscription.status} />

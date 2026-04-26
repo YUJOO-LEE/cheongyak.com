@@ -102,6 +102,7 @@ export function HomeHero({ featured, insights }: HomeHeroProps) {
 
         <Link
           href={`/listings/${featured.id}`}
+          prefetch={false}
           className="group inline-flex items-center gap-1 mt-5 text-label-lg text-text-on-dark-muted hover:text-text-on-dark transition-colors animate-fade-in-up"
           style={{ animationDelay: '220ms' }}
         >

@@ -88,6 +88,31 @@ src/
 
 All pages use React Server Components by default. Client Components (`"use client"`) only where interactivity is required (filters, modals, search input).
 
+### Prefetch policy
+
+Next.js 16 `<Link>` default `prefetch="auto"` fires an RSC request to the
+server for every link entering the viewport. That request executes
+`generateMetadata` and the page tree, including any data fetches inside them
+— `loading.tsx` provides a UI fallback but does NOT gate the data fetch. On
+a list of N cards, this means N backend calls just to render the list,
+before the user clicks anything (the 2026-04-26 outage trigger).
+
+Therefore:
+
+- **List/feed/card-grid entry `<Link>`s: `prefetch={false}` (required).**
+  Hover prefetch is preserved (real click intent), but viewport-entry
+  prefetch is disabled. Reference: `subscription-card.tsx`,
+  `weekly-card.tsx`, `featured-subscription.tsx`.
+- **Single hot CTAs / header nav: default prefetch is fine.** Single warm-cache
+  URLs are amortized across all visitors.
+- **Explicit prefetch APIs (`router.prefetch`, `queryClient.prefetchQuery`)
+  are forbidden by default.** Adding one needs Tesla/Bolt review.
+- **Same-request duplicate backend calls: wrap the loader with React `cache()`.**
+  Required when both `generateMetadata` and the page body call the same
+  loader. Reference: `loadDetail` in `src/app/listings/[id]/page.tsx`.
+
+Single source of truth: `CLAUDE.md` §14.
+
 ---
 
 ## 4. State Management
