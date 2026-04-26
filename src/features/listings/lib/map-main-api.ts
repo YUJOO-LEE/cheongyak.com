@@ -110,7 +110,11 @@ export function formatPriceRange(
   if (min == null && max == null) return undefined;
   if (min != null && max != null) {
     if (min === max) return formatAmount(min);
-    return `${formatAmount(min)} ~ ${formatAmount(max)}`;
+    // U+00A0 (no-break space) before "~" keeps the lower bound and "~"
+    // glued together; the regular space after "~" stays as the only
+    // break opportunity. Result on a narrow column: "15억~" wraps as a
+    // single token onto the first line, the upper bound onto the next.
+    return `${formatAmount(min)} ~ ${formatAmount(max)}`;
   }
   return formatAmount((min ?? max) as number);
 }
@@ -227,7 +231,7 @@ export function mapStatsToInsights(raw: MainStatsResponse): MarketInsight[] {
       trendValue:
         raw.competitionRateChange == null
           ? '변동 없음'
-          : changeValueString(Number(raw.competitionRateChange.toFixed(1))),
+          : changeValueString(Number(raw.competitionRateChange.toFixed(1)), '%'),
     },
     {
       label: '총 공급세대',

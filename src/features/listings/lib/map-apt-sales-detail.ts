@@ -316,7 +316,12 @@ function formatPriceRange(
   const lo = min ?? max!;
   const hi = max ?? min!;
   if (lo === hi) return formatPriceManWon(lo);
-  return `${formatPriceManWon(lo)} ~ ${formatPriceManWon(hi)}`;
+  // U+00A0 (no-break space) before "~" keeps "lower~" glued together so
+  // narrow columns wrap *after* the tilde, producing
+  //   "12억 5,000만~"
+  //   "15억 2,000만"
+  // instead of breaking before "~" or somewhere inside the lower bound.
+  return `${formatPriceManWon(lo)} ~ ${formatPriceManWon(hi)}`;
 }
 
 // ─── 헬퍼: models 에서 공급면적 최소/최대 ─────────────────────────────

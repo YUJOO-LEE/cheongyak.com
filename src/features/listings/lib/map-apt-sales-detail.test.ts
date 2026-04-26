@@ -291,7 +291,7 @@ describe('mapAptSalesDetailToSubscription', () => {
     expect(domain.applicationEnd).toBe('2026-04-10');
     expect(domain.totalUnits).toBe(2990);
     expect(domain.sizeRange).toBe('59.9㎡ ~ 84.9㎡');
-    expect(domain.priceRange).toBe('12억 ~ 20억');
+    expect(domain.priceRange).toBe('12억\u00A0~ 20억');
     expect(domain.builderUrl).toBe('https://example.com/raemian');
     // API에는 청약홈 신청 URL 필드가 없으므로 applyHomeUrl 은 항상 undefined,
     // 모집공고문 URL 은 announcementUrl 로 노출됩니다.
