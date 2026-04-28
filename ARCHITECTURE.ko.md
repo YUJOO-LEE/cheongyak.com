@@ -11,7 +11,6 @@
 | **TypeScript** | 5.x (strict mode) | 컴파일 타임에 오류 포착; strict mode로 암묵적 `any` 제거 |
 | **Tailwind CSS** | 4.x | 유틸리티 우선 방식이 디자인 시스템의 토큰 기반 접근법과 부합; 미사용 CSS 제거로 최소 번들 달성 |
 | **TanStack Query** | 5.x | 서버 상태 캐싱, 백그라운드 재요청, 목록 필터에 대한 낙관적 업데이트 |
-| **Zustand** | 5.x | 경량 클라이언트 상태 (UI 토글, 모달 상태) + `persist` 미들웨어로 localStorage 환경설정 저장 |
 | **nuqs** | 2.x | 타입 안전한 URL 검색 파라미터로 필터/정렬 상태가 페이지 이동과 공유 시에도 유지 |
 | **next-intl** | 4.x | 다국어 지원 대비; 한국어 우선, 향후 영어 확장 가능 |
 | **Zod** | 3.x | 경계 지점에서 API 응답의 런타임 검증; TypeScript와 결합하여 엔드투엔드 타입 안전성 확보 |
@@ -54,10 +53,6 @@ src/
 ├── shared/                     # 공통 코드
 │   ├── components/             # 디자인 시스템 컴포넌트 (Button, Card, Chip 등)
 │   ├── hooks/                  # 공유 hooks (useMediaQuery, useDebounce)
-│   ├── stores/                 # Zustand stores
-│   │   ├── use-ui-store.ts           # 일시적 UI 상태 (모달, 토스트)
-│   │   ├── use-recent-views-store.ts # localStorage 저장 (최근 조회한 20개 목록)
-│   │   └── use-filter-prefs-store.ts # localStorage 저장 (마지막 사용 필터)
 │   ├── lib/                    # 유틸리티 (api-client, 날짜 포맷, 상수)
 │   └── types/                  # 전역 타입, API 응답 타입
 ├── styles/
@@ -98,24 +93,17 @@ src/
 |---|---|---|
 | **서버 상태** | TanStack Query | API 데이터 캐싱, 백그라운드 재요청, 페이지네이션, 낙관적 업데이트 |
 | **URL 상태** | nuqs | 필터, 정렬 순서, 페이지네이션 파라미터 — 공유 및 북마크 가능 |
-| **클라이언트 UI 상태** | Zustand | 모달 열기/닫기, 토스트 큐 — 최소한의 일시적 상태 |
-| **저장된 환경설정** | Zustand + `persist` | 최근 조회 (마지막 20개 목록 ID), 마지막 사용 필터 설정 — localStorage에 저장 |
 | **Server Component 데이터** | `async` 컴포넌트 + `fetch` | 초기 페이지 데이터를 Server Components에서 로드, 클라이언트 상태 불필요 |
 
-**원칙:** Server Components에서의 서버 사이드 데이터 페칭을 우선. TanStack Query는 클라이언트 인터랙티브 패턴(필터 업데이트, 폴링)에서만 사용. Zustand store는 작고 기능 단위로 유지. 최대 3개.
+**원칙:** Server Components에서의 서버 사이드 데이터 페칭을 우선. TanStack Query는 클라이언트 인터랙티브 패턴(필터 업데이트, 폴링)에서만 사용. 일시적 UI 상태(모달, 토스트)와 개인화(최근 조회, 필터 환경설정)는 아직 미구현 — 도입 시점에는 URL 상태(nuqs)를 우선 검토하고, 페이지 이동 너머까지 살아있어야 하는 값에만 클라이언트 스토어를 추가합니다.
 
 **nuqs 연동:** `src/app/layout.tsx`에서 `QueryProvider` 바깥을 `NuqsAdapter`로 감쌉니다. `/listings`의 필터(`status`, `type`, `region`, `page`)는 `useQueryStates`로 URL 쿼리 파라미터에 바인딩되어, 이동·새로고침·링크 공유 시에도 필터 상태가 유지됩니다. 훅은 `shallow: false`(어떤 변경이든 Server Component 를 다시 실행해 새 결과 셋을 반영)와 `scroll: true`(필터/페이지 변경 시 새 리스트 최상단으로 이동) 옵션으로 구성됩니다. 네 개의 파라미터가 하나의 atomic setter 를 공유 — 필터 변경은 새 값 + `page: 1` 을 한 번의 URL push 로 묶어, 더블 렌더링을 방지합니다.
 
 **FilterBar 슬롯 API:** `src/features/listings/components/filter-bar/`의 `FilterBar`는 3개 prop(`activeCount`, `onReset`, `children`)을 받는 shell이며, `FilterBar.DesktopBar`와 `FilterBar.Sheet` 두 개의 compound 슬롯을 노출합니다. 각 슬롯은 `FilterField.*` 조합을 받습니다 — `Inline`(데스크톱 칩 행), `Stacked`(시트 내 수직 그룹), `Range`(Phase 6 슬라이더). 새 필터 추가는 각 슬롯에 `FilterField` 인스턴스를 하나 추가하는 것으로 끝나며 shell 본체는 변경하지 않습니다. 이로써 §6 Component Conventions의 5-prop 상한을 필터 확장 속에서도 유지합니다.
 
-### localStorage 기능 (비인증 개인화)
+### 비인증 개인화 (보류)
 
-| 기능 | Store | 데이터 | 제한 |
-|---|---|---|---|
-| 최근 조회 | `use-recent-views-store` | 최근 조회한 20개 목록 ID + 타임스탬프 | 홈 대시보드에 표시 |
-| 필터 환경설정 | `use-filter-prefs-store` | 마지막 사용 지역, 유형, 정렬 순서 | 재방문 시 자동 적용 |
-
-**의도적으로 미구현:** 즐겨찾기/북마크 (브라우저 초기화 시 사라짐 — 없는 것보다 나쁜 UX). 대신 상세 페이지에 Web Share API를 활용한 "공유" 버튼 제공.
+최근 조회 / 필터 환경설정 같은 개인화는 실제 사용자 니즈가 확인될 때까지 의도적으로 보류한 상태입니다. 도입 시점에는 URL 상태(nuqs)를 1순위로 두고, 페이지 이동을 넘어 보존해야 하는 값에 한해 localStorage 를 사용합니다. **로드맵에서 명시적으로 제외:** 즐겨찾기/북마크 — 브라우저 초기화 시 사라져 없는 것보다 나쁜 UX 이므로 도입하지 않습니다. 대신 상세 페이지에 Web Share API 기반 "공유" 버튼이 있습니다.
 
 ---
 

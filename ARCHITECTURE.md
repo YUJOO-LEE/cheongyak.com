@@ -9,7 +9,6 @@
 | **TypeScript** | 5.x (strict mode) | Catch errors at compile time; strict mode eliminates implicit `any` |
 | **Tailwind CSS** | 4.x | Utility-first matches the design system's token-based approach; purges unused CSS for minimal bundles |
 | **TanStack Query** | 5.x | Server-state caching, background refetch, optimistic updates for listing filters |
-| **Zustand** | 5.x | Lightweight client state (UI toggles, modal state) + `persist` middleware for localStorage preferences |
 | **nuqs** | 2.x | Type-safe URL search params for filter/sort state that survives navigation and sharing |
 | **next-intl** | 4.x | Future-proofing for i18n; Korean-first with potential English expansion |
 | **Zod** | 3.x | Runtime validation of API responses at the boundary; pairs with TypeScript for end-to-end type safety |
@@ -52,10 +51,6 @@ src/
 ├── shared/                     # Cross-cutting shared code
 │   ├── components/             # Design system components (Button, Card, Chip, etc.)
 │   ├── hooks/                  # Shared hooks (useMediaQuery, useDebounce)
-│   ├── stores/                 # Zustand stores
-│   │   ├── use-ui-store.ts           # Transient UI state (modals, toasts)
-│   │   ├── use-recent-views-store.ts # localStorage persisted (last 20 viewed listings)
-│   │   └── use-filter-prefs-store.ts # localStorage persisted (last-used filters)
 │   ├── lib/                    # Utilities (api-client, date formatting, constants)
 │   └── types/                  # Global types, API response types
 ├── styles/
@@ -124,24 +119,17 @@ Single source of truth: `CLAUDE.md` §14.
 |---|---|---|
 | **Server state** | TanStack Query | API data caching, background refetch, pagination, optimistic updates |
 | **URL state** | nuqs | Filters, sort order, pagination params — shareable and bookmarkable |
-| **Client UI state** | Zustand | Modal open/close, toast queue — minimal, transient |
-| **Persisted preferences** | Zustand + `persist` | Recent views (last 20 listing IDs), last-used filter settings — stored in localStorage |
 | **Server Component data** | `async` components + `fetch` | Initial page data loaded in Server Components, no client state needed |
 
-**Principle:** Prefer server-side data fetching in Server Components. Use TanStack Query only for client-interactive patterns (filter updates, polling). Keep Zustand stores small and feature-scoped. Three stores maximum.
+**Principle:** Prefer server-side data fetching in Server Components. Use TanStack Query only for client-interactive patterns (filter updates, polling). Transient UI state (modals, toasts) and personalization (recent views, filter prefs) are not implemented yet — when they land, prefer URL state via nuqs first and only reach for a client store if a value must outlive navigation.
 
 **nuqs integration:** `NuqsAdapter` is mounted in `src/app/layout.tsx` around `QueryProvider`. `/listings` filters (`status`, `type`, `region`, `page`) are bound to URL query params via `useQueryStates`, so navigation, reload, and link-sharing preserve the filtered view. The hook is configured with `shallow: false` (any change re-runs the Server Component for a fresh result set) and `scroll: true` (filter / page changes scroll to the top of the new list). All four params share one atomic setter — every filter change writes the new value plus `page: 1` in a single URL push, preventing a double render.
 
 **FilterBar slot API:** `FilterBar` in `src/features/listings/components/filter-bar/` is a shell with three props (`activeCount`, `onReset`, `children`) plus two compound slots (`FilterBar.DesktopBar`, `FilterBar.Sheet`). Each slot accepts any `FilterField.*` composition — `Inline` (desktop chip row), `Stacked` (sheet vertical group), and `Range` (Phase 6 slider). Adding a new filter means adding a `FilterField` instance inside each slot; the shell itself does not change. This keeps the shell under the 5-prop cap from §6 Component Conventions even as the filter surface grows.
 
-### localStorage Features (No-Auth Personalization)
+### No-Auth Personalization (deferred)
 
-| Feature | Store | Data | Limit |
-|---|---|---|---|
-| Recent Views | `use-recent-views-store` | Last 20 viewed listing IDs + timestamps | Shown on Home Dashboard |
-| Filter Preferences | `use-filter-prefs-store` | Last-used region, type, sort order | Auto-applied on return visits |
-
-**Explicitly not implemented:** Favorites/bookmarks (vanish on browser clear — worse UX than not having them). Instead, a "공유" (Share) button on detail pages using Web Share API.
+Recent-views and filter-prefs personalization is intentionally deferred until a real user need shows up. When implemented, the URL (nuqs) is the first option; localStorage is reserved for values that must survive navigation. **Explicitly not on the roadmap:** favorites/bookmarks — they vanish on browser clear and would be a worse UX than not having them. Detail pages instead expose a "공유" (Share) button using the Web Share API.
 
 ---
 

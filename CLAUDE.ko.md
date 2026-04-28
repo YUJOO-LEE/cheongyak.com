@@ -36,7 +36,6 @@
 | TypeScript | 5.x (strict) | 언어 — `strict: true`, implicit `any` 불허 |
 | Tailwind CSS | 4.x | 스타일링 — 유틸리티 우선, 디자인 토큰 시스템과 매핑 |
 | TanStack Query | 5.x | 서버 상태 — 캐싱, 백그라운드 리페치, 낙관적 업데이트 |
-| Zustand | 5.x | 클라이언트 상태 — UI 상태 (모달, 토스트) + localStorage 환경설정을 위한 `persist` |
 | nuqs | 2.x | URL 상태 — 필터/페이지네이션을 위한 타입 안전 검색 파라미터 |
 | next-intl | 4.x | i18n — 한국어 우선, 향후 영어 확장 대비 |
 | Zod | 3.x | 유효성 검증 — 런타임 API 응답 검증 |
@@ -79,7 +78,6 @@ src/
 ├── shared/                 # 공통 코드
 │   ├── components/         # 디자인 시스템 컴포넌트 (Button, Card, Chip...)
 │   ├── hooks/              # 공유 hooks
-│   ├── stores/             # Zustand stores (ui, recent-views, filter-prefs)
 │   ├── lib/                # 유틸리티, API 클라이언트, 상수
 │   └── types/              # 전역 타입, API 타입
 ├── styles/globals.css      # Tailwind 지시문 + 토큰 오버라이드
@@ -99,8 +97,6 @@ src/
 |---|---|---|
 | 서버 상태 | TanStack Query | 청약 목록, 뉴스 기사, API 데이터 |
 | URL 상태 | nuqs | 필터, 정렬 순서, 페이지네이션 |
-| 클라이언트 UI 상태 | Zustand | 모달 열기/닫기, 토스트 큐 |
-| 영구 환경설정 | Zustand + `persist` | 최근 본 항목 (청약 20건), 마지막 사용 필터 설정 |
 
 ### 데이터 페칭
 
