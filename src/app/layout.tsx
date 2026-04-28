@@ -54,6 +54,17 @@ export default function RootLayout({
   return (
     <html lang="ko" className="antialiased">
       <head>
+        {/* Google Tag Manager */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TW32X6NK');`,
+          }}
+        />
+        {/* End Google Tag Manager */}
         <link
           rel="stylesheet"
           as="style"
@@ -62,6 +73,16 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-dvh flex flex-col bg-bg-page text-text-primary font-sans">
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-TW32X6NK"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
+        {/* End Google Tag Manager (noscript) */}
         {/*
           Skip link — KWCAG / WCAG 2.2 AA. Hidden visually until it
           receives keyboard focus, at which point it appears in the

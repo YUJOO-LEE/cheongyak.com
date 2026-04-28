@@ -34,7 +34,6 @@
 | TypeScript | 5.x (strict) | Language — `strict: true`, no implicit `any` |
 | Tailwind CSS | 4.x | Styling — utility-first, maps to design token system |
 | TanStack Query | 5.x | Server state — caching, background refetch, optimistic updates |
-| Zustand | 5.x | Client state — UI state (modals, toasts) + `persist` for localStorage preferences |
 | nuqs | 2.x | URL state — type-safe search params for filters/pagination |
 | next-intl | 4.x | i18n — Korean-first, future-proofing for English expansion |
 | Zod | 3.x | Validation — runtime API response validation |
@@ -77,7 +76,6 @@ src/
 ├── shared/                 # Cross-cutting code
 │   ├── components/         # Design system components (Button, Card, Chip...)
 │   ├── hooks/              # Shared hooks
-│   ├── stores/             # Zustand stores (ui, recent-views, filter-prefs)
 │   ├── lib/                # Utilities, API client, constants
 │   └── types/              # Global types, API types
 ├── styles/globals.css      # Tailwind directives + token overrides
@@ -97,8 +95,6 @@ src/
 |---|---|---|
 | Server state | TanStack Query | Listings, news articles, API data |
 | URL state | nuqs | Filters, sort order, pagination |
-| Client UI state | Zustand | Modal open/close, toast queue |
-| Persisted preferences | Zustand + `persist` | Recent views (20 listings), last-used filter settings |
 
 ### Data Fetching
 
