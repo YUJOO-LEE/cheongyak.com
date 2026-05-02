@@ -608,6 +608,35 @@ input[type='search']::-ms-clear {
 }
 
 /* ============================================================
+   STRETCHED LINK
+   ============================================================
+   Whole-card click target. The host (e.g. an article) is the
+   visual + semantic root with its own border-radius. Inside it,
+   one anchor opts in with .stretched-link, gaining a ::before
+   overlay that stretches across the host so any click on the
+   card is captured by the anchor.
+
+   Focus is transferred from the anchor to the host via :has() so
+   the focus outline traces the host's rounded corners rather
+   than the anchor's text bounds. */
+.stretched-link {
+  border-radius: inherit;
+}
+.stretched-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.stretched-link:focus-visible {
+  outline: none;
+}
+.stretched-link-host:has(.stretched-link:focus-visible) {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ============================================================
    HIGH CONTRAST MODE
    ============================================================ */
 
