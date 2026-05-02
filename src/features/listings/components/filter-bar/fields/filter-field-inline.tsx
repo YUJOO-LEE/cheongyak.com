@@ -46,7 +46,7 @@ export function FilterFieldInline<TValue extends string>(
       <div
         role="group"
         aria-label={groupAriaLabel ?? label}
-        className="flex flex-wrap gap-3"
+        className="flex flex-wrap gap-2"
       >
         {options.map((opt) => {
           const selected = isSelected(opt.value);

@@ -65,7 +65,7 @@ function DropdownTrigger<TValue extends string>({
       aria-label={
         triggerAriaLabel ?? `${label}, ${count > 0 ? `${count}개 선택됨` : '전체'}`
       }
-      className="h-11 px-3 min-w-40 rounded-md bg-bg-sunken flex items-center justify-between gap-2 text-body-md text-text-primary cursor-pointer hover:bg-bg-hover"
+      className="h-11 px-3 min-w-40 rounded-md bg-neutral-200 lg:bg-bg-sunken flex items-center justify-between gap-2 text-body-md text-text-primary cursor-pointer hover:bg-neutral-300 lg:hover:bg-bg-hover"
     >
       <span className="truncate">{summary}</span>
       <span className="flex items-center gap-1.5 shrink-0">

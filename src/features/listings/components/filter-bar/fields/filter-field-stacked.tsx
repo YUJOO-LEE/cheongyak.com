@@ -58,7 +58,7 @@ export function FilterFieldStacked<TValue extends string>(
                 chipClassName,
                 selected
                   ? 'bg-neutral-500 text-text-inverse shadow-sm'
-                  : 'bg-chip-bg text-text-secondary hover:bg-chip-bg-hover',
+                  : 'bg-neutral-200 text-text-secondary hover:bg-neutral-300',
               ].join(' ')}
             >
               {multi && selected && (
