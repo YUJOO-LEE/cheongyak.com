@@ -68,7 +68,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 - Phase chips use the announcement's `status` for color/icon (`accepting` 초록 / `upcoming` 인포 / `pending` 워닝 …) but the **label is the phase string** from `phases[]` (`'특별공급' | '일반공급 1순위' | '일반공급 2순위' | '당첨자 발표'`). When `phases.length > 1`, render one chip per phase.
 - Listed announcements are exactly what the server returns per day — no client-side status filter (server already restricts the day's items to the active set)
 - Mobile day selector shows `N건` per day; days with `0건` keep the same card background as other days but the count text is greyed out
-- Empty state: "예정된 청약이 없어요" with link to full listing when the entire week is empty
+- Empty state: "예정된 청약이 없어요" with link to full listing when the upstream returns a valid empty week. A failed fetch collapses this section entirely so the page-level fallback can surface (see 1.6)
 
 #### 1.3 Market Insight Cards
 
@@ -91,6 +91,13 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 - 3 most recent news articles as compact cards
 - Each card: Category chip, title (2-line clamp), date
 - "View All" link to `/news`
+
+#### 1.6 Page-level Error Fallback
+
+- When every backend section fails to return data, all sections collapse to `null` and the page-level `<ErrorNotice />` surfaces via CSS `:has()` toggle (`.home-shell:not(:has(> section)) > .error-notice`)
+- Copy: "잠시 정보를 불러오지 못하고 있어요" / "청약 데이터를 정리 중이에요. 잠시 후 다시 시도해 주세요." with a "다시 시도" CTA that triggers `router.refresh()`
+- Mutually exclusive with each section's own empty state — an API success with zero items still renders the section's own "예정된 청약이 없어요" placeholder, not the page-level fallback
+- The same `<ErrorNotice />` component is reused by `app/error.tsx` (route-level error boundary, calls Next's `reset()`) and `app/not-found.tsx` (404, navigates home), so users see a consistent fallback regardless of failure mode
 
 ### Data Requirements
 

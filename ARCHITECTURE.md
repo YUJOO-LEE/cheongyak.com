@@ -263,15 +263,19 @@ interface ApiError {
 
 ### Error Boundary Hierarchy
 ```
-app/error.tsx              → Global fallback (500-level)
+app/error.tsx              → Route-level fallback (Next.js error boundary, catches throws)
 app/not-found.tsx          → 404 page
+app/page.tsx (home shell)  → Page-level outage fallback (CSS :has() — surfaces only when every home Suspense boundary resolved to null)
 features/*/ErrorFallback   → Feature-level inline errors
 ```
+
+### Shared Fallback UI: `<ErrorNotice />`
+A single component (`src/shared/components/error-notice/`) renders the recovery UI for thrown exceptions, 404s, and the home outage state — users cannot meaningfully distinguish the failure modes, so the experience stays consistent. Props: `title`, `description`, `icon` (Lucide), `action` (CTA slot). Defaults: "잠시 정보를 불러오지 못하고 있어요" copy + `CloudOff` icon + a "다시 시도" button calling `router.refresh()`. `app/error.tsx` overrides `action` to call Next's `reset()` (the only thing that remounts the boundary); `app/not-found.tsx` overrides `icon={MapPinOff}` and the action to navigate home. Visibility on `/` is driven by `globals.css` rules keyed on the `.error-notice` and `.home-shell` classes — see those rules for the `:has()` toggle that suppresses the notice while sections are present.
 
 ### Fallback UI Rules
 - Error boundaries show a friendly Korean message + retry button.
 - Never expose stack traces or API error details to end users.
-- 404 pages suggest navigation to Home or Subscriptions.
+- 404 pages suggest navigation to Home with a "홈으로 돌아가기" button.
 
 ### Error Reporting
 - Client errors captured via `window.onerror` and `onunhandledrejection`.
