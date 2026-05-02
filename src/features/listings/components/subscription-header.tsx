@@ -40,10 +40,12 @@ function formatDateRange(start: string, end: string): string {
   const s = new Date(start);
   const e = new Date(end);
   const startStr = formatDate(start);
+  const endStr = formatDate(end);
+  if (startStr === endStr) return startStr;
   if (s.getFullYear() === e.getFullYear()) {
     return `${startStr} ~ ${e.getMonth() + 1}.${e.getDate()}`;
   }
-  return `${startStr} ~ ${formatDate(end)}`;
+  return `${startStr} ~ ${endStr}`;
 }
 
 function formatMoveInMonth(raw: string): string {

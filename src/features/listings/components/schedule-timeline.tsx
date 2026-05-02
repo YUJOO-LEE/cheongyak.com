@@ -128,7 +128,9 @@ export function ScheduleTimeline({ phases }: ScheduleTimelineProps) {
                 </p>
                 <p className={['text-body-sm mt-1', style.label].join(' ')}>
                   {formatDate(phase.startDate)}
-                  {phase.endDate && ` ~ ${formatDate(phase.endDate)}`}
+                  {phase.endDate &&
+                    formatDate(phase.endDate) !== formatDate(phase.startDate) &&
+                    ` ~ ${formatDate(phase.endDate)}`}
                 </p>
               </div>
 

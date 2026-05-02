@@ -7,7 +7,10 @@ export function formatDate(dateString: string): string {
 }
 
 export function formatDateRange(start: string, end: string): string {
-  return `${formatDate(start)} ~ ${formatDate(end)}`;
+  const startStr = formatDate(start);
+  const endStr = formatDate(end);
+  if (startStr === endStr) return startStr;
+  return `${startStr} ~ ${endStr}`;
 }
 
 export function formatRelativeDate(dateString: string): string {
