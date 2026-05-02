@@ -74,7 +74,8 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 
 - 2-column grid (mobile) / 3-column grid (desktop)
 - Each card: Metric label, value, trend indicator (up/down arrow with percentage)
-- Metrics: Average competition rate, total units this month, trending regions
+- Metrics: Average competition rate (last 30 days), total units (last 30 days), and a third highlight card
+- Third highlight card priority: `topCompetitionApt` (label "최대 경쟁률 단지", clickable → `/listings/{announcementId}` with `prefetch={false}`) → `popularRegion` (label "인기 지역", static) → "집계 중" placeholder when both are null
 - Background: `white` cards on `surface` page background
 
 #### 1.4 National Top Trades (실거래가 TOP 5)
@@ -105,7 +106,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 |---|---|
 | `GET /main/featured` | Single featured subscription object (공급면적 기준) |
 | `GET /main/weekly-schedule` | Mon–Fri schedule with announcements per day. Each announcement carries `phases: WeeklyPhase[]` (`'특별공급' | '일반공급 1순위' | '일반공급 2순위' | '당첨자 발표'`) — at least one entry per the spec. |
-| `GET /main/stats` | Monthly competition/supply stats + popular region |
+| `GET /main/stats` | Last-30-day competition/supply stats with optional `topCompetitionApt` (clickable) and `popularRegion` highlights |
 | `GET /main/top-trades` | Top 5 recent apartment trades by deal amount (전용면적 기준) |
 | `GET /api/news/latest?limit=3` | Latest 3 news articles |
 

@@ -74,7 +74,8 @@
 
 - 2열 그리드 (모바일) / 3열 그리드 (데스크톱)
 - 카드별 내용: 지표명, 수치, 추세 표시 (증감 화살표 + 백분율)
-- 지표: 평균 경쟁률, 이번 달 총 세대수, 인기 지역
+- 지표: 평균 경쟁률(최근 30일), 총 공급세대(최근 30일), 그리고 세 번째 하이라이트 카드
+- 세 번째 카드 우선순위: `topCompetitionApt`(라벨 "최대 경쟁률 단지", 클릭 시 `/listings/{announcementId}` 로 이동 — `prefetch={false}` 필수) → `popularRegion`(라벨 "인기 지역", 정적) → 둘 다 null 이면 "집계 중" placeholder
 - 배경: `surface` 페이지 배경 위 `white` 카드
 
 #### 1.4 전국 실거래가 TOP 5
@@ -105,7 +106,7 @@
 |---|---|
 | `GET /main/featured` | 주요 청약 단일 객체 (공급면적 기준) |
 | `GET /main/weekly-schedule` | 월~금 일자별 공고 목록. 각 공고는 `phases: WeeklyPhase[]` (`'특별공급' | '일반공급 1순위' | '일반공급 2순위' | '당첨자 발표'`) 를 함께 내려보내며 스펙상 최소 1개 보장. |
-| `GET /main/stats` | 이번 달 경쟁률·공급세대 통계 + 인기 지역 |
+| `GET /main/stats` | 최근 30일 경쟁률·공급세대 통계 + `topCompetitionApt`(클릭 가능) / `popularRegion` 하이라이트 |
 | `GET /main/top-trades` | 거래금액 상위 최근 실거래 5건 (전용면적 기준) |
 | `GET /api/news/latest?limit=3` | 최신 뉴스 기사 3개 |
 

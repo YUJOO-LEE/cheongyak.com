@@ -21,7 +21,7 @@ interface HomeHeroProps {
 // 시각적 노이즈 줄이고 지표 하나하나 눈에 띄게 모두 danger(빨강) 톤으로 통일.
 const INSIGHT_ACCENT = 'text-danger-500';
 
-// flat = "인기 지역" 처럼 방향성 없는 하이라이트 지표 — 불꽃 아이콘으로 강조.
+// flat = "최대 경쟁률 단지"/"인기 지역" 처럼 방향성 없는 하이라이트 지표 — 불꽃 아이콘으로 강조.
 function TrendIcon({ trend, className }: { trend: MarketInsight['trend']; className: string }) {
   if (trend === 'up') return <TrendingUp size={14} className={className} aria-hidden="true" />;
   if (trend === 'down') return <TrendingDown size={14} className={className} aria-hidden="true" />;
@@ -29,13 +29,19 @@ function TrendIcon({ trend, className }: { trend: MarketInsight['trend']; classN
 }
 
 function InsightCard({ insight, index }: { insight: MarketInsight; index: number }) {
-  return (
-    <div
-      className="bg-bg-card rounded-xl p-5 flex-1 animate-fade-in-up"
-      style={{ animationDelay: `${index * 80}ms` }}
-    >
+  const cardClass = [
+    'bg-bg-card rounded-xl p-5 flex-1 animate-fade-in-up',
+    insight.href
+      ? 'block transition-shadow duration-fast hover:shadow-md focus-visible:outline-2 focus-visible:outline-brand-primary-500 focus-visible:outline-offset-2'
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const body = (
+    <>
       <p className="text-label-md text-text-tertiary mb-1">{insight.label}</p>
-      <p className="text-headline-sm text-text-primary">{insight.value}</p>
+      <p className="text-headline-sm text-text-primary line-clamp-2">{insight.value}</p>
       <div className="flex items-center gap-1 mt-1">
         <TrendIcon
           trend={insight.trend}
@@ -45,6 +51,26 @@ function InsightCard({ insight, index }: { insight: MarketInsight; index: number
           {insight.trendValue}
         </span>
       </div>
+    </>
+  );
+
+  // §14 Rule B: 청약 상세는 백엔드 콜이 발생하므로 prefetch={false} 강제.
+  if (insight.href) {
+    return (
+      <Link
+        href={insight.href}
+        prefetch={false}
+        className={cardClass}
+        style={{ animationDelay: `${index * 80}ms` }}
+      >
+        {body}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={cardClass} style={{ animationDelay: `${index * 80}ms` }}>
+      {body}
     </div>
   );
 }

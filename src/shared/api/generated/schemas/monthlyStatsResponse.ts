@@ -6,24 +6,26 @@
  * OpenAPI spec version: 2.0.0
  */
 import type { PopularRegion } from './popularRegion';
+import type { TopCompetitionApt } from './topCompetitionApt';
 
 /**
- * 이번 달 APT 분양 통계 — 현재 더미 응답 상태 (집계 배치 연동 전). 고정 값 + change 필드 부호만 요청마다 랜덤
+ * 최근 30일(오늘 포함) APT 분양 통계 — Caffeine 캐시 TTL 6h
  */
 export interface MonthlyStatsResponse {
-  /** 이번 달 평균 경쟁률 (n:1의 n 값) */
+  /** 최근 30일(오늘 포함) 평균 경쟁률 (n:1의 n 값) */
   avgCompetitionRate: number;
   /**
-     * 전월 대비 경쟁률 변화율 (%). 양수=증가, 음수=감소. 전월 데이터 없으면 null
+     * 직전 30일 대비 경쟁률 변화율 (%). 양수=증가, 음수=감소. 직전 30일 데이터 없으면 null
      * @nullable
      */
   competitionRateChange?: number | null;
-  /** 이번 달 총 분양 세대수 */
+  /** 최근 30일(오늘 포함) 총 분양 세대수 */
   totalSupplyHousehold: number;
   /**
-     * 전월 대비 세대수 증감. 양수=증가, 음수=감소. 전월 데이터 없으면 null
+     * 직전 30일 대비 세대수 증감. 양수=증가, 음수=감소. 직전 30일 데이터 없으면 null
      * @nullable
      */
   supplyHouseholdChange?: number | null;
   popularRegion?: PopularRegion | null;
+  topCompetitionApt?: TopCompetitionApt | null;
 }

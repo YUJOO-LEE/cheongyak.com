@@ -84,6 +84,14 @@ export const MainStatsResponseSchema = z.object({
       avgCompetitionRate: z.number(),
     })
     .nullable(),
+  topCompetitionApt: z
+    .object({
+      announcementId: z.number(),
+      houseName: z.string(),
+      avgCompetitionRate: z.number(),
+    })
+    .nullable()
+    .optional(),
 });
 export type MainStatsResponse = z.infer<typeof MainStatsResponseSchema>;
 
