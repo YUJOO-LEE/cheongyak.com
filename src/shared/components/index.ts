@@ -22,3 +22,6 @@ export type { EmptyStateProps, EmptyStateSize, EmptyStateSurface } from './empty
 export { AnimateOnScroll, StaggerChildren } from './animate-on-scroll';
 
 export { AppSplash, AppReadyMarker } from './app-splash';
+
+export { ErrorNotice } from './error-notice';
+export type { ErrorNoticeProps } from './error-notice';

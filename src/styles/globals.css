@@ -706,6 +706,32 @@ body[data-app-ready='true'] #app-splash {
 }
 
 /* ============================================================
+   ERROR NOTICE — Home backend-down fallback
+
+   `<ErrorNotice />` carries `display: flex` by default (via the
+   Tailwind `flex` utility) so it renders correctly on `error.tsx`
+   and `not-found.tsx`, where it is the route's only content.
+   On the home page it should disappear whenever any data section
+   committed; the descendant selector below pins specificity
+   above the Tailwind utility (0,2,0 vs 0,1,0) so the hide rule
+   wins. When every section resolves to null the `:has()` clause
+   stops matching and the notice surfaces. See `ErrorNotice` for
+   the full rendering contract.
+   ============================================================ */
+
+.home-shell:has(> section) > .error-notice {
+  display: none;
+}
+
+/* When the page-level fallback surfaces, drop the shell padding so
+   ErrorNotice positions identically to `app/error.tsx` and
+   `app/not-found.tsx`, where it renders directly inside `<main>`
+   without any wrapper padding. */
+.home-shell:not(:has(> section)) {
+  padding: 0;
+}
+
+/* ============================================================
    INTERACTION ANIMATIONS
    ============================================================ */
 

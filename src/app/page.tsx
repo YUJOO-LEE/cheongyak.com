@@ -5,7 +5,7 @@ import { HomeHeroSkeleton } from '@/features/listings/components/featured-subscr
 import { WeeklyScheduleSkeleton } from '@/features/listings/components/weekly-schedule/weekly-schedule.skeleton';
 import { TopTradesSkeleton } from '@/features/listings/components/top-trades.skeleton';
 import { WebsiteJsonLd } from '@/shared/components/json-ld';
-import { AnimateOnScroll, Skeleton } from '@/shared/components';
+import { AnimateOnScroll, ErrorNotice, Skeleton } from '@/shared/components';
 import { apiClient } from '@/shared/lib/api-client';
 import { REVALIDATE } from '@/shared/lib/revalidate';
 import { reasonMessage, tryRun } from '@/shared/lib/try-run';
@@ -40,7 +40,7 @@ export const revalidate = 60;
  */
 export default function HomePage() {
   return (
-    <div className="mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-12">
+    <div className="home-shell mx-auto max-w-300 px-4 lg:px-8 py-6 lg:py-12">
       <WebsiteJsonLd />
 
       <Suspense fallback={<HeroFallback />}>
@@ -54,6 +54,8 @@ export default function HomePage() {
       <Suspense fallback={<TopTradesFallback />}>
         <TopTradesSection />
       </Suspense>
+
+      <ErrorNotice />
     </div>
   );
 }
@@ -125,21 +127,28 @@ async function HeroSection() {
 }
 
 async function WeeklyScheduleSection() {
-  let weeklyRaw: unknown = null;
+  // Fetch failure is treated as "backend down, hide section" (returns null
+  // so the page-level ErrorNotice can surface when every section
+  // is empty). A successful response with zero days is still rendered as
+  // a legit "no scheduled subscriptions this week" empty state.
+  let weeklyRaw: unknown;
   try {
     weeklyRaw = await apiClient.get<unknown>('/main/weekly-schedule', {
       revalidate: REVALIDATE.MAIN_WEEKLY,
     });
   } catch (e) {
     console.warn(`[home] /main/weekly-schedule rejected: ${reasonMessage(e)}`);
+    return null;
   }
 
-  const days: WeeklyScheduleDay[] = weeklyRaw
-    ? tryRun(
-        () => mapWeeklyScheduleToDays(parseWeeklyScheduleEnvelope(weeklyRaw)),
-        'home/weekly-schedule mapping',
-      ) ?? []
-    : [];
+  const days: WeeklyScheduleDay[] | null = tryRun(
+    () => mapWeeklyScheduleToDays(parseWeeklyScheduleEnvelope(weeklyRaw)),
+    'home/weekly-schedule mapping',
+  );
+
+  // Schema/mapping failure also signals backend trouble (not a legit empty
+  // week), so collapse the section the same way as a fetch rejection.
+  if (!days) return null;
 
   // 서버가 내려준 첫 번째 day 의 date 가 오늘 이후면 "다음 주" 라벨, 그렇지
   // 않으면 "이번 주". 주말 휴리스틱 대신 응답 자체를 기준으로 삼는다.
