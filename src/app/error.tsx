@@ -1,6 +1,7 @@
 'use client';
 
-import { Button } from '@/shared/components';
+import { RefreshCw } from 'lucide-react';
+import { Button, ErrorNotice } from '@/shared/components';
 
 interface ErrorPageProps {
   error: Error & { digest?: string };
@@ -8,17 +9,22 @@ interface ErrorPageProps {
 }
 
 export default function ErrorPage({ reset }: ErrorPageProps) {
+  // Override the default CTA so it calls Next's `reset()` — that's
+  // what unmounts and remounts the error boundary. `router.refresh()`
+  // alone leaves the boundary in place.
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
-      <h1 className="text-display-sm text-text-primary mb-4">
-        오류가 발생했습니다
-      </h1>
-      <p className="text-body-lg text-text-secondary mb-8">
-        일시적인 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.
-      </p>
-      <Button variant="primary" size="lg" onClick={reset}>
-        다시 시도
-      </Button>
-    </div>
+    <ErrorNotice
+      action={
+        <Button
+          variant="secondary"
+          size="md"
+          onClick={reset}
+          aria-label="페이지 다시 불러오기"
+        >
+          <RefreshCw size={16} strokeWidth={2} aria-hidden="true" />
+          다시 시도
+        </Button>
+      }
+    />
   );
 }

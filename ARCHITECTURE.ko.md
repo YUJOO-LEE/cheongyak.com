@@ -237,15 +237,19 @@ interface ApiError {
 
 ### 에러 바운더리 계층
 ```
-app/error.tsx              → 전역 폴백 (500 수준)
+app/error.tsx              → 라우트 단위 폴백 (Next.js error boundary, throw 캐치)
 app/not-found.tsx          → 404 페이지
-features/*/ErrorFallback   → 기능별 인라인 에러
+app/page.tsx (home shell)  → 페이지 단위 장애 폴백 (CSS :has() 기반 — 모든 Suspense boundary가 null로 resolve된 경우에만 노출)
+features/*/ErrorFallback   → 기능 단위 인라인 에러
 ```
+
+### 공통 Fallback UI: `<ErrorNotice />`
+하나의 컴포넌트(`src/shared/components/error-notice/`)가 throw된 예외, 404, 홈 백엔드 장애 상태의 회복 UI를 모두 렌더한다. 사용자는 어떤 실패 모드인지 의미 있게 구분할 수 없으므로 회복 경험이 일관되게 유지된다. props: `title`, `description`, `icon`(Lucide), `action`(CTA 슬롯). 기본값: "잠시 정보를 불러오지 못하고 있어요" 카피 + `CloudOff` 아이콘 + `router.refresh()` 호출하는 "다시 시도" 버튼. `app/error.tsx`는 `action`을 override해 Next의 `reset()`을 호출(boundary를 재마운트하는 유일한 함수)하고, `app/not-found.tsx`는 `icon={MapPinOff}` + 홈으로 이동하는 액션으로 override한다. `/`에서의 노출 여부는 `globals.css`의 `.error-notice` / `.home-shell` 룰 기반 — sections 존재 시에는 `:has()` 토글로 숨김 처리.
 
 ### 폴백 UI 규칙
 - 에러 바운더리에 친절한 한국어 메시지 + 재시도 버튼 표시.
 - 최종 사용자에게 스택 트레이스나 API 에러 상세 정보를 절대 노출하지 않음.
-- 404 페이지에서 홈 또는 청약 목록으로의 이동 안내.
+- 404 페이지는 "홈으로 돌아가기" 버튼으로 홈 이동을 안내.
 
 ### 에러 리포팅
 - `window.onerror`와 `onunhandledrejection`으로 클라이언트 에러 수집.
