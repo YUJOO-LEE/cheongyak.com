@@ -248,7 +248,7 @@ function Sheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`absolute bottom-0 left-0 right-0 max-h-[calc(100dvh-2.5rem)] flex flex-col bg-bg-page/80 backdrop-blur-glass rounded-t-xl shadow-sheet-top animate-slide-up-sheet ${closing ? 'sheet-closing' : ''}`}
+        className={`absolute bottom-0 left-0 right-0 max-h-[calc(100dvh-2.5rem)] flex flex-col bg-bg-page/55 backdrop-blur-glass rounded-t-xl shadow-sheet-top animate-slide-up-sheet ${closing ? 'sheet-closing' : ''}`}
       >
         <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-3">
           <h2 id={titleId} className="text-headline-sm">
@@ -258,7 +258,7 @@ function Sheet({
             ref={closeButtonRef}
             type="button"
             onClick={closeSheet}
-            className="p-3 cursor-pointer"
+            className="p-3 rounded-md cursor-pointer"
             aria-label="필터 닫기"
           >
             <X size={24} />
