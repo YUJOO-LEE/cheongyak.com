@@ -54,6 +54,7 @@ export * from './specialDetailSection';
 export * from './specialSupplyCategoryItem';
 export * from './specialSupplyCategoryItemCategoryName';
 export * from './specialSupplyItem';
+export * from './topCompetitionApt';
 export * from './topTradeResponse';
 export * from './weeklyScheduleResponse';
 export * from './winnerScoreItem';

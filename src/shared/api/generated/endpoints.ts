@@ -380,8 +380,21 @@ export function useGetTopTradesSuspense<TData = Awaited<ReturnType<typeof getTop
 
 
 /**
- * 이번 달 분양 통계 3종(평균 경쟁률, 총 분양 세대수, 인기 지역)을 반환합니다. 현재 더미 데이터 응답 — 집계 배치 연동 전.
- * @summary 이번 달 통계
+ *
+            이번 30일(오늘 포함) APT 분양 통계.
+
+            - 평균 경쟁률: 최근 30일 동안 청약이 마감된 공고의 일반공급 1순위 경쟁률 평균 (특별공급 제외).
+              변화율(%)은 직전 30일 평균과의 차이
+            - 총 분양 세대수: 최근 30일 동안 모집공고가 게시된 공고의 분양 세대수 합.
+              변화량(세대)은 직전 30일 합과의 차이
+            - 인기 지역: 최근 30일 동안 청약이 마감된 공고를 시군구별로 묶어 평균 경쟁률 1위
+            - 최대 경쟁률 단지: 최근 30일 동안 청약이 마감된 공고를 공고별로 묶어 평균 경쟁률 1위.
+              `announcementId` 로 상세 페이지 라우팅 가능. 표본 가드 없음 (1행만 있어도 채택).
+              1위 공고의 단지명이 없으면 다음 후보로 패스, 후보가 0건이면 null
+
+            평균 경쟁률·인기 지역·최대 경쟁률 단지는 청약 마감 시점, 총 분양 세대수는 모집공고 시점 기준.
+
+ * @summary 최근 30일 통계
  */
 export type getMonthlyStatsResponse200 = {
   data: MainApiResponseMonthlyStatsResponse
@@ -472,7 +485,7 @@ export function useGetMonthlyStats<TData = Awaited<ReturnType<typeof getMonthlyS
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 이번 달 통계
+ * @summary 최근 30일 통계
  */
 
 export function useGetMonthlyStats<TData = Awaited<ReturnType<typeof getMonthlyStats>>, TError = unknown>(
@@ -527,7 +540,7 @@ export function useGetMonthlyStatsSuspense<TData = Awaited<ReturnType<typeof get
  , queryClient?: QueryClient
   ):  UseSuspenseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 이번 달 통계
+ * @summary 최근 30일 통계
  */
 
 export function useGetMonthlyStatsSuspense<TData = Awaited<ReturnType<typeof getMonthlyStats>>, TError = unknown>(

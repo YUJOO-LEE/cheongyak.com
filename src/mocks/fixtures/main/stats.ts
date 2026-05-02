@@ -9,4 +9,9 @@ export const mainStats: MainStatsResponse = {
     sigunguName: '서초구',
     avgCompetitionRate: 45,
   },
+  topCompetitionApt: {
+    announcementId: 1001,
+    houseName: '래미안 원베일리',
+    avgCompetitionRate: 152.4,
+  },
 };

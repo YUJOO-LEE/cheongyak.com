@@ -224,6 +224,8 @@ export const MarketInsightSchema = z.object({
   /** 데이터가 실제로 올라갔는지/내려갔는지 — 아이콘 방향에만 사용 */
   trend: z.enum(['up', 'down', 'flat']),
   trendValue: z.string(),
+  /** 클릭 시 이동할 내부 경로. 지정 시 카드가 링크로 렌더된다 */
+  href: z.string().optional(),
 });
 export type MarketInsight = z.infer<typeof MarketInsightSchema>;
 

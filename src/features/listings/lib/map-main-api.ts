@@ -223,7 +223,32 @@ function changeValueString(value: number, suffix = ''): string {
 }
 
 export function mapStatsToInsights(raw: MainStatsResponse): MarketInsight[] {
-  const insights: MarketInsight[] = [
+  // 세 번째 카드: topCompetitionApt 가 있으면 "최대 경쟁률 단지"(클릭 시 상세
+  // 페이지로 이동), 없으면 "인기 지역"(시군구 단위 평균), 둘 다 없으면 집계
+  // 중 placeholder. 우선순위는 단지 > 지역 > placeholder 순.
+  const highlight: MarketInsight = raw.topCompetitionApt
+    ? {
+        label: '최대 경쟁률 단지',
+        value: raw.topCompetitionApt.houseName,
+        trend: 'flat',
+        trendValue: `${raw.topCompetitionApt.avgCompetitionRate.toFixed(1)}:1`,
+        href: `/listings/${raw.topCompetitionApt.announcementId}`,
+      }
+    : raw.popularRegion
+      ? {
+          label: '인기 지역',
+          value: raw.popularRegion.sigunguName,
+          trend: 'flat',
+          trendValue: `${raw.popularRegion.avgCompetitionRate.toFixed(1)}:1`,
+        }
+      : {
+          label: '인기 지역',
+          value: '집계 중',
+          trend: 'flat',
+          trendValue: '-',
+        };
+
+  return [
     {
       label: '평균 경쟁률',
       value: `${raw.avgCompetitionRate.toFixed(1)}:1`,
@@ -242,20 +267,6 @@ export function mapStatsToInsights(raw: MainStatsResponse): MarketInsight[] {
           ? '변동 없음'
           : changeValueString(raw.supplyHouseholdChange, '세대'),
     },
-    raw.popularRegion
-      ? {
-          label: '인기 지역',
-          value: raw.popularRegion.sigunguName,
-          trend: 'flat',
-          trendValue: `${raw.popularRegion.avgCompetitionRate.toFixed(1)}:1`,
-        }
-      : {
-          label: '인기 지역',
-          value: '집계 중',
-          trend: 'flat',
-          trendValue: '-',
-        },
+    highlight,
   ];
-
-  return insights;
 }
