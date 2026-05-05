@@ -1,8 +1,13 @@
 export { Button } from './button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './button';
 
-export { StatusChip, TypeChip } from './chip';
-export type { StatusChipProps, ChipStatus, TypeChipProps } from './chip';
+export { StatusChip, TypeChip, PhaseChip } from './chip';
+export type {
+  StatusChipProps,
+  ChipStatus,
+  TypeChipProps,
+  PhaseChipProps,
+} from './chip';
 
 export { Skeleton, SkeletonText } from './skeleton';
 export type { SkeletonProps, SkeletonTextProps } from './skeleton';

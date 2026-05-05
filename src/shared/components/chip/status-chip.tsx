@@ -4,14 +4,12 @@ import {
   Clock,
   Archive,
   FileCheck,
-  Star,
-  Flame,
   type LucideIcon,
 } from 'lucide-react';
 import { STATUS_LABELS } from '@/shared/lib/constants';
 import type { SubscriptionStatus } from '@/shared/types/api';
 
-type ChipStatus = SubscriptionStatus | 'special' | 'trending';
+type ChipStatus = SubscriptionStatus;
 
 type ChipSize = 'sm' | 'md';
 
@@ -19,11 +17,6 @@ interface StatusChipProps {
   status: ChipStatus;
   size?: ChipSize;
   className?: string;
-  /**
-   * status 의 색·아이콘은 그대로 두고 텍스트만 갈아끼울 때 사용한다.
-   * 주간 일정 카드에서 phases 배열을 칩으로 표시하는 케이스가 1차 호출자.
-   */
-  label?: string;
 }
 
 interface ChipConfig {
@@ -37,8 +30,8 @@ const chipConfigs: Record<ChipStatus, ChipConfig> = {
   accepting: {
     label: STATUS_LABELS.accepting,
     icon: CheckCircle,
-    bg: 'bg-brand-secondary-200',
-    text: 'text-brand-secondary-800',
+    bg: 'bg-brand-secondary-100',
+    text: 'text-brand-secondary-900',
   },
   upcoming: {
     label: STATUS_LABELS.upcoming,
@@ -64,18 +57,6 @@ const chipConfigs: Record<ChipStatus, ChipConfig> = {
     bg: 'bg-neutral-200',
     text: 'text-neutral-600',
   },
-  special: {
-    label: '특별공급',
-    icon: Star,
-    bg: 'bg-brand-primary-100',
-    text: 'text-brand-primary-700',
-  },
-  trending: {
-    label: '인기',
-    icon: Flame,
-    bg: 'bg-brand-tertiary-100',
-    text: 'text-brand-tertiary-700',
-  },
 };
 
 // text-caption 의 기본 weight 가 400 이라 sm 칩이 너무 얇아 보이는 문제를
@@ -91,7 +72,6 @@ export function StatusChip({
   status,
   size = 'md',
   className = '',
-  label,
 }: StatusChipProps) {
   const config = chipConfigs[status];
   const Icon = config.icon;
@@ -109,7 +89,7 @@ export function StatusChip({
       ].join(' ')}
     >
       <Icon size={s.icon} aria-hidden="true" />
-      {label ?? config.label}
+      {config.label}
     </span>
   );
 }

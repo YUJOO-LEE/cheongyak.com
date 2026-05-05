@@ -563,14 +563,39 @@ Shape: `radius-full` (capsule). Always pair color with icon or text label for ac
 
 | Status | Background | Text | Icon |
 |:---|:---|:---|:---|
-| **접수중 (Active)** | `success-50` | `success-700` | `check-circle` (Lucide) |
-| **접수예정 (Upcoming)** | `info-50` | `info-700` | `calendar` (Lucide) |
-| **마감임박 (Closing Soon)** | `warning-50` | `warning-700` | `clock` (Lucide) |
-| **마감 (Closed)** | `neutral-100` | `neutral-500` | `x-circle` (Lucide) |
-| **특별공급 (Special Supply)** | `brand-primary-50` | `brand-primary-700` | `star` (Lucide) |
-| **인기 (Trending)** | `brand-tertiary-50` | `brand-tertiary-700` | `flame` (Lucide) |
+| **접수중 (Active)** | `brand-secondary-100` | `brand-secondary-900` | `check-circle` (Lucide) |
+| **접수예정 (Upcoming)** | `info-100` | `info-700` | `calendar` (Lucide) |
+| **발표대기 (Pending)** | `warning-100` | `warning-700` | `clock` (Lucide) |
+| **발표일 (Result Today)** | `warning-50` | `warning-700` | `file-check` (Lucide) |
+| **청약완료 (Closed)** | `neutral-200` | `neutral-600` | `archive` (Lucide) |
 
 Chip padding: `space-1` (4px) vertical, `space-2` (8px) horizontal. Font: `label-md`.
+
+### 11.3.2 Phase Chip (Weekly Schedule)
+
+Distinct from Status Chip: Status chips reflect the announcement-wide today-relative state and would shift color across days for the same event. Phase chips lock each weekly phase to a fixed (bg, text) pair so "당첨자 발표 on Monday" looks identical to "당첨자 발표 on Friday." Used by `WeeklyCard` (home `/`) and any future per-day phase rendering.
+
+| Phase | Background | Text |
+|:---|:---|:---|
+| **특별공급** | `info-50` | `info-700` |
+| **일반공급 1순위** | `brand-primary-100` | `brand-primary-800` |
+| **일반공급 2순위** | `brand-primary-50` | `brand-primary-700` |
+| **당첨자 발표** | `warning-50` | `warning-700` |
+
+Hue allocation:
+- 1순위 / 2순위 share `brand-primary` hue, with 1순위 one step heavier (`-100/-800`) and 2순위 one step lighter (`-50/-700`) — same hue ties them as the same "submit" action family while the bg/text steps express priority.
+- 특별공급 uses `info` cyan, one tone lighter than the `upcoming` Status Chip (`info-100/700`). Same hue family signals "scheduled / upcoming step" while the lighter bg keeps it visually subordinate to a current-state status chip when both ever co-exist on the same surface.
+- 당첨자 발표 reuses the **same `warning-50/700` token pair as the `result_today` Status Chip** — both convey the same "announcement-day" semantic, so the visuals are kept identical on purpose.
+
+Text-only chips (no icon). Color-blind safety holds because each phase carries an explicit Korean label (`특별공급` / `일반공급 1순위` / `일반공급 2순위` / `당첨자 발표`); color is reinforcement, not the sole signal.
+
+Padding / font match Status Chip:
+- `sm`: `px-1.5 py-0.5`, `text-caption font-semibold`
+- `md`: `px-2 py-1`, `text-label-md`
+
+Component: `src/shared/components/chip/phase-chip.tsx`. Props: `phase: WeeklyPhase`, `size?: 'sm' | 'md'`, `className?`. The `phase` prop is the Korean enum literal (`WeeklyPhase` from `src/shared/types/api.ts`) — no separate english key layer.
+
+`StatusChip` does NOT accept a `label` override. Phase rendering must use `PhaseChip`; this is enforced by removing the `label?` prop from `StatusChip`.
 
 #### 11.3.1 Chip — Hit-Slop Pattern
 
@@ -680,12 +705,14 @@ On desktop (`bp-lg`+), navigation moves to a top horizontal bar with the same gl
 | `neutral-600` on `neutral-0` | `#475569` / `#FFFFFF` | 6.0:1 | AA |
 | `neutral-400` on `neutral-0` | `#94A3B8` / `#FFFFFF` | 2.6:1 | Decorative/disabled only |
 | `brand-primary-500` on `neutral-0` | `#0356FF` / `#FFFFFF` | 5.6:1 | AA |
-| `brand-secondary-700` on `secondary-50` | `#00B388` / `#EDFFF9` | 4.6:1 | AA |
+| `brand-secondary-900` on `brand-secondary-100` | `#005B45` / `#D1FFED` | 7.5:1 | AA/AAA |
 | `brand-tertiary-700` on `tertiary-50` | `#BA4C27` / `#FFF4F0` | 5.8:1 | AA |
 | `success-700` on `success-50` | `#15803D` / `#F0FDF4` | 6.2:1 | AA |
 | `danger-700` on `danger-50` | `#9F1239` / `#FFF1F2` | 7.3:1 | AA/AAA |
 | `warning-700` on `warning-50` | `#B45309` / `#FFFBEB` | 5.5:1 | AA |
 | `info-700` on `info-50` | `#0E7490` / `#ECFEFF` | 5.7:1 | AA |
+| `brand-primary-800` on `brand-primary-100` | `#003071` / `#D6E7FF` | 10.1:1 | AA/AAA |
+| `brand-primary-700` on `brand-primary-50` | `#003F92` / `#EBF3FF` | 8.8:1 | AA/AAA |
 
 ### Brand Color Accessibility Constraints
 
@@ -776,10 +803,9 @@ When `prefers-reduced-motion: reduce` is active:
 |:---|:---|
 | 접수중 (Active) | `check-circle` |
 | 접수예정 (Upcoming) | `calendar` |
-| 마감임박 (Closing Soon) | `clock` |
-| 마감 (Closed) | `x-circle` |
-| 특별공급 (Special) | `star` |
-| 인기 (Trending) | `flame` |
+| 발표대기 (Pending) | `clock` |
+| 발표일 (Result Today) | `file-check` |
+| 청약완료 (Closed) | `archive` |
 
 ### Rules
 

@@ -565,14 +565,39 @@ fontFamily: {
 
 | 상태 | 배경 | 텍스트 | 아이콘 |
 |:---|:---|:---|:---|
-| **접수중 (Active)** | `success-50` | `success-700` | `check-circle` (Lucide) |
-| **접수예정 (Upcoming)** | `info-50` | `info-700` | `calendar` (Lucide) |
-| **마감임박 (Closing Soon)** | `warning-50` | `warning-700` | `clock` (Lucide) |
-| **마감 (Closed)** | `neutral-100` | `neutral-500` | `x-circle` (Lucide) |
-| **특별공급 (Special Supply)** | `brand-primary-50` | `brand-primary-700` | `star` (Lucide) |
-| **인기 (Trending)** | `brand-tertiary-50` | `brand-tertiary-700` | `flame` (Lucide) |
+| **접수중 (Active)** | `brand-secondary-100` | `brand-secondary-900` | `check-circle` (Lucide) |
+| **접수예정 (Upcoming)** | `info-100` | `info-700` | `calendar` (Lucide) |
+| **발표대기 (Pending)** | `warning-100` | `warning-700` | `clock` (Lucide) |
+| **발표일 (Result Today)** | `warning-50` | `warning-700` | `file-check` (Lucide) |
+| **청약완료 (Closed)** | `neutral-200` | `neutral-600` | `archive` (Lucide) |
 
 칩 패딩: `space-1` (4px) 세로, `space-2` (8px) 가로. 폰트: `label-md`.
+
+### 11.3.2 Phase 칩 (주간 일정 전용)
+
+상태 칩과 별도: 상태 칩은 announcement 전체의 today-relative 상태를 색으로 표현하므로 같은 phase 라벨이라도 row 마다 색이 흔들릴 수 있습니다. Phase 칩은 phase 별로 (아이콘, bg, text) 조합을 고정해 "월요일 당첨자 발표"와 "금요일 당첨자 발표"가 동일한 시각으로 보이도록 합니다. 사용처: `WeeklyCard` (홈 `/`) 및 향후 day 별 phase 표시.
+
+| Phase | 배경 | 텍스트 |
+|:---|:---|:---|
+| **특별공급** | `info-50` | `info-700` |
+| **일반공급 1순위** | `brand-primary-100` | `brand-primary-800` |
+| **일반공급 2순위** | `brand-primary-50` | `brand-primary-700` |
+| **당첨자 발표** | `warning-50` | `warning-700` |
+
+Hue 배분:
+- 1순위 / 2순위는 같은 `brand-primary` hue 안에서 1순위가 한 단계 진하게(`-100/-800`), 2순위가 한 단계 옅게(`-50/-700`). bg/text 단계로 위계만 차별화.
+- 특별공급은 `info` cyan — 상태 칩 `upcoming`(`info-100/700`)과 같은 hue 안에서 한 단계 옅은 명도(`info-50/700`). 같은 hue family 로 "예정된 단계"임을 신호하면서, 같은 화면에 상태 칩이 함께 노출될 때 자연스럽게 종속 위계로 읽힘.
+- 당첨자 발표는 상태 칩 `result_today`와 동일한 `warning-50/700` 페어를 그대로 재사용. "발표일" 의미가 두 칩에서 동일하므로 시각도 일치시킴.
+
+아이콘 없는 텍스트 전용 칩. 색맹 안전은 phase 라벨이 한국어 텍스트로 명시되므로(`특별공급` / `일반공급 1순위` / `일반공급 2순위` / `당첨자 발표`) 색이 단독 신호가 아니라 보강 역할이라 유지됨.
+
+패딩 / 폰트는 상태 칩과 동일:
+- `sm`: `px-1.5 py-0.5`, `text-caption font-semibold`
+- `md`: `px-2 py-1`, `text-label-md`
+
+컴포넌트: `src/shared/components/chip/phase-chip.tsx`. Props: `phase: WeeklyPhase`, `size?: 'sm' | 'md'`, `className?`. `phase` prop 은 한국어 enum 리터럴(`WeeklyPhase` — `src/shared/types/api.ts`)을 그대로 사용하며 별도 영문 key 매핑 레이어를 두지 않습니다.
+
+`StatusChip` 은 `label` 오버라이드 prop 을 받지 않습니다. Phase 표시는 반드시 `PhaseChip` 을 사용해야 하며, 이는 `StatusChip` 에서 `label?` prop 을 제거함으로써 타입으로 강제됩니다.
 
 #### 11.3.1 Chip — Hit-Slop Pattern
 
@@ -682,12 +707,14 @@ fontFamily: {
 | `neutral-600` on `neutral-0` | `#475569` / `#FFFFFF` | 6.0:1 | AA |
 | `neutral-400` on `neutral-0` | `#94A3B8` / `#FFFFFF` | 2.6:1 | 장식/비활성 전용 |
 | `brand-primary-500` on `neutral-0` | `#0356FF` / `#FFFFFF` | 5.6:1 | AA |
-| `brand-secondary-700` on `secondary-50` | `#00B388` / `#EDFFF9` | 4.6:1 | AA |
+| `brand-secondary-900` on `brand-secondary-100` | `#005B45` / `#D1FFED` | 7.5:1 | AA/AAA |
 | `brand-tertiary-700` on `tertiary-50` | `#BA4C27` / `#FFF4F0` | 5.8:1 | AA |
 | `success-700` on `success-50` | `#15803D` / `#F0FDF4` | 6.2:1 | AA |
 | `danger-700` on `danger-50` | `#9F1239` / `#FFF1F2` | 7.3:1 | AA/AAA |
 | `warning-700` on `warning-50` | `#B45309` / `#FFFBEB` | 5.5:1 | AA |
 | `info-700` on `info-50` | `#0E7490` / `#ECFEFF` | 5.7:1 | AA |
+| `brand-primary-800` on `brand-primary-100` | `#003071` / `#D6E7FF` | 10.1:1 | AA/AAA |
+| `brand-primary-700` on `brand-primary-50` | `#003F92` / `#EBF3FF` | 8.8:1 | AA/AAA |
 
 ### 브랜드 컬러 접근성 제약
 
@@ -778,10 +805,9 @@ fontFamily: {
 |:---|:---|
 | 접수중 (Active) | `check-circle` |
 | 접수예정 (Upcoming) | `calendar` |
-| 마감임박 (Closing Soon) | `clock` |
-| 마감 (Closed) | `x-circle` |
-| 특별공급 (Special) | `star` |
-| 인기 (Trending) | `flame` |
+| 발표대기 (Pending) | `clock` |
+| 발표일 (Result Today) | `file-check` |
+| 청약완료 (Closed) | `archive` |
 
 ### 규칙
 

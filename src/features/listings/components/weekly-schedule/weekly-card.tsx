@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
-import { StatusChip, TypeChip } from '@/shared/components';
+import { PhaseChip, TypeChip } from '@/shared/components';
 import type { WeeklySubscription } from '@/shared/types/api';
 
 interface WeeklyCardProps {
@@ -41,7 +41,7 @@ export function WeeklyCard({
     >
       <div className="flex flex-wrap gap-1 mb-2">
         {sub.phases.map((phase) => (
-          <StatusChip key={phase} status={sub.status} label={phase} size="sm" />
+          <PhaseChip key={phase} phase={phase} size="sm" />
         ))}
         <TypeChip type={sub.type} size="sm" />
       </div>
