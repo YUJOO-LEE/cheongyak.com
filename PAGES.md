@@ -65,7 +65,7 @@ Comprehensive page-by-page specification for cheongyak.com. Each page defines it
 - Horizontal swipeable card carousel (mobile) / 5-column grid (desktop)
 - Day column labels come from the server response (`days[].date`, `days[].dayOfWeek`); the client only derives the "오늘" marker by comparing the server date with the user's current date
 - Each card: Apartment name, location summary, application date range, **phase chips**
-- Phase chips use the announcement's `status` for color/icon (`accepting` 초록 / `upcoming` 인포 / `pending` 워닝 …) but the **label is the phase string** from `phases[]` (`'특별공급' | '일반공급 1순위' | '일반공급 2순위' | '당첨자 발표'`). When `phases.length > 1`, render one chip per phase.
+- Phase chips are rendered by `PhaseChip` (text-only, no icon). Each phase from `phases[]` (`'특별공급' | '일반공급 1순위' | '일반공급 2순위' | '당첨자 발표'`) is locked to a fixed (bg, text) token pair independent of the announcement's `status`, so the same phase paints identically across all days the user views — see DESIGN.md §11.3.2 for the four token pairs. Do **not** route phase rendering through `StatusChip`; the `label?` override pattern was removed because color and label disagreed across days. When `phases.length > 1`, render one chip per phase.
 - Listed announcements are exactly what the server returns per day — no client-side status filter (server already restricts the day's items to the active set)
 - Mobile day selector shows `N건` per day; days with `0건` keep the same card background as other days but the count text is greyed out
 - Empty state: "예정된 청약이 없어요" with link to full listing when the upstream returns a valid empty week. A failed fetch collapses this section entirely so the page-level fallback can surface (see 1.6)

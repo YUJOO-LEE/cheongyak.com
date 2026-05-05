@@ -709,8 +709,8 @@ On desktop (`bp-lg`+), navigation moves to a top horizontal bar with the same gl
 | `brand-tertiary-700` on `tertiary-50` | `#BA4C27` / `#FFF4F0` | 5.8:1 | AA |
 | `success-700` on `success-50` | `#15803D` / `#F0FDF4` | 6.2:1 | AA |
 | `danger-700` on `danger-50` | `#9F1239` / `#FFF1F2` | 7.3:1 | AA/AAA |
-| `warning-700` on `warning-50` | `#B45309` / `#FFFBEB` | 5.5:1 | AA |
-| `info-700` on `info-50` | `#0E7490` / `#ECFEFF` | 5.7:1 | AA |
+| `warning-700` on `warning-50` | `#B45309` / `#FFFBEB` | 4.84:1 | AA |
+| `info-700` on `info-50` | `#0E7490` / `#ECFEFF` | 5.15:1 | AA |
 | `brand-primary-800` on `brand-primary-100` | `#003071` / `#D6E7FF` | 10.1:1 | AA/AAA |
 | `brand-primary-700` on `brand-primary-50` | `#003F92` / `#EBF3FF` | 8.8:1 | AA/AAA |
 
